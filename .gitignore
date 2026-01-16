@@ -42,11 +42,14 @@ dmypy.json
 .coverage
 htmlcov/
 
-# Modelos entrenados (opcional - descomentar si no quieres versionar)
-# *.keras
-# *.h5
-# *.pkl
-# *.joblib
+# Modelos entrenados
+*.keras
+*.h5
+*.pkl
+*.joblib
+*.pth
+*.onnx
+models/
 
 # Datos de audio (muy pesados - no versionar)
 *.wav

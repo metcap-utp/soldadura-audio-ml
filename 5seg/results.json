@@ -1,0 +1,233 @@
+[
+  {
+    "timestamp": "2025-12-25T00:55:29.366484",
+    "config": {
+      "n_folds": 5,
+      "random_seed": 42,
+      "voting_method": "soft",
+      "batch_size": 32,
+      "epochs": 100
+    },
+    "fold_results": [
+      {
+        "acc_plate": 0.7824601366742597,
+        "acc_electrode": 0.8405466970387244,
+        "acc_current": 0.9476082004555809,
+        "f1_plate": 0.782238699843149,
+        "f1_electrode": 0.8414629512176045,
+        "f1_current": 0.9478160809486198
+      },
+      {
+        "acc_plate": 0.7300683371298405,
+        "acc_electrode": 0.7927107061503417,
+        "acc_current": 0.9430523917995444,
+        "f1_plate": 0.7299638733407848,
+        "f1_electrode": 0.7921955787951366,
+        "f1_current": 0.9431620960664241
+      },
+      {
+        "acc_plate": 0.7710706150341685,
+        "acc_electrode": 0.816628701594533,
+        "acc_current": 0.9635535307517085,
+        "f1_plate": 0.7739779500922801,
+        "f1_electrode": 0.8170190256432304,
+        "f1_current": 0.9636133702927272
+      },
+      {
+        "acc_plate": 0.7673888255416191,
+        "acc_electrode": 0.8015963511972634,
+        "acc_current": 0.9566704675028507,
+        "f1_plate": 0.7699092725234887,
+        "f1_electrode": 0.801597718089986,
+        "f1_current": 0.9567100192576767
+      },
+      {
+        "acc_plate": 0.7103762827822121,
+        "acc_electrode": 0.7354618015963512,
+        "acc_current": 0.936145952109464,
+        "f1_plate": 0.7090962011879932,
+        "f1_electrode": 0.740879082165552,
+        "f1_current": 0.9362879639856898
+      }
+    ],
+    "ensemble_results": {
+      "plate": {
+        "accuracy": 0.9209,
+        "f1": 0.9211,
+        "precision": 0.9214,
+        "recall": 0.9209
+      },
+      "electrode": {
+        "accuracy": 0.9287,
+        "f1": 0.9287,
+        "precision": 0.9293,
+        "recall": 0.9287
+      },
+      "current": {
+        "accuracy": 0.9838,
+        "f1": 0.9839,
+        "precision": 0.9841,
+        "recall": 0.9838
+      }
+    },
+    "improvement_vs_individual": {
+      "plate": 0.1686,
+      "electrode": 0.1313,
+      "current": 0.0344
+    }
+  },
+  {
+    "timestamp": "2026-01-12T16:08:59.869096",
+    "config": {
+      "n_folds": 5,
+      "random_seed": 42,
+      "voting_method": "soft",
+      "batch_size": 32,
+      "epochs": 100
+    },
+    "fold_results": [
+      {
+        "acc_plate": 0.7310606060606061,
+        "acc_electrode": 0.7891414141414141,
+        "acc_current": 0.9633838383838383,
+        "f1_plate": 0.7280893917597672,
+        "f1_electrode": 0.7923934319676833,
+        "f1_current": 0.9634375377588611
+      },
+      {
+        "acc_plate": 0.7247474747474747,
+        "acc_electrode": 0.7916666666666666,
+        "acc_current": 0.9457070707070707,
+        "f1_plate": 0.7244475222193084,
+        "f1_electrode": 0.7926486154744921,
+        "f1_current": 0.9458932736201329
+      },
+      {
+        "acc_plate": 0.73989898989899,
+        "acc_electrode": 0.7689393939393939,
+        "acc_current": 0.9444444444444444,
+        "f1_plate": 0.7377208614355535,
+        "f1_electrode": 0.7677228694119373,
+        "f1_current": 0.9447121608528198
+      },
+      {
+        "acc_plate": 0.7597977243994943,
+        "acc_electrode": 0.8280657395701644,
+        "acc_current": 0.9506953223767383,
+        "f1_plate": 0.7574891310961122,
+        "f1_electrode": 0.8280531302697653,
+        "f1_current": 0.9507610530732586
+      },
+      {
+        "acc_plate": 0.7054361567635904,
+        "acc_electrode": 0.7433628318584071,
+        "acc_current": 0.9279393173198482,
+        "f1_plate": 0.7063439061167178,
+        "f1_electrode": 0.7484972624154833,
+        "f1_current": 0.9283043754959073
+      }
+    ],
+    "results": {
+      "plate": {
+        "accuracy": 0.8977,
+        "f1": 0.8974,
+        "precision": 0.8979,
+        "recall": 0.8977
+      },
+      "electrode": {
+        "accuracy": 0.9128,
+        "f1": 0.9128,
+        "precision": 0.9139,
+        "recall": 0.9128
+      },
+      "current": {
+        "accuracy": 0.9816,
+        "f1": 0.9816,
+        "precision": 0.9819,
+        "recall": 0.9816
+      }
+    },
+    "improvement_vs_individual": {
+      "plate": 0.1655,
+      "electrode": 0.1286,
+      "current": 0.0351
+    }
+  },
+  {
+    "timestamp": "2026-01-12T22:21:53.620083",
+    "config": {
+      "n_folds": 5,
+      "random_seed": 42,
+      "voting_method": "soft",
+      "batch_size": 32,
+      "epochs": 100
+    },
+    "fold_results": [
+      {
+        "acc_plate": 0.7133838383838383,
+        "acc_electrode": 0.7878787878787878,
+        "acc_current": 0.9621212121212122,
+        "f1_plate": 0.7151876169690184,
+        "f1_electrode": 0.7883891823475806,
+        "f1_current": 0.9623049906068774
+      },
+      {
+        "acc_plate": 0.7285353535353535,
+        "acc_electrode": 0.797979797979798,
+        "acc_current": 0.9318181818181818,
+        "f1_plate": 0.729567303965957,
+        "f1_electrode": 0.7988307888921777,
+        "f1_current": 0.9321428571428573
+      },
+      {
+        "acc_plate": 0.7689393939393939,
+        "acc_electrode": 0.7626262626262627,
+        "acc_current": 0.9406565656565656,
+        "f1_plate": 0.7704574923591069,
+        "f1_electrode": 0.7644502692785761,
+        "f1_current": 0.9408520332620489
+      },
+      {
+        "acc_plate": 0.7332490518331226,
+        "acc_electrode": 0.7914032869785083,
+        "acc_current": 0.9469026548672567,
+        "f1_plate": 0.7322752184137409,
+        "f1_electrode": 0.7908635908226457,
+        "f1_current": 0.9469596688232814
+      },
+      {
+        "acc_plate": 0.7357774968394437,
+        "acc_electrode": 0.7812895069532237,
+        "acc_current": 0.9329962073324906,
+        "f1_plate": 0.7352959617439465,
+        "f1_electrode": 0.7825552177437758,
+        "f1_current": 0.9330556956544794
+      }
+    ],
+    "results": {
+      "plate": {
+        "accuracy": 0.8886,
+        "f1": 0.8887,
+        "precision": 0.8903,
+        "recall": 0.8886
+      },
+      "electrode": {
+        "accuracy": 0.9083,
+        "f1": 0.9082,
+        "precision": 0.9089,
+        "recall": 0.9083
+      },
+      "current": {
+        "accuracy": 0.9811,
+        "f1": 0.9811,
+        "precision": 0.9814,
+        "recall": 0.9811
+      }
+    },
+    "improvement_vs_individual": {
+      "plate": 0.1526,
+      "electrode": 0.1241,
+      "current": 0.0382
+    }
+  }
+]

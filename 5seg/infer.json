@@ -1,0 +1,200 @@
+[
+  {
+    "mode": "random_predictions",
+    "n_samples": 10,
+    "n_models": 5,
+    "voting_method": "soft",
+    "accuracy": {
+      "plate_thickness": 0.8,
+      "electrode": 0.8,
+      "current_type": 0.9,
+      "all_correct": 0.7
+    },
+    "timestamp": "2026-01-12T22:30:33.791915"
+  },
+  {
+    "mode": "holdout_evaluation",
+    "n_samples": 430,
+    "n_models": 5,
+    "voting_method": "soft",
+    "accuracy": {
+      "plate_thickness": 0.7186046511627907,
+      "electrode": 0.813953488372093,
+      "current_type": 0.9558139534883721
+    },
+    "classification_reports": {
+      "plate_thickness": {
+        "Placa_12mm": {
+          "precision": 0.6642335766423357,
+          "recall": 0.6275862068965518,
+          "f1-score": 0.6453900709219859,
+          "support": 145.0
+        },
+        "Placa_3mm": {
+          "precision": 0.9,
+          "recall": 0.823943661971831,
+          "f1-score": 0.8602941176470589,
+          "support": 142.0
+        },
+        "Placa_6mm": {
+          "precision": 0.6196319018404908,
+          "recall": 0.7062937062937062,
+          "f1-score": 0.6601307189542484,
+          "support": 143.0
+        },
+        "accuracy": 0.7186046511627907,
+        "macro avg": {
+          "precision": 0.7279551594942756,
+          "recall": 0.7192745250540297,
+          "f1-score": 0.7219383025077644,
+          "support": 430.0
+        },
+        "weighted avg": {
+          "precision": 0.7272586757589042,
+          "recall": 0.7186046511627907,
+          "f1-score": 0.7212605065116926,
+          "support": 430.0
+        }
+      },
+      "electrode": {
+        "E6010": {
+          "precision": 0.7671232876712328,
+          "recall": 0.7887323943661971,
+          "f1-score": 0.7777777777777778,
+          "support": 71.0
+        },
+        "E6011": {
+          "precision": 0.8554216867469879,
+          "recall": 0.8658536585365854,
+          "f1-score": 0.8606060606060606,
+          "support": 164.0
+        },
+        "E6013": {
+          "precision": 0.8620689655172413,
+          "recall": 0.7575757575757576,
+          "f1-score": 0.8064516129032258,
+          "support": 132.0
+        },
+        "E7018": {
+          "precision": 0.6933333333333334,
+          "recall": 0.8253968253968254,
+          "f1-score": 0.7536231884057971,
+          "support": 63.0
+        },
+        "accuracy": 0.813953488372093,
+        "macro avg": {
+          "precision": 0.7944868183171989,
+          "recall": 0.8093896589688414,
+          "f1-score": 0.7996146599232152,
+          "support": 430.0
+        },
+        "weighted avg": {
+          "precision": 0.8191349151149753,
+          "recall": 0.813953488372093,
+          "f1-score": 0.8146313719404819,
+          "support": 430.0
+        }
+      },
+      "current_type": {
+        "AC": {
+          "precision": 0.9385474860335196,
+          "recall": 0.9545454545454546,
+          "f1-score": 0.9464788732394366,
+          "support": 176.0
+        },
+        "DC": {
+          "precision": 0.9681274900398407,
+          "recall": 0.9566929133858267,
+          "f1-score": 0.9623762376237623,
+          "support": 254.0
+        },
+        "accuracy": 0.9558139534883721,
+        "macro avg": {
+          "precision": 0.9533374880366801,
+          "recall": 0.9556191839656407,
+          "f1-score": 0.9544275554315995,
+          "support": 430.0
+        },
+        "weighted avg": {
+          "precision": 0.9560203256093464,
+          "recall": 0.9558139534883721,
+          "f1-score": 0.955869409410643,
+          "support": 430.0
+        }
+      }
+    },
+    "confusion_matrices": {
+      "plate_thickness": [
+        [
+          91,
+          8,
+          46
+        ],
+        [
+          9,
+          117,
+          16
+        ],
+        [
+          37,
+          5,
+          101
+        ]
+      ],
+      "electrode": [
+        [
+          56,
+          6,
+          3,
+          6
+        ],
+        [
+          10,
+          142,
+          4,
+          8
+        ],
+        [
+          6,
+          17,
+          100,
+          9
+        ],
+        [
+          1,
+          1,
+          9,
+          52
+        ]
+      ],
+      "current_type": [
+        [
+          168,
+          8
+        ],
+        [
+          11,
+          243
+        ]
+      ]
+    },
+    "classes": {
+      "plate_thickness": [
+        "Placa_12mm",
+        "Placa_3mm",
+        "Placa_6mm"
+      ],
+      "electrode": [
+        "E6010",
+        "E6011",
+        "E6013",
+        "E7018"
+      ],
+      "current_type": [
+        "AC",
+        "DC"
+      ]
+    },
+    "timestamp": "2026-01-14T12:27:57.318581"
+  }
+]
