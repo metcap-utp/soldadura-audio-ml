@@ -92,9 +92,7 @@ Ejemplo: un audio de 5 segundos produce aproximadamente 9 vectores de 128 dimens
 
 ### Paso 3: Arquitectura del Modelo
 
-**Archivo:** `modelo.py`
-
-El modelo toma los embeddings de VGGish y los procesa para hacer las predicciones:
+El modelo (SMAWXVectorModel) toma los embeddings de VGGish y los procesa para hacer las predicciones:
 
 ```
 Entrada: Embeddings VGGish [T ventanas, 128 valores]
@@ -145,7 +143,7 @@ Entrada: Embeddings VGGish [T ventanas, 128 valores]
 
 ### Paso 4: Estrategia de Entrenamiento
 
-**Archivo:** `entrenar.py`
+Los modelos fueron entrenados usando K-Fold Cross-Validation con PyTorch.
 
 #### 4.1 Validación Cruzada K-Fold
 
