@@ -41,6 +41,9 @@ dmypy.json
 .pytest_cache/
 .coverage
 htmlcov/
+videos-soldadura/
+scripts/
+arquitectura/
 
 # Modelos entrenados
 *.keras
