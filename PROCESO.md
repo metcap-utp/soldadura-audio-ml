@@ -4,21 +4,7 @@ Sistema de clasificación automática de audio de soldadura SMAW (Shielded Metal
 
 ---
 
-## 1. Estructura del Proyecto
-
-El proyecto tiene tres variantes según la duración de los segmentos de audio:
-
-| Carpeta  | Duración    |
-| -------- | ----------- |
-| `5seg/`  | 5 segundos  |
-| `10seg/` | 10 segundos |
-| `30seg/` | 30 segundos |
-
-Cada carpeta contiene el mismo proceso y estructura interna.
-
----
-
-## 2. Objetivo
+## 1. Objetivo
 
 A partir de un audio de soldadura, el sistema predice automáticamente:
 
@@ -30,303 +16,428 @@ A partir de un audio de soldadura, el sistema predice automáticamente:
 
 ---
 
-## 3. Organización de los Datos de Audio
+## 2. Preparación del Entorno
 
-Los archivos de audio están organizados en carpetas que codifican las etiquetas:
+### 2.1 Requisitos del Sistema
+
+- Python 3.8+
+- FFmpeg (para extracción de audio)
+- CUDA (opcional, para GPU)
+
+### 2.2 Dependencias Python
+
+```bash
+pip install torch torchaudio librosa pandas numpy scikit-learn tensorflow tensorflow-hub
+```
+
+---
+
+## 3. Extracción de Audio desde Videos
+
+### 3.1 Ejecutar la Extracción
+
+```bash
+# Vista previa (sin ejecutar)
+python scripts/extract_and_organize_audio.py --dry-run --videos-dir videos-soldadura
+
+# Extracción real
+python scripts/extract_and_organize_audio.py \
+    --videos-dir videos-soldadura \
+    --output-dir audio \
+    --samplerate 16000
+```
+
+### 3.2 Parámetros de Extracción
+
+| Parámetro   | Valor          | Descripción            |
+| ----------- | -------------- | ---------------------- |
+| Sample rate | 16000 Hz       | Requerido por VGGish   |
+| Canales     | Mono           | Un solo canal de audio |
+| Formato     | WAV PCM 16-bit | Sin pérdida de calidad |
+
+### 3.3 Estructura de Audio Resultante
 
 ```
 audio/
-└── Placa_Xmm/                    <- Espesor (3mm, 6mm, 12mm)
-    └── EXXXX/                    <- Electrodo (E6010, E6011, etc.)
-        └── {AC,DC}/              <- Tipo de corriente
-            └── YYMMDD-HHMMSS_Audio/   <- Sesión de grabación
-                └── *.wav              <- Archivos de audio
++-- Placa_Xmm/                         <-- Espesor (3mm, 6mm, 12mm)
+    +-- EXXXX/                         <-- Electrodo (E6010, E6011, etc.)
+        +-- {AC,DC}/                   <-- Tipo de corriente
+            +-- YYMMDD-HHMMSS_Audio/   <-- Sesión de grabación
+                +-- *.wav              <-- Archivos de audio
 ```
 
-**Sesión:** Una grabación continua de soldadura. Se identifica por la carpeta con fecha y hora (ejemplo: `240912-143741_Audio`). De cada grabación original se extraen múltiples segmentos cortos.
+**Sesión:** Una grabación continua de soldadura identificada por su carpeta con timestamp.
 
 ---
 
-## 4. Proceso Completo Paso a Paso
+## 4. Segmentación de Audio
 
-### Paso 1: División de Datos
+### 4.1 Parámetros de Segmentación
 
-**Archivo:** `generar_splits.py`
+| Carpeta | Duración segmento | Hop (salto) | Solapamiento |
+| ------- | ----------------- | ----------- | ------------ |
+| 1seg/   | 1 segundo         | 0.5 seg     | 50%          |
+| 2seg/   | 2 segundos        | 1 seg       | 50%          |
+| 5seg/   | 5 segundos        | 2.5 seg     | 50%          |
+| 10seg/  | 10 segundos       | 5 seg       | 50%          |
+| 30seg/  | 30 segundos       | 15 seg      | 50%          |
 
-Este script prepara los datos antes del entrenamiento:
+### 4.2 Segmentación On-the-fly
 
-1. **Escanea** todos los archivos `.wav` en `audio/`
-2. **Extrae etiquetas** automáticamente desde los nombres de carpetas
-3. **Agrupa por sesión** para evitar contaminación de datos (data leakage: cuando información del conjunto de prueba se filtra al entrenamiento, causando resultados falsamente optimistas)
-4. **Divide estratificadamente** (mantiene proporciones de cada clase en todos los conjuntos):
+Los segmentos NO se guardan como archivos separados. El sistema los calcula dinámicamente durante el entrenamiento:
 
-| Conjunto       | Porcentaje | Propósito                                           |
-| -------------- | ---------- | --------------------------------------------------- |
-| `train.csv`    | 72%        | Entrenamiento del modelo                            |
-| `test.csv`     | 18%        | Validación durante desarrollo                       |
-| `holdout.csv`  | 10%        | Evaluación final (nunca se toca durante desarrollo) |
-| `completo.csv` | 100%       | Referencia con columna Split                        |
-
-**Regla importante:** Todos los segmentos de una misma sesión van al mismo conjunto. Esto evita que el modelo "memorice" características específicas de una grabación.
+```
+segmentos = floor((duracion_audio - duracion_segmento) / hop) + 1
+```
 
 ---
 
-### Paso 2: Extracción de Características
+## 5. División de Datos
 
-**Modelo usado:** VGGish
+### 5.1 Ejecutar Generación de Splits
 
-**Ubicación:** `vggish/`
+```bash
+cd 5seg/
+python generar_splits.py
+```
 
-VGGish es una red neuronal pre-entrenada (ya aprendió de millones de audios) que convierte audio en vectores numéricos llamados embeddings (representaciones numéricas compactas que capturan las características importantes del audio).
+### 5.2 Conjuntos Generados
 
-**Proceso de extracción:**
+| Archivo      | Porcentaje | Propósito                              |
+| ------------ | ---------- | -------------------------------------- |
+| train.csv    | 72%        | Entrenamiento (K-Fold CV)              |
+| test.csv     | 18%        | Validación durante desarrollo          |
+| holdout.csv  | 10%        | Evaluación final (nunca en desarrollo) |
+| completo.csv | 100%       | Referencia con columna Split           |
 
-1. Carga el audio a 16kHz en formato mono
-2. Divide el audio en ventanas de 1 segundo, con solapamiento de 0.5 segundos
-3. Cada ventana se convierte en un vector de 128 números
-4. Resultado: una secuencia de vectores `[T, 128]` donde T es el número de ventanas
+### 5.3 Prevención de Data Leakage
 
-Ejemplo: un audio de 5 segundos produce aproximadamente 9 vectores de 128 dimensiones.
+El sistema utiliza `StratifiedGroupKFold` para garantizar que todos los segmentos de una misma sesión permanezcan en el mismo conjunto, evitando que el modelo memorice características de grabaciones específicas.
 
 ---
 
-### Paso 3: Arquitectura del Modelo
+## 6. Extracción de Características con VGGish
 
-El modelo (SMAWXVectorModel) toma los embeddings de VGGish y los procesa para hacer las predicciones:
+VGGish es una red neuronal pre-entrenada que convierte audio en embeddings:
 
-```
-Entrada: Embeddings VGGish [T ventanas, 128 valores]
-                    │
-                    ▼
-    ┌─────────────────────────────────────┐
-    │  BatchNorm1d                        │  Normaliza los datos para
-    │  (normalización por lotes)          │  estabilizar el entrenamiento
-    └─────────────────────────────────────┘
-                    │
-                    ▼
-    ┌─────────────────────────────────────┐
-    │  XVector1D                          │  3 capas convolucionales que
-    │  - Conv1D: 128 → 256 canales        │  detectan patrones temporales
-    │  - Conv1D: 256 → 256 canales        │  en el audio (como filtros que
-    │  - Conv1D: 256 → 512 canales        │  buscan características específicas)
-    │  Cada capa incluye BatchNorm + ReLU │
-    └─────────────────────────────────────┘
-                    │
-                    ▼
-    ┌─────────────────────────────────────┐
-    │  StatsPooling                       │  Resume toda la secuencia en
-    │  (agrupación estadística)           │  un solo vector calculando
-    │  Calcula media y desviación         │  media y desviación estándar
-    │  Salida: 512×2 = 1024 valores       │  (512 medias + 512 desviaciones)
-    └─────────────────────────────────────┘
-                    │
-                    ▼
-    ┌─────────────────────────────────────┐
-    │  MultiHeadClassifier                │  Capa densa que reduce a 256
-    │  (clasificador multi-tarea)         │  valores y luego predice las
-    │  - FC: 1024 → 256 + ReLU            │  3 tareas simultáneamente:
-    │  - FC: 256 → 3 (Espesor)            │
-    │  - FC: 256 → 4 (Electrodo)          │
-    │  - FC: 256 → 2 (Corriente)          │
-    └─────────────────────────────────────┘
-```
-
-**Términos explicados:**
-
-- **Conv1D:** Capa convolucional 1D. Aplica filtros que se deslizan sobre la secuencia temporal para detectar patrones.
-- **BatchNorm:** Normaliza los datos en cada lote para que el entrenamiento sea más estable y rápido.
-- **ReLU:** Función de activación que introduce no-linealidad (permite al modelo aprender relaciones complejas). Convierte valores negativos en cero.
-- **FC (Fully Connected):** Capa densa donde cada neurona se conecta con todas las del nivel anterior.
-- **Logits:** Valores numéricos crudos (sin normalizar) que salen de la última capa del modelo antes de aplicar softmax. Representan la "confianza" del modelo en cada clase. Valores más altos indican mayor confianza. Por ejemplo, logits [2.1, 0.5, -1.3] significan que el modelo confía más en la primera clase.
+1. Carga el audio a 16kHz mono
+2. Divide en ventanas de 1 segundo con solapamiento de 0.5 segundos
+3. Cada ventana se convierte en un vector de 128 dimensiones
+4. Resultado: secuencia de vectores `[T, 128]`
 
 ---
 
-### Paso 4: Estrategia de Entrenamiento
+## 7. Arquitectura del Modelo
 
-Los modelos fueron entrenados usando K-Fold Cross-Validation con PyTorch.
-
-#### 4.1 Validación Cruzada K-Fold
-
-En lugar de entrenar un solo modelo, se entrenan **5 modelos diferentes** usando K-Fold Cross-Validation:
+El modelo SMAWXVectorModel procesa los embeddings de VGGish:
 
 ```
-Datos de entrenamiento (train.csv)
-┌─────┬─────┬─────┬─────┬─────┐
-│ F1  │ F2  │ F3  │ F4  │ F5  │   <- 5 partes (folds)
-└─────┴─────┴─────┴─────┴─────┘
-
-Modelo 1: Entrena con F2,F3,F4,F5 | Valida con F1
-Modelo 2: Entrena con F1,F3,F4,F5 | Valida con F2
-Modelo 3: Entrena con F1,F2,F4,F5 | Valida con F3
-Modelo 4: Entrena con F1,F2,F3,F5 | Valida con F4
-Modelo 5: Entrena con F1,F2,F3,F4 | Valida con F5
+Entrada: Embeddings VGGish [T, 128]
+            |
+            v
++-------------------------------------+
+| BatchNorm1d                         |
+| (normalizacion por lotes)           |
++-------------------------------------+
+            |
+            v
++-------------------------------------+
+| XVector1D                           |
+| - Conv1D: 128 --> 256 canales       |
+| - Conv1D: 256 --> 256 canales       |
+| - Conv1D: 256 --> 512 canales       |
+| Cada capa: BatchNorm + ReLU         |
++-------------------------------------+
+            |
+            v
++-------------------------------------+
+| StatsPooling                        |
+| Calcula media y desviacion estandar |
+| Salida: 512 x 2 = 1024 valores      |
++-------------------------------------+
+            |
+            v
++-------------------------------------+
+| MultiHeadClassifier                 |
+| - FC: 1024 --> 256 + ReLU           |
+| - FC: 256 --> 3 (Espesor)           |
+| - FC: 256 --> 4 (Electrodo)         |
+| - FC: 256 --> 2 (Corriente)         |
++-------------------------------------+
 ```
-
-**Ventaja:** Cada modelo ve diferentes datos de validación, lo que aumenta la diversidad del conjunto (ensemble) y reduce el sobreajuste (cuando el modelo memoriza los datos de entrenamiento en lugar de aprender patrones generales).
-
-#### 4.2 Hiperparámetros de Entrenamiento
-
-| Parámetro       | Valor      | Explicación                                                 |
-| --------------- | ---------- | ----------------------------------------------------------- |
-| Épocas          | 100 máximo | Número de veces que el modelo ve todos los datos            |
-| Batch size      | 32         | Cantidad de ejemplos procesados antes de actualizar pesos   |
-| Learning rate   | 0.001      | Qué tan grandes son los pasos de aprendizaje                |
-| Weight decay    | 0.0001     | Penalización para evitar pesos muy grandes (regularización) |
-| Label smoothing | 0.1        | Suaviza las etiquetas para evitar sobreconfianza            |
-
-#### 4.3 Optimizador: AdamW
-
-AdamW es un algoritmo que ajusta los pesos del modelo durante el entrenamiento. Combina:
-
-- **Momentum:** Acumula velocidad en direcciones consistentes
-- **Adaptativo:** Ajusta el learning rate para cada parámetro
-- **Weight decay:** Penaliza pesos grandes para regularizar
-
-#### 4.4 Función de Pérdida: CrossEntropyLoss
-
-Mide qué tan lejos están las predicciones de las etiquetas correctas. El modelo intenta minimizar este valor.
-
-**Label smoothing (suavizado de etiquetas):** En lugar de decir "esta es 100% clase A", dice "esta es 90% clase A y 10% distribuido en otras". Esto evita que el modelo sea demasiado confiado y mejora la generalización.
-
-#### 4.5 Balanceo de Clases (Class Weighting)
-
-Si hay más ejemplos de una clase que de otra, el modelo tendería a predecir siempre la clase mayoritaria. Para evitarlo, se asignan pesos inversamente proporcionales a la frecuencia de cada clase.
-
-Ejemplo: Si hay 1000 ejemplos de DC y 200 de AC, los ejemplos de AC recibirán más peso en la función de pérdida.
-
-#### 4.6 Early Stopping (Parada Temprana)
-
-El entrenamiento se detiene automáticamente si el rendimiento en validación no mejora durante 15 épocas consecutivas. Esto previene el sobreajuste.
-
-**Métrica monitoreada:** F1-score macro (promedio del F1 de todas las clases, dando igual importancia a clases minoritarias).
-
-#### 4.7 Stochastic Weight Averaging (SWA)
-
-A partir de la época 5, el sistema guarda una versión promediada de los pesos del modelo. Al final del entrenamiento, usa estos pesos promediados que suelen generalizar mejor que los últimos pesos.
-
-**Analogía:** Es como tomar fotos del modelo en diferentes momentos y combinarlas para obtener una imagen más estable.
-
-#### 4.8 Proceso de una Época
-
-```
-Para cada época:
-│
-├─ FASE DE ENTRENAMIENTO
-│   Para cada lote (batch) de 32 audios:
-│   1. Cargar audios y extraer embeddings VGGish
-│   2. Pasar embeddings por el modelo → obtener predicciones
-│   3. Calcular pérdida (error) para las 3 tareas
-│   4. Retropropagar el error (calcular cómo ajustar cada peso)
-│   5. Actualizar pesos del modelo
-│
-├─ FASE DE VALIDACIÓN
-│   Para cada lote del conjunto de validación:
-│   1. Pasar datos por el modelo (sin actualizar pesos)
-│   2. Calcular métricas (accuracy, F1-score)
-│
-├─ VERIFICAR EARLY STOPPING
-│   ¿Mejoró el F1-score respecto a la mejor época anterior?
-│   - Sí: Guardar modelo, reiniciar contador de paciencia
-│   - No: Incrementar contador. Si llega a 15, detener.
-│
-└─ ACTUALIZAR SWA (si época >= 5)
-    Promediar pesos actuales con pesos acumulados
-```
-
-**Salida:** 5 modelos guardados en `models/model_fold_{0-4}.pth`
 
 ---
 
-### Paso 5: Predicción con Ensemble
+## 8. Entrenamiento
 
-**Archivo:** `predecir.py`
+### 8.1 Ejecutar Entrenamiento
 
-Para predecir, se combinan los 5 modelos usando **Soft Voting**:
+```bash
+cd 5seg/
+python entrenar.py
+```
+
+### 8.2 Hiperparámetros
+
+| Parámetro       | Valor  | Descripción                         |
+| --------------- | ------ | ----------------------------------- |
+| Épocas          | 100    | Número máximo de iteraciones        |
+| Batch size      | 32     | Ejemplos por actualización de pesos |
+| Learning rate   | 0.001  | Tasa de aprendizaje                 |
+| Weight decay    | 0.0001 | Regularización L2                   |
+| Label smoothing | 0.1    | Suavizado de etiquetas              |
+| Early stopping  | 15     | Épocas sin mejora antes de parar    |
+| K-Folds         | 5      | Particiones de validación cruzada   |
+
+### 8.3 Validación Cruzada K-Fold
+
+Se entrenan 5 modelos, cada uno validando con un fold diferente:
+
+```
+train.csv (241 sesiones) --> 5 Folds
+              |
+              v
+Fold 1: Train=193 sesiones, Val=48 sesiones --> model_fold_0.pth
+Fold 2: Train=193 sesiones, Val=48 sesiones --> model_fold_1.pth
+Fold 3: Train=193 sesiones, Val=48 sesiones --> model_fold_2.pth
+Fold 4: Train=193 sesiones, Val=48 sesiones --> model_fold_3.pth
+Fold 5: Train=193 sesiones, Val=48 sesiones --> model_fold_4.pth
+```
+
+### 8.4 Técnicas de Entrenamiento
+
+- **AdamW**: Optimizador con weight decay desacoplado
+- **CrossEntropyLoss**: Función de pérdida con label smoothing
+- **Class Weighting**: Pesos inversamente proporcionales a la frecuencia de clase
+- **Early Stopping**: Detiene si no mejora en 15 épocas
+- **SWA**: Promedia pesos a partir de época 5 para mejor generalización
+
+---
+
+## 9. Evaluación en Holdout
+
+### 9.1 Ejecutar Inferencia
+
+```bash
+cd 5seg/
+python infer.py --evaluar
+```
+
+### 9.2 Ensemble con Soft Voting
+
+Los 5 modelos se combinan promediando sus logits antes de aplicar argmax:
 
 ```
 Audio de entrada
-      │
-      ▼
-┌─────────────────────────────┐
-│ Extraer embeddings VGGish   │
-└─────────────────────────────┘
-      │
-      ▼
-┌─────────────────────────────────────────────────┐
-│  Modelo 1 → logits₁   (valores antes de softmax)│
-│  Modelo 2 → logits₂                             │
-│  Modelo 3 → logits₃                             │
-│  Modelo 4 → logits₄                             │
-│  Modelo 5 → logits₅                             │
-└─────────────────────────────────────────────────┘
-      │
-      ▼
-┌─────────────────────────────────────────────────┐
-│  Promediar logits: (l₁ + l₂ + l₃ + l₄ + l₅) / 5 │
-└─────────────────────────────────────────────────┘
-      │
-      ▼
-┌─────────────────────────────────────────────────┐
-│  argmax: seleccionar la clase con mayor valor   │
-└─────────────────────────────────────────────────┘
-      │
-      ▼
-Predicción final: Espesor, Electrodo, Corriente
+        |
+        v
+    VGGish Embeddings
+        |
+        v
++-----------------------------------+
+| model_0 --> logits_0              |
+| model_1 --> logits_1              |
+| model_2 --> logits_2              |
+| model_3 --> logits_3              |
+| model_4 --> logits_4              |
++-----------------------------------+
+        |
+        v
+    mean(logits)
+        |
+        v
+    argmax --> Prediccion final
 ```
 
-**Logits:** Valores numéricos que el modelo produce antes de convertirlos en probabilidades. Representan la "confianza" del modelo en cada clase.
+### 9.3 Métricas
 
-**Soft Voting vs Hard Voting:**
-
-- Hard Voting: Cada modelo vota por una clase, gana la mayoría
-- Soft Voting: Se promedian los valores de confianza antes de decidir
-
-Soft Voting es más robusto porque considera la confianza de cada modelo.
-
-**Modos de uso:**
-
-```bash
-python 5seg/predecir.py                      # Muestra 10 predicciones aleatorias
-python 5seg/predecir.py --audio ruta.wav     # Predice un archivo específico
-python 5seg/predecir.py --evaluar            # Evalúa en conjunto holdout
-```
+| Métrica  | Descripción                          |
+| -------- | ------------------------------------ |
+| Accuracy | Porcentaje de predicciones correctas |
+| F1-score | Media armónica de precision y recall |
 
 ---
 
-## 5. Métricas de Evaluación
-
-| Métrica       | Descripción                                             |
-| ------------- | ------------------------------------------------------- |
-| **Accuracy**  | Porcentaje de predicciones correctas sobre el total     |
-| **Precision** | De las predicciones positivas, cuántas fueron correctas |
-| **Recall**    | De los casos reales positivos, cuántos se detectaron    |
-
----
-
-## 6. Reproducibilidad
-
-Para garantizar resultados consistentes:
-
-- **Semilla fija** (`RANDOM_SEED = 42`) en todos los scripts
-- **Misma división** de datos si la estructura de carpetas no cambia
-- **Arquitectura e hiperparámetros** documentados
-
----
-
-## 7. Archivos Generados
+## 10. Archivos Generados
 
 ```
 5seg/
-├── completo.csv          # Todos los datos con su split asignado
-├── train.csv             # Datos de entrenamiento
-├── test.csv              # Datos de validación durante desarrollo
-├── holdout.csv           # Datos de evaluación final
-├── results.json          # Métricas del entrenamiento
-├── infer.json            # Resultados de predicción
-└── models/
-    ├── model_fold_0.pth  # Modelo entrenado fold 0
-    ├── model_fold_1.pth  # Modelo entrenado fold 1
-    ├── model_fold_2.pth  # Modelo entrenado fold 2
-    ├── model_fold_3.pth  # Modelo entrenado fold 3
-    └── model_fold_4.pth  # Modelo entrenado fold 4
+|-- completo.csv          # Todos los datos con split asignado
+|-- train.csv             # Datos de entrenamiento
+|-- test.csv              # Datos de validación
+|-- holdout.csv           # Datos de evaluación final
+|-- results.json          # Métricas del entrenamiento
+|-- infer.json            # Métricas de holdout
++-- models/
+    |-- model_fold_0.pth
+    |-- model_fold_1.pth
+    |-- model_fold_2.pth
+    |-- model_fold_3.pth
+    +-- model_fold_4.pth
 ```
+
+---
+
+## 11. Diagrama de Flujo Completo
+
+```
++-------------------------------------------------------------------------+
+|                         FASE 1: PREPARACION                             |
++-------------------------------------------------------------------------+
+|                                                                         |
+|  Videos de Soldadura                                                    |
+|  (videos-soldadura/Placa_*/E####*/*.mp4)                                |
+|                     |                                                   |
+|                     v                                                   |
+|  +------------------------------------------+                           |
+|  | extract_and_organize_audio.py            |                           |
+|  | (FFmpeg: -vn -ar 16000 -ac 1 pcm_s16le)  |                           |
+|  +------------------------------------------+                           |
+|                     |                                                   |
+|                     v                                                   |
+|  Audio Organizado                                                       |
+|  (audio/Placa_*/E####/{AC,DC}/TIMESTAMP_Audio/*.wav)                    |
+|                                                                         |
++-------------------------------------------------------------------------+
+                      |
+                      v
++-------------------------------------------------------------------------+
+|                    FASE 2: DIVISION DE DATOS                            |
++-------------------------------------------------------------------------+
+|                                                                         |
+|  +------------------------------------------+                           |
+|  | generar_splits.py                        |                           |
+|  | - Descubre sesiones                      |                           |
+|  | - Calcula segmentos por sesion           |                           |
+|  | - Estratifica por (Placa+Elect+Corr)     |                           |
+|  | - Divide manteniendo sesiones intactas   |                           |
+|  +------------------------------------------+                           |
+|                     |                                                   |
+|        +------------+------------+------------+                         |
+|        v            v            v            v                         |
+|   train.csv    test.csv    holdout.csv   completo.csv                   |
+|     (72%)        (18%)        (10%)        (100%)                       |
+|                                                                         |
++-------------------------------------------------------------------------+
+                      |
+                      v
++-------------------------------------------------------------------------+
+|                    FASE 3: ENTRENAMIENTO                                |
++-------------------------------------------------------------------------+
+|                                                                         |
+|  train.csv ---------------------------------------------------+         |
+|                                                                |         |
+|  Para cada fold k in {0,1,2,3,4}:                              |         |
+|  +-------------------------------------------------------------+---+    |
+|  |                                                                 |    |
+|  |  +------------------+    +------------------+                   |    |
+|  |  | Train Sessions   |    |  Val Sessions    |                   |    |
+|  |  |     (80%)        |    |     (20%)        |                   |    |
+|  |  +--------+---------+    +--------+---------+                   |    |
+|  |           |                       |                             |    |
+|  |           v                       v                             |    |
+|  |  +------------------------------------------+                   |    |
+|  |  | Segmentacion On-the-fly                  |                   |    |
+|  |  | (hop_ratio=0.5, overlap=50%)             |                   |    |
+|  |  +--------------------+---------------------+                   |    |
+|  |                       |                                         |    |
+|  |                       v                                         |    |
+|  |  +------------------------------------------+                   |    |
+|  |  | VGGish Embedding (TensorFlow Hub)        |                   |    |
+|  |  | Audio --> [T, 128] embeddings            |                   |    |
+|  |  +--------------------+---------------------+                   |    |
+|  |                       |                                         |    |
+|  |                       v                                         |    |
+|  |  +------------------------------------------+                   |    |
+|  |  | SMAWXVectorModel                         |                   |    |
+|  |  | - BatchNorm1d                            |                   |    |
+|  |  | - XVector1D (Conv1D x3)                  |                   |    |
+|  |  | - StatsPooling (mean + std)              |                   |    |
+|  |  | - MultiHeadClassifier                    |                   |    |
+|  |  +--------------------+---------------------+                   |    |
+|  |                       |                                         |    |
+|  |                       v                                         |    |
+|  |  +------------------------------------------+                   |    |
+|  |  | CrossEntropyLoss (label_smoothing=0.1)   |                   |    |
+|  |  | + Class Weighting                        |                   |    |
+|  |  | Loss = loss_plate + loss_elec + loss_curr|                   |    |
+|  |  +--------------------+---------------------+                   |    |
+|  |                       |                                         |    |
+|  |                       v                                         |    |
+|  |  +------------------------------------------+                   |    |
+|  |  | AdamW Optimizer + SWA                    |                   |    |
+|  |  | Early Stopping (patience=15)             |                   |    |
+|  |  +--------------------+---------------------+                   |    |
+|  |                       |                                         |    |
+|  |                       v                                         |    |
+|  |              model_fold_k.pth                                   |    |
+|  |                                                                 |    |
+|  +-----------------------------------------------------------------+    |
+|                                                                         |
+|  Resultado: 5 modelos + results.json                                    |
+|                                                                         |
++-------------------------------------------------------------------------+
+                      |
+                      v
++-------------------------------------------------------------------------+
+|                    FASE 4: EVALUACION                                   |
++-------------------------------------------------------------------------+
+|                                                                         |
+|  holdout.csv -------------------------------------------------+         |
+|                                                                |         |
+|  +-------------------------------------------------------------+---+    |
+|  |                                                                 |    |
+|  |  Para cada segmento en holdout:                                 |    |
+|  |                                                                 |    |
+|  |  +------------------------------------------+                   |    |
+|  |  | VGGish Embedding                         |                   |    |
+|  |  +--------------------+---------------------+                   |    |
+|  |                       |                                         |    |
+|  |         +-------------+-------------+                           |    |
+|  |         v             v             v                           |    |
+|  |     model_0       model_1  ...  model_4                         |    |
+|  |         |             |             |                           |    |
+|  |         v             v             v                           |    |
+|  |     logits_0      logits_1 ... logits_4                         |    |
+|  |         |             |             |                           |    |
+|  |         +-------------+-------------+                           |    |
+|  |                       v                                         |    |
+|  |  +------------------------------------------+                   |    |
+|  |  | Soft Voting: mean(logits)                |                   |    |
+|  |  | Prediccion: argmax(mean_logits)          |                   |    |
+|  |  +--------------------+---------------------+                   |    |
+|  |                       |                                         |    |
+|  |                       v                                         |    |
+|  |  +------------------------------------------+                   |    |
+|  |  | Metricas: Accuracy, F1-score             |                   |    |
+|  |  | Por tarea: Placa, Electrodo, Corriente   |                   |    |
+|  |  +------------------------------------------+                   |    |
+|  |                                                                 |    |
+|  +-----------------------------------------------------------------+    |
+|                                                                         |
+|  Resultado: infer.json + METRICAS.md                                    |
+|                                                                         |
++-------------------------------------------------------------------------+
+```
+
+---
+
+## 12. Resumen
+
+El sistema de clasificación de audio SMAW transforma grabaciones de soldadura en predicciones automáticas de tres parámetros: espesor de placa, tipo de electrodo y tipo de corriente.
+
+**Pipeline:**
+
+1. **Extracción**: FFmpeg extrae audio WAV 16kHz mono de los videos
+2. **División**: Sesiones se dividen en train/test/holdout sin mezclar segmentos
+3. **Segmentación**: Audios se segmentan on-the-fly con 50% de solapamiento
+4. **Características**: VGGish genera embeddings de 128 dimensiones
+5. **Clasificación**: SMAWXVectorModel predice las tres etiquetas simultáneamente
+6. **Entrenamiento**: 5-Fold CV con AdamW, SWA, early stopping y balanceo de clases
+7. **Inferencia**: Ensemble de 5 modelos con soft voting
+
+**Rendimiento típico** (segmentos de 5-10 segundos):
+
+- Placa: ~75% accuracy
+- Electrodo: ~85% accuracy
+- Corriente: ~95% accuracy

@@ -75,5 +75,82 @@
       "electrode": 0.1013,
       "current": 0.0179
     }
+  },
+  {
+    "timestamp": "2026-01-21T22:27:05.923921",
+    "config": {
+      "n_folds": 5,
+      "random_seed": 42,
+      "voting_method": "soft",
+      "batch_size": 32,
+      "epochs": 100
+    },
+    "fold_results": [
+      {
+        "acc_plate": 0.9197530864197531,
+        "acc_electrode": 0.9567901234567902,
+        "acc_current": 0.9876543209876543,
+        "f1_plate": 0.9198045999215589,
+        "f1_electrode": 0.9572898060777119,
+        "f1_current": 0.9876391192896247
+      },
+      {
+        "acc_plate": 0.9146341463414634,
+        "acc_electrode": 0.9573170731707317,
+        "acc_current": 1.0,
+        "f1_plate": 0.9166070205728938,
+        "f1_electrode": 0.9574722546260126,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9470198675496688,
+        "acc_electrode": 0.9668874172185431,
+        "acc_current": 1.0,
+        "f1_plate": 0.9474558325894247,
+        "f1_electrode": 0.9672584265494278,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9520958083832335,
+        "acc_electrode": 0.9580838323353293,
+        "acc_current": 0.9700598802395209,
+        "f1_plate": 0.9515020805845934,
+        "f1_electrode": 0.958925128576609,
+        "f1_current": 0.970202908041265
+      },
+      {
+        "acc_plate": 0.937888198757764,
+        "acc_electrode": 0.9813664596273292,
+        "acc_current": 0.9937888198757764,
+        "f1_plate": 0.938014115096272,
+        "f1_electrode": 0.9810150217008194,
+        "f1_current": 0.9937864143995655
+      }
+    ],
+    "results": {
+      "plate": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "electrode": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "current": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      }
+    },
+    "improvement_vs_individual": {
+      "plate": 0.0657,
+      "electrode": 0.0359,
+      "current": 0.0097
+    }
   }
 ]

@@ -1,8 +1,16 @@
 """
 Entrenamiento de modelos para clasificación SMAW.
 
-Entrena K modelos usando K-Fold CV y los guarda para hacer voting.
-Cada modelo ve diferentes datos de validación, lo que aumenta la diversidad.
+Entrena K modelos usando K-Fold CV estratificado por GRUPOS (sesiones)
+y los guarda para hacer voting. Cada modelo ve diferentes datos de
+validación, lo que aumenta la diversidad.
+
+IMPORTANTE: Se usa StratifiedGroupKFold para garantizar que:
+- Todos los segmentos de una misma sesión van al mismo fold
+- Esto evita data leakage por grabaciones similares
+
+Los audios se segmentan ON-THE-FLY según la duración del directorio
+(5seg, 10seg, 30seg) - NO hay archivos segmentados en disco.
 
 Fuente: "Ensemble Methods" (Dietterich, 2000)
 """
@@ -26,7 +34,7 @@ from sklearn.metrics import (
     precision_score,
     recall_score,
 )
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import StratifiedGroupKFold
 from sklearn.preprocessing import LabelEncoder
 from sklearn.utils.class_weight import compute_class_weight
 from torch.optim.swa_utils import SWALR, AveragedModel
@@ -36,6 +44,11 @@ from torch.utils.data import DataLoader, Dataset
 ROOT_DIR = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 from modelo import SMAWXVectorModel
+from utils.audio_utils import (
+    get_script_segment_duration,
+    load_audio_segment,
+    PROJECT_ROOT,
+)
 
 warnings.filterwarnings("ignore")
 
@@ -50,8 +63,11 @@ WEIGHT_DECAY = 1e-4
 LABEL_SMOOTHING = 0.1
 SWA_START = 5
 
+# Duración de segmento basada en el nombre del directorio (5seg -> 5.0)
+SEGMENT_DURATION = get_script_segment_duration(Path(__file__))
+
 # Directorios
-SCRIPT_DIR = Path("30seg")
+SCRIPT_DIR = Path(__file__).parent
 VGGISH_MODEL_URL = "https://tfhub.dev/google/vggish/1"
 MODELS_DIR = SCRIPT_DIR / "models"
 MODELS_DIR.mkdir(exist_ok=True)
@@ -65,8 +81,64 @@ print("Modelo VGGish cargado correctamente.")
 # ============= Funciones auxiliares =============
 
 
+def extract_session_from_path(audio_path: str) -> str:
+    """Extrae el identificador de sesión del path del audio.
+
+    El path tiene estructura: audio/Placa_Xmm/EXXXX/AC|DC/YYMMDD-HHMMSS_Audio/file.wav
+    La sesión es la carpeta con formato YYMMDD-HHMMSS_Audio
+    """
+    parts = Path(audio_path).parts
+    for part in parts:
+        if part.endswith("_Audio"):
+            return part
+    # Fallback: usar el directorio padre
+    return Path(audio_path).parent.name
+
+
+def extract_vggish_embeddings_from_segment(audio_path: str, segment_idx: int) -> np.ndarray:
+    """Extrae embeddings VGGish de un segmento específico de audio."""
+    full_path = PROJECT_ROOT / audio_path
+
+    # Cargar el segmento específico
+    segment = load_audio_segment(
+        full_path,
+        segment_duration=SEGMENT_DURATION,
+        segment_index=segment_idx,
+        sr=16000,
+        hop_ratio=0.5,
+    )
+
+    if segment is None:
+        raise ValueError(f"No se pudo cargar segmento {segment_idx} de {audio_path}")
+
+    # VGGish espera ventanas de 1 segundo con hop de 0.5 segundos
+    window_size = 16000  # 1 segundo a 16kHz
+    hop_size = 8000      # 0.5 segundos
+    embeddings_list = []
+
+    for start in range(0, len(segment), hop_size):
+        end = start + window_size
+        if end > len(segment):
+            # Padding al final
+            window = np.zeros(window_size, dtype=np.float32)
+            window[: len(segment) - start] = segment[start:]
+        else:
+            window = segment[start:end]
+
+        embedding = vggish_model(window).numpy()
+        embeddings_list.append(embedding[0])
+
+        if end >= len(segment):
+            break
+
+    return np.stack(embeddings_list, axis=0)
+
+
 def extract_vggish_embeddings(audio_path):
-    """Extrae embeddings VGGish de un archivo de audio."""
+    """Extrae embeddings VGGish de un archivo de audio completo.
+
+    Esta función se mantiene para compatibilidad con inferencia.
+    """
     import librosa
 
     y, sr = librosa.load(audio_path, sr=16000, mono=True)
@@ -366,16 +438,18 @@ def ensemble_predict(models, embeddings, device):
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Usando dispositivo: {device}")
+    print(f"Duración de segmento: {SEGMENT_DURATION}s")
 
     # Cargar todos los datos (train + test)
     train_data = pd.read_csv(SCRIPT_DIR / "train.csv")
     test_data = pd.read_csv(SCRIPT_DIR / "test.csv")
     all_data = pd.concat([train_data, test_data], ignore_index=True)
 
-    print(f"Total de muestras: {len(all_data)}")
+    print(f"Total de segmentos: {len(all_data)}")
 
-    # Preparar paths
-    all_data["Audio Path"] = all_data["Audio Path"].apply(lambda x: str(SCRIPT_DIR / x))
+    # Extraer sesión de cada path para agrupar en K-Fold
+    all_data["Session"] = all_data["Audio Path"].apply(extract_session_from_path)
+    print(f"Sesiones únicas: {all_data['Session'].nunique()}")
 
     # Encoders
     plate_encoder = LabelEncoder()
@@ -392,14 +466,16 @@ if __name__ == "__main__":
         all_data["Type of Current"]
     )
 
-    # Extraer todos los embeddings una sola vez
-    print("\nExtrayendo embeddings VGGish de todas las muestras...")
+    # Extraer todos los embeddings una sola vez (de segmentos on-the-fly)
+    print("\nExtrayendo embeddings VGGish de todos los segmentos...")
     all_embeddings = []
     paths = all_data["Audio Path"].values
-    for i, path in enumerate(paths):
+    segment_indices = all_data["Segment Index"].values
+
+    for i, (path, seg_idx) in enumerate(zip(paths, segment_indices)):
         if i % 100 == 0:
             print(f"  Procesando {i}/{len(paths)}...")
-        emb = extract_vggish_embeddings(path)
+        emb = extract_vggish_embeddings_from_segment(path, int(seg_idx))
         all_embeddings.append(emb)
 
     print(f"Embeddings extraídos: {len(all_embeddings)}")
@@ -408,23 +484,31 @@ if __name__ == "__main__":
     y_plate = all_data["Plate Encoded"].values
     y_electrode = all_data["Electrode Encoded"].values
     y_current = all_data["Current Encoded"].values
+    sessions = all_data["Session"].values
 
     # Crear etiqueta combinada para stratification
     y_stratify = y_electrode
 
     # ============= FASE 1: Entrenar K modelos =============
     print(f"\n{'=' * 70}")
-    print(f"FASE 1: ENTRENAMIENTO DE {N_FOLDS} MODELOS (K-Fold)")
+    print(f"FASE 1: ENTRENAMIENTO DE {N_FOLDS} MODELOS (StratifiedGroupKFold)")
     print(f"{'=' * 70}")
+    print("[INFO] Usando StratifiedGroupKFold - sesiones NUNCA se mezclan entre folds")
 
-    skf = StratifiedKFold(n_splits=N_FOLDS, shuffle=True, random_state=RANDOM_SEED)
+    sgkf = StratifiedGroupKFold(n_splits=N_FOLDS, shuffle=True, random_state=RANDOM_SEED)
     fold_metrics = []
 
     for fold_idx, (train_idx, val_idx) in enumerate(
-        skf.split(all_embeddings, y_stratify)
+        sgkf.split(all_embeddings, y_stratify, groups=sessions)
     ):
+        # Verificar que sesiones no se mezclan
+        train_sessions = set(sessions[train_idx])
+        val_sessions = set(sessions[val_idx])
+        assert len(train_sessions & val_sessions) == 0, "ERROR: Sesiones mezcladas!"
+
         print(f"\nFold {fold_idx + 1}/{N_FOLDS}")
-        print(f"  Train: {len(train_idx)} muestras | Val: {len(val_idx)} muestras")
+        print(f"  Train: {len(train_idx)} segmentos ({len(train_sessions)} sesiones)")
+        print(f"  Val: {len(val_idx)} segmentos ({len(val_sessions)} sesiones)")
 
         # Separar datos
         train_embeddings = [all_embeddings[i] for i in train_idx]

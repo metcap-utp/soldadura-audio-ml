@@ -1,33 +1,46 @@
 """
-Genera CSVs de splits (train/test/holdout) usando split estratificado por sesion.
+Genera CSVs de splits (train/test/holdout) usando split estratificado por sesión.
 
 Este sistema:
-1. Agrupa archivos por SESION (carpeta de grabacion) para evitar data leakage
-2. Estratifica por combinacion de etiquetas (plate + electrode + current)
+1. Agrupa archivos por SESION (carpeta de grabación) para evitar data leakage
+2. Estratifica por combinación de etiquetas (plate + electrode + current)
 3. Usa semilla fija para reproducibilidad
 4. Permite configurar fracciones de train/test/holdout
+5. SEGMENTA ON-THE-FLY según la duración del directorio (5seg, 10seg, 30seg)
+   NO hay archivos segmentados en disco - usa audios del directorio base.
 
-Estructura esperada de archivos:
+Estructura de archivos (carpeta base audio/):
     audio/Placa_Xmm/EXXXX/{AC,DC}/YYMMDD-HHMMSS_Audio/*.wav
 
-Que es una SESION?
-    Una sesion es una grabacion continua de soldadura, identificada por
-    su carpeta con timestamp (ej: 240912-143741_Audio). De cada grabacion
-    se extraen multiples segmentos. Es importante que todos los segmentos
-    de la misma grabacion vayan al mismo split para evitar data leakage.
+Qué es una SESIÓN?
+    Una sesión es una grabación continua de soldadura, identificada por
+    su carpeta con timestamp (ej: 240912-143741_Audio). De cada grabación
+    se extraen múltiples segmentos. Es importante que todos los segmentos
+    de la misma grabación vayan al mismo split para evitar data leakage.
 
 Genera:
     - train.csv (para entrenamiento con K-Fold CV)
-    - test.csv (para evaluacion durante desarrollo)
-    - holdout.csv (para validacion final en vida real - NUNCA usar en desarrollo)
+    - test.csv (para evaluación durante desarrollo)
+    - holdout.csv (para validación final en vida real - NUNCA usar en desarrollo)
     - completo.csv (todos los archivos con columna Split)
 """
 
+import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
+
+# Agregar directorio padre para imports
+SCRIPT_DIR = Path(__file__).parent
+sys.path.insert(0, str(SCRIPT_DIR.parent))
+from utils.audio_utils import (
+    discover_sessions,
+    get_all_segments_from_session,
+    get_script_segment_duration,
+    PROJECT_ROOT,
+)
 
 # =============================================================================
 # CONFIGURACION - Modificar estas variables segun necesidad
@@ -52,95 +65,76 @@ VAL_FRACTION = 0.0
 # CODIGO - No modificar a menos que sea necesario
 # =============================================================================
 
-# Paths relativos desde soldadura/
-SCRIPT_DIR = Path("30seg")
-AUDIO_DIR = SCRIPT_DIR / "audio"
-
-
-def extract_labels_from_path(audio_path: Path) -> dict:
-    """
-    Extrae etiquetas del path del archivo.
-
-    Ejemplo path relativo desde SCRIPT_DIR:
-    audio/Placa_6mm/E6011/AC/240802-105935_Audio/drums_louder_50.wav
-
-    parts[0] = audio
-    parts[1] = Placa_Xmm
-    parts[2] = EXXXX
-    parts[3] = AC/DC
-    parts[4] = Session (YYMMDD-HHMMSS_Audio)
-    parts[5] = filename.wav
-
-    Returns:
-        dict con Audio Path, Plate Thickness, Electrode, Type of Current, Session
-    """
-    # Usar path relativo desde SCRIPT_DIR
-    try:
-        relative_path = audio_path.relative_to(SCRIPT_DIR)
-    except ValueError:
-        print(f"Warning: No se pudo obtener path relativo para {audio_path}")
-        return None
-
-    parts = relative_path.parts
-
-    # Verificar que tiene la estructura esperada (6 partes)
-    if len(parts) != 6:
-        print(
-            f"Warning: Path con estructura inesperada ({len(parts)} partes): {relative_path}"
-        )
-        return None
-
-    try:
-        plate_thickness = parts[1]  # Placa_Xmm
-        electrode = parts[2]  # EXXXX
-        current_type = parts[3]  # AC/DC
-        session = parts[4]  # YYMMDD-HHMMSS_Audio
-
-        return {
-            "Audio Path": str(relative_path),
-            "Plate Thickness": plate_thickness,
-            "Electrode": electrode,
-            "Type of Current": current_type,
-            "Session": session,
-        }
-    except (ValueError, IndexError) as e:
-        print(f"Warning: No se pudo procesar {audio_path}: {e}")
-        return None
-
-
-def load_all_audio_files() -> pd.DataFrame:
-    """Carga todos los archivos de audio y extrae sus etiquetas."""
-    print("Escaneando archivos de audio...")
-
-    # Buscar todos los archivos .wav en cualquier subdirectorio
-    audio_files = list(AUDIO_DIR.rglob("*.wav"))
-    print(f"  Archivos encontrados: {len(audio_files)}")
-
-    # Extraer etiquetas de cada archivo
-    data_list = []
-    for audio_file in audio_files:
-        labels = extract_labels_from_path(audio_file)
-        if labels:
-            data_list.append(labels)
-
-    df = pd.DataFrame(data_list)
-
-    if df.empty:
-        print("ERROR: No se encontraron archivos validos")
-        return df
-
-    print(f"  Registros validos: {len(df)}")
-    print(f"  Sesiones unicas: {df['Session'].nunique()}")
-
-    return df
+# Duración de segmento basada en el nombre del directorio (5seg -> 5.0)
+SEGMENT_DURATION = get_script_segment_duration(Path(__file__))
 
 
 def create_stratification_label(df: pd.DataFrame) -> pd.Series:
     """
-    Crea etiqueta combinada para estratificacion.
+    Crea etiqueta combinada para estratificación.
     Combina plate + electrode + current para mantener proporciones.
     """
     return df["Plate Thickness"] + "_" + df["Electrode"] + "_" + df["Type of Current"]
+
+
+def load_all_sessions() -> pd.DataFrame:
+    """Carga todas las sesiones de audio desde el directorio base."""
+    print("Descubriendo sesiones de audio...")
+    print(f"  Directorio base: {PROJECT_ROOT / 'audio'}")
+    print(f"  Duración de segmento: {SEGMENT_DURATION}s")
+
+    sessions_df = discover_sessions()
+
+    if sessions_df.empty:
+        print("ERROR: No se encontraron sesiones")
+        return sessions_df
+
+    # Contar segmentos por sesión
+    print("  Contando segmentos por sesión...")
+    segment_counts = []
+    for _, row in sessions_df.iterrows():
+        segments = get_all_segments_from_session(
+            row["Session Path"], SEGMENT_DURATION
+        )
+        segment_counts.append(len(segments))
+
+    sessions_df["Num Segments"] = segment_counts
+
+    print(f"  Sesiones encontradas: {len(sessions_df)}")
+    print(f"  Total segmentos: {sum(segment_counts)}")
+
+    return sessions_df
+
+
+def expand_sessions_to_segments(sessions_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Expande el DataFrame de sesiones a segmentos individuales.
+
+    Cada segmento hereda las etiquetas de su sesión.
+    """
+    print("\nExpandiendo sesiones a segmentos...")
+
+    segments_data = []
+    for _, row in sessions_df.iterrows():
+        segments = get_all_segments_from_session(
+            row["Session Path"], SEGMENT_DURATION
+        )
+        for audio_path, seg_idx in segments:
+            # Path relativo desde PROJECT_ROOT
+            rel_path = audio_path.relative_to(PROJECT_ROOT)
+            segments_data.append({
+                "Audio Path": str(rel_path),
+                "Segment Index": seg_idx,
+                "Plate Thickness": row["Plate Thickness"],
+                "Electrode": row["Electrode"],
+                "Type of Current": row["Type of Current"],
+                "Session": row["Session"],
+            })
+
+    df = pd.DataFrame(segments_data)
+    print(f"  Total segmentos: {len(df)}")
+
+    return df
 
 
 def split_by_session(
@@ -344,14 +338,14 @@ def save_splits(df: pd.DataFrame):
     for split_name in sorted(splits):
         split_df = df[df["Split"] == split_name].copy()
 
-        # Remover columnas auxiliares para archivos individuales
+        # Columnas a guardar: Audio Path, Segment Index, etiquetas
         save_df = split_df.drop(columns=["Session", "Split"])
-        save_df = save_df.sort_values("Audio Path").reset_index(drop=True)
+        save_df = save_df.sort_values(["Audio Path", "Segment Index"]).reset_index(drop=True)
 
         output_path = SCRIPT_DIR / f"{split_name}.csv"
         save_df.to_csv(output_path, index=False)
 
-        print(f"\n{split_name.upper()}: {len(save_df)} archivos")
+        print(f"\n{split_name.upper()}: {len(save_df)} segmentos")
         print(f"  Espesores: {split_df['Plate Thickness'].value_counts().to_dict()}")
         print(f"  Electrodos: {split_df['Electrode'].value_counts().to_dict()}")
         print(f"  Corrientes: {split_df['Type of Current'].value_counts().to_dict()}")
@@ -362,12 +356,12 @@ def save_splits(df: pd.DataFrame):
     print("\n" + "-" * 40)
     complete_df = (
         df.drop(columns=["Session"])
-        .sort_values(["Split", "Audio Path"])
+        .sort_values(["Split", "Audio Path", "Segment Index"])
         .reset_index(drop=True)
     )
     output_path = SCRIPT_DIR / "completo.csv"
     complete_df.to_csv(output_path, index=False)
-    print(f"COMPLETO: {len(complete_df)} archivos")
+    print(f"COMPLETO: {len(complete_df)} segmentos")
     print(f"  Guardado: {output_path}")
 
 
@@ -378,23 +372,33 @@ def main():
     print("=" * 80)
     print(f"\nConfiguracion:")
     print(f"  RANDOM_SEED = {RANDOM_SEED}")
+    print(f"  SEGMENT_DURATION = {SEGMENT_DURATION}s")
     print(f"  HOLDOUT_FRACTION = {HOLDOUT_FRACTION:.1%} (validacion vida real)")
     print(f"  TEST_FRACTION = {TEST_FRACTION:.1%} (evaluacion desarrollo)")
     print(f"  VAL_FRACTION = {VAL_FRACTION:.1%}")
     print(f"  TRAIN_FRACTION = {1 - HOLDOUT_FRACTION - TEST_FRACTION - VAL_FRACTION:.1%}")
 
-    # Cargar todos los archivos
-    df = load_all_audio_files()
+    # Cargar todas las sesiones desde el directorio base
+    sessions_df = load_all_sessions()
 
-    if df.empty:
-        print("ERROR: No hay archivos para procesar")
+    if sessions_df.empty:
+        print("ERROR: No hay sesiones para procesar")
         return
 
-    # Realizar split por sesion
+    # Realizar split por sesión (primero a nivel de sesiones)
     print("\n" + "=" * 80)
     print("DIVIDIENDO POR SESION")
     print("=" * 80)
-    df = split_by_session(df, HOLDOUT_FRACTION, TEST_FRACTION, VAL_FRACTION, RANDOM_SEED)
+    sessions_df = split_by_session(
+        sessions_df, HOLDOUT_FRACTION, TEST_FRACTION, VAL_FRACTION, RANDOM_SEED
+    )
+
+    # Expandir sesiones a segmentos
+    df = expand_sessions_to_segments(sessions_df)
+
+    # Asignar Split a cada segmento basándose en su sesión
+    session_to_split = dict(zip(sessions_df["Session"], sessions_df["Split"]))
+    df["Split"] = df["Session"].map(session_to_split)
 
     # Guardar resultados
     save_splits(df)
@@ -407,10 +411,11 @@ def main():
     for split_name, count in df["Split"].value_counts().items():
         pct = count / len(df) * 100
         sessions = df[df["Split"] == split_name]["Session"].nunique()
-        print(f"  {split_name}: {count} archivos ({pct:.1f}%), {sessions} sesiones")
+        print(f"  {split_name}: {count} segmentos ({pct:.1f}%), {sessions} sesiones")
 
     # Verificar reproducibilidad
     print(f"\n[INFO] Semilla usada: {RANDOM_SEED}")
+    print(f"[INFO] Duración de segmento: {SEGMENT_DURATION}s")
     print("[INFO] Ejecutar con la misma semilla producira los mismos splits")
 
     print("\n" + "=" * 80)

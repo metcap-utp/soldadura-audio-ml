@@ -229,5 +229,82 @@
       "electrode": 0.1083,
       "current": 0.0335
     }
+  },
+  {
+    "timestamp": "2026-01-21T22:15:45.139105",
+    "config": {
+      "n_folds": 5,
+      "random_seed": 42,
+      "voting_method": "soft",
+      "batch_size": 32,
+      "epochs": 100
+    },
+    "fold_results": [
+      {
+        "acc_plate": 0.8796296296296297,
+        "acc_electrode": 0.9506172839506173,
+        "acc_current": 0.9876543209876543,
+        "f1_plate": 0.8804228594665694,
+        "f1_electrode": 0.9504452769007006,
+        "f1_current": 0.9876292124414778
+      },
+      {
+        "acc_plate": 0.8666666666666667,
+        "acc_electrode": 0.9629629629629629,
+        "acc_current": 0.9896296296296296,
+        "f1_plate": 0.8674567662211374,
+        "f1_electrode": 0.9627413852010897,
+        "f1_current": 0.989636046810387
+      },
+      {
+        "acc_plate": 0.8765060240963856,
+        "acc_electrode": 0.9382530120481928,
+        "acc_current": 0.9909638554216867,
+        "f1_plate": 0.8771718063899017,
+        "f1_electrode": 0.938437807204294,
+        "f1_current": 0.9909630348789733
+      },
+      {
+        "acc_plate": 0.8842857142857142,
+        "acc_electrode": 0.9628571428571429,
+        "acc_current": 0.9814285714285714,
+        "f1_plate": 0.8831502279255652,
+        "f1_electrode": 0.9629844033888078,
+        "f1_current": 0.9815123287198947
+      },
+      {
+        "acc_plate": 0.9153284671532846,
+        "acc_electrode": 0.9386861313868613,
+        "acc_current": 0.9941605839416059,
+        "f1_plate": 0.9146168521136101,
+        "f1_electrode": 0.9392073214769749,
+        "f1_current": 0.9941673570883743
+      }
+    ],
+    "results": {
+      "plate": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "electrode": {
+        "accuracy": 0.9997,
+        "f1": 0.9997,
+        "precision": 0.9997,
+        "recall": 0.9997
+      },
+      "current": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      }
+    },
+    "improvement_vs_individual": {
+      "plate": 0.1155,
+      "electrode": 0.049,
+      "current": 0.0112
+    }
   }
 ]

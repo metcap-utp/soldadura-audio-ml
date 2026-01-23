@@ -4,43 +4,99 @@ Script de predicción usando Soft Voting.
 Carga los 5 modelos entrenados con K-Fold y combina sus predicciones
 promediando logits antes de aplicar argmax (soft voting).
 
+Los audios se segmentan ON-THE-FLY según la duración del directorio
+(5seg, 10seg, 30seg) - NO hay archivos segmentados en disco.
+
 Uso:
-    python 30seg/predecir.py                    # Muestra 10 predicciones aleatorias
-    python 30seg/predecir.py --audio ruta.wav   # Predice un archivo específico
-    python 30seg/predecir.py --evaluar          # Evalúa en conjunto holdout (vida real)
+    python infer.py                    # Muestra 10 predicciones aleatorias
+    python infer.py --audio ruta.wav   # Predice un archivo específico
+    python infer.py --evaluar          # Evalúa en conjunto holdout (vida real)
 """
 
 import argparse
+import json
 import sys
+from datetime import datetime
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import tensorflow_hub as hub
 import torch
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score
 from sklearn.preprocessing import LabelEncoder
 
 # Añadir carpeta raíz al path para importar modelo.py
 ROOT_DIR = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 from modelo import SMAWXVectorModel
+from utils.audio_utils import (
+    PROJECT_ROOT,
+    get_script_segment_duration,
+    load_audio_segment,
+)
 
 # Definir directorios
-SCRIPT_DIR = Path("30seg")
+SCRIPT_DIR = Path(__file__).parent
 VGGISH_MODEL_URL = "https://tfhub.dev/google/vggish/1"
 MODELS_DIR = SCRIPT_DIR / "models"
+INFER_JSON = SCRIPT_DIR / "infer.json"
 
 # Número de modelos
 N_MODELS = 5
+
+# Duración de segmento basada en el nombre del directorio
+SEGMENT_DURATION = get_script_segment_duration(Path(__file__))
 
 # Cargar modelo VGGish de TensorFlow Hub
 print(f"Cargando modelo VGGish desde TensorFlow Hub...")
 vggish_model = hub.load(VGGISH_MODEL_URL)
 print("Modelo VGGish cargado correctamente.")
+print(f"Duración de segmento: {SEGMENT_DURATION}s")
 
 
 # ============= Extracción de embeddings VGGish =============
+
+
+def extract_vggish_embeddings_from_segment(
+    audio_path: str, segment_idx: int
+) -> np.ndarray:
+    """Extrae embeddings VGGish de un segmento específico de audio."""
+    full_path = PROJECT_ROOT / audio_path
+
+    # Cargar el segmento específico
+    segment = load_audio_segment(
+        full_path,
+        segment_duration=SEGMENT_DURATION,
+        segment_index=segment_idx,
+        sr=16000,
+        hop_ratio=0.5,
+    )
+
+    if segment is None:
+        raise ValueError(f"No se pudo cargar segmento {segment_idx} de {audio_path}")
+
+    # VGGish espera ventanas de 1 segundo con hop de 0.5 segundos
+    window_size = 16000  # 1 segundo a 16kHz
+    hop_size = 8000  # 0.5 segundos
+    embeddings_list = []
+
+    for start in range(0, len(segment), hop_size):
+        end = start + window_size
+        if end > len(segment):
+            # Padding al final
+            window = np.zeros(window_size, dtype=np.float32)
+            window[: len(segment) - start] = segment[start:]
+        else:
+            window = segment[start:end]
+
+        embedding = vggish_model(window).numpy()
+        embeddings_list.append(embedding[0])
+
+        if end >= len(segment):
+            break
+
+    return np.stack(embeddings_list, axis=0)
 
 
 def extract_vggish_embeddings(audio_path):
@@ -129,6 +185,161 @@ def load_ensemble_models():
 ensemble_models = load_ensemble_models()
 
 
+# ============= Guardar resultados de inferencia =============
+
+
+def save_inference_result(result_data):
+    """
+    Guarda los resultados de inferencia en infer.json.
+    Conserva todas las corridas anteriores.
+    """
+    # Cargar resultados existentes
+    if INFER_JSON.exists():
+        with open(INFER_JSON, "r") as f:
+            all_results = json.load(f)
+    else:
+        all_results = []
+
+    # Agregar timestamp al resultado
+    result_data["timestamp"] = datetime.now().isoformat()
+
+    # Agregar nuevo resultado
+    all_results.append(result_data)
+
+    # Guardar
+    with open(INFER_JSON, "w") as f:
+        json.dump(all_results, f, indent=2)
+
+    print(f"\nResultados guardados en {INFER_JSON}")
+
+
+def format_confusion_matrix_markdown(cm, classes):
+    """Formatea una matriz de confusión como tabla Markdown."""
+    # Header
+    header = "| Pred \\ Real | " + " | ".join(classes) + " |"
+    separator = "|" + "|".join(["---"] * (len(classes) + 1)) + "|"
+
+    rows = [header, separator]
+    for i, cls in enumerate(classes):
+        row = f"| **{cls}** | " + " | ".join(str(cm[i][j]) for j in range(len(classes))) + " |"
+        rows.append(row)
+
+    return "\n".join(rows)
+
+
+def generate_metrics_document(results):
+    """
+    Genera un documento Markdown con todas las métricas y matrices de confusión.
+    """
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    segment_duration = results.get("segment_duration", SEGMENT_DURATION)
+
+    doc = f"""# Métricas de Clasificación SMAW - {int(segment_duration)}seg
+
+**Fecha de evaluación:** {timestamp}
+
+**Configuración:**
+- Duración de segmento: {segment_duration}s
+- Número de muestras (holdout): {results['n_samples']}
+- Número de modelos (ensemble): {results['n_models']}
+- Método de votación: {results['voting_method']}
+
+---
+
+## Resumen de Métricas
+
+| Tarea | Accuracy | Macro F1 |
+|-------|----------|----------|
+| Plate Thickness | {results['accuracy']['plate_thickness']*100:.2f}% | {results['macro_f1']['plate_thickness']:.4f} |
+| Electrode Type | {results['accuracy']['electrode']*100:.2f}% | {results['macro_f1']['electrode']:.4f} |
+| Current Type | {results['accuracy']['current_type']*100:.2f}% | {results['macro_f1']['current_type']:.4f} |
+
+---
+
+## Plate Thickness (Espesor de Placa)
+
+### Métricas
+- **Accuracy:** {results['accuracy']['plate_thickness']*100:.2f}%
+- **Macro F1-Score:** {results['macro_f1']['plate_thickness']:.4f}
+
+### Confusion Matrix
+
+{format_confusion_matrix_markdown(results['confusion_matrices']['plate_thickness'], results['classes']['plate_thickness'])}
+
+### Classification Report
+"""
+    # Agregar métricas por clase para plate
+    cr_plate = results['classification_reports']['plate_thickness']
+    doc += "\n| Clase | Precision | Recall | F1-Score | Support |\n"
+    doc += "|-------|-----------|--------|----------|--------|\n"
+    for cls in results['classes']['plate_thickness']:
+        metrics = cr_plate.get(cls, {})
+        doc += f"| {cls} | {metrics.get('precision', 0):.4f} | {metrics.get('recall', 0):.4f} | {metrics.get('f1-score', 0):.4f} | {int(metrics.get('support', 0))} |\n"
+
+    doc += f"""
+---
+
+## Electrode Type (Tipo de Electrodo)
+
+### Métricas
+- **Accuracy:** {results['accuracy']['electrode']*100:.2f}%
+- **Macro F1-Score:** {results['macro_f1']['electrode']:.4f}
+
+### Confusion Matrix
+
+{format_confusion_matrix_markdown(results['confusion_matrices']['electrode'], results['classes']['electrode'])}
+
+### Classification Report
+"""
+    # Agregar métricas por clase para electrode
+    cr_electrode = results['classification_reports']['electrode']
+    doc += "\n| Clase | Precision | Recall | F1-Score | Support |\n"
+    doc += "|-------|-----------|--------|----------|--------|\n"
+    for cls in results['classes']['electrode']:
+        metrics = cr_electrode.get(cls, {})
+        doc += f"| {cls} | {metrics.get('precision', 0):.4f} | {metrics.get('recall', 0):.4f} | {metrics.get('f1-score', 0):.4f} | {int(metrics.get('support', 0))} |\n"
+
+    doc += f"""
+---
+
+## Current Type (Tipo de Corriente)
+
+### Métricas
+- **Accuracy:** {results['accuracy']['current_type']*100:.2f}%
+- **Macro F1-Score:** {results['macro_f1']['current_type']:.4f}
+
+### Confusion Matrix
+
+{format_confusion_matrix_markdown(results['confusion_matrices']['current_type'], results['classes']['current_type'])}
+
+### Classification Report
+"""
+    # Agregar métricas por clase para current
+    cr_current = results['classification_reports']['current_type']
+    doc += "\n| Clase | Precision | Recall | F1-Score | Support |\n"
+    doc += "|-------|-----------|--------|----------|--------|\n"
+    for cls in results['classes']['current_type']:
+        metrics = cr_current.get(cls, {})
+        doc += f"| {cls} | {metrics.get('precision', 0):.4f} | {metrics.get('recall', 0):.4f} | {metrics.get('f1-score', 0):.4f} | {int(metrics.get('support', 0))} |\n"
+
+    doc += """
+---
+
+## Notas
+
+- Las métricas se calcularon sobre el conjunto **holdout** (datos nunca vistos durante entrenamiento).
+- El ensemble usa **Soft Voting**: promedia logits de todos los modelos antes de aplicar argmax.
+- Los modelos fueron entrenados con **StratifiedGroupKFold** para evitar data leakage por sesión.
+"""
+
+    # Guardar documento
+    metrics_file = SCRIPT_DIR / "METRICAS.md"
+    with open(metrics_file, "w", encoding="utf-8") as f:
+        f.write(doc)
+
+    print(f"Documento de métricas guardado en {metrics_file}")
+
+
 # ============= Predicción con Ensemble (Soft Voting) =============
 
 
@@ -192,8 +403,17 @@ def predict_ensemble(embeddings_tensor):
     }
 
 
+def predict_segment(audio_path: str, segment_idx: int):
+    """Predice las tres etiquetas de un segmento de audio usando ensemble."""
+    embeddings = extract_vggish_embeddings_from_segment(audio_path, segment_idx)
+    embeddings_tensor = (
+        torch.tensor(embeddings, dtype=torch.float32).unsqueeze(0).to(device)
+    )
+    return predict_ensemble(embeddings_tensor)
+
+
 def predict_audio(audio_path):
-    """Predice las tres etiquetas de un archivo de audio usando ensemble."""
+    """Predice las tres etiquetas de un archivo de audio completo usando ensemble."""
     embeddings = extract_vggish_embeddings(audio_path)
     embeddings_tensor = (
         torch.tensor(embeddings, dtype=torch.float32).unsqueeze(0).to(device)
@@ -209,12 +429,13 @@ def evaluate_holdout_set():
     holdout_csv = SCRIPT_DIR / "holdout.csv"
     if not holdout_csv.exists():
         print("No se encontró holdout.csv. Ejecuta generar_splits.py primero.")
-        return
+        return None
 
     holdout_df = pd.read_csv(holdout_csv)
     print(
-        f"\nEvaluando ensemble en {len(holdout_df)} muestras de HOLDOUT (vida real)..."
+        f"\nEvaluando ensemble en {len(holdout_df)} segmentos de HOLDOUT (vida real)..."
     )
+    print(f"Duración de segmento: {SEGMENT_DURATION}s")
 
     # Listas para almacenar predicciones y etiquetas reales
     y_true_plate, y_pred_plate = [], []
@@ -225,15 +446,16 @@ def evaluate_holdout_set():
         if idx % 100 == 0:
             print(f"  Procesando {idx}/{len(holdout_df)}...")
 
-        audio_path = SCRIPT_DIR / row["Audio Path"]
+        audio_path = row["Audio Path"]
+        segment_idx = int(row["Segment Index"])
 
         # Etiquetas reales
         y_true_plate.append(row["Plate Thickness"])
         y_true_electrode.append(row["Electrode"])
         y_true_current.append(row["Type of Current"])
 
-        # Predicciones
-        result = predict_audio(str(audio_path))
+        # Predicciones usando segmento on-the-fly
+        result = predict_segment(audio_path, segment_idx)
         y_pred_plate.append(result["plate"])
         y_pred_electrode.append(result["electrode"])
         y_pred_current.append(result["current"])
@@ -252,6 +474,16 @@ def evaluate_holdout_set():
     print(f"  Electrode:        {acc_electrode * 100:.2f}%")
     print(f"  Type of Current:  {acc_current * 100:.2f}%")
 
+    # Calcular Macro F1
+    f1_plate = f1_score(y_true_plate, y_pred_plate, average='macro')
+    f1_electrode = f1_score(y_true_electrode, y_pred_electrode, average='macro')
+    f1_current = f1_score(y_true_current, y_pred_current, average='macro')
+
+    print(f"\nMacro F1-Score:")
+    print(f"  Plate Thickness:  {f1_plate:.4f}")
+    print(f"  Electrode:        {f1_electrode:.4f}")
+    print(f"  Type of Current:  {f1_current:.4f}")
+
     # Reportes de clasificación
     print("\n--- Plate Thickness ---")
     print(classification_report(y_true_plate, y_pred_plate))
@@ -265,16 +497,67 @@ def evaluate_holdout_set():
     # Matrices de confusión
     print("\nMatrices de Confusión:")
     print("\nPlate Thickness:")
-    print(confusion_matrix(y_true_plate, y_pred_plate))
+    cm_plate = confusion_matrix(y_true_plate, y_pred_plate, labels=plate_encoder.classes_)
+    print(cm_plate)
     print(f"Clases: {plate_encoder.classes_}")
 
     print("\nElectrode Type:")
-    print(confusion_matrix(y_true_electrode, y_pred_electrode))
+    cm_electrode = confusion_matrix(y_true_electrode, y_pred_electrode, labels=electrode_encoder.classes_)
+    print(cm_electrode)
     print(f"Clases: {electrode_encoder.classes_}")
 
     print("\nType of Current:")
-    print(confusion_matrix(y_true_current, y_pred_current))
+    cm_current = confusion_matrix(y_true_current, y_pred_current, labels=current_type_encoder.classes_)
+    print(cm_current)
     print(f"Clases: {current_type_encoder.classes_}")
+
+    # Crear diccionario de resultados
+    results = {
+        "mode": "holdout_evaluation",
+        "segment_duration": SEGMENT_DURATION,
+        "n_samples": len(holdout_df),
+        "n_models": N_MODELS,
+        "voting_method": "soft",
+        "accuracy": {
+            "plate_thickness": float(acc_plate),
+            "electrode": float(acc_electrode),
+            "current_type": float(acc_current),
+        },
+        "macro_f1": {
+            "plate_thickness": float(f1_plate),
+            "electrode": float(f1_electrode),
+            "current_type": float(f1_current),
+        },
+        "classification_reports": {
+            "plate_thickness": classification_report(
+                y_true_plate, y_pred_plate, output_dict=True
+            ),
+            "electrode": classification_report(
+                y_true_electrode, y_pred_electrode, output_dict=True
+            ),
+            "current_type": classification_report(
+                y_true_current, y_pred_current, output_dict=True
+            ),
+        },
+        "confusion_matrices": {
+            "plate_thickness": cm_plate.tolist(),
+            "electrode": cm_electrode.tolist(),
+            "current_type": cm_current.tolist(),
+        },
+        "classes": {
+            "plate_thickness": plate_encoder.classes_.tolist(),
+            "electrode": electrode_encoder.classes_.tolist(),
+            "current_type": current_type_encoder.classes_.tolist(),
+        },
+    }
+
+    # Guardar resultados en infer.json
+    save_inference_result(results)
+
+    # Generar documento de métricas
+    generate_metrics_document(results)
+
+    return results
 
 
 def show_random_predictions(n_samples=10):
@@ -353,6 +636,21 @@ def show_random_predictions(n_samples=10):
     )
     print()
 
+    # Guardar resultados en infer.json
+    inference_result = {
+        "mode": "random_predictions",
+        "n_samples": num_samples,
+        "n_models": N_MODELS,
+        "voting_method": "soft",
+        "accuracy": {
+            "plate_thickness": correctas_plate / num_samples,
+            "electrode": correctas_electrode / num_samples,
+            "current_type": correctas_current / num_samples,
+            "all_correct": correctas_todas / num_samples,
+        },
+    }
+    save_inference_result(inference_result)
+
 
 def predict_single_audio(audio_path):
     """Predice un archivo de audio específico."""
@@ -382,6 +680,40 @@ def predict_single_audio(audio_path):
     print(
         f"    Probabilidades: {dict(zip(current_type_encoder.classes_, result['probs_current'].round(3)))}"
     )
+
+    # Guardar resultados en infer.json
+    inference_result = {
+        "mode": "single_audio",
+        "audio_path": str(audio_path),
+        "n_models": N_MODELS,
+        "voting_method": "soft",
+        "predictions": {
+            "plate_thickness": result["plate"],
+            "electrode": result["electrode"],
+            "current_type": result["current"],
+        },
+        "probabilities": {
+            "plate_thickness": dict(
+                zip(
+                    plate_encoder.classes_.tolist(),
+                    result["probs_plate"].round(4).tolist(),
+                )
+            ),
+            "electrode": dict(
+                zip(
+                    electrode_encoder.classes_.tolist(),
+                    result["probs_electrode"].round(4).tolist(),
+                )
+            ),
+            "current_type": dict(
+                zip(
+                    current_type_encoder.classes_.tolist(),
+                    result["probs_current"].round(4).tolist(),
+                )
+            ),
+        },
+    }
+    save_inference_result(inference_result)
 
 
 # ============= Main =============
