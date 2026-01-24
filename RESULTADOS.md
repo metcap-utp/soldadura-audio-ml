@@ -128,9 +128,9 @@ El conjunto holdout contiene sesiones de soldadura nunca vistas durante el entre
 
 | Parámetro     | Accuracy | F1-Score | Precision | Recall |
 | ------------- | -------- | -------- | --------- | ------ |
-| **Placa**     | 29.05%   | 15.01%   | 10.00%    | 33.00% |
-| **Electrodo** | 12.49%   | 5.55%    | 3.00%     | 25.00% |
-| **Corriente** | 34.64%   | 25.73%   | 17.00%    | 50.00% |
+| **Placa**     | 29.05%   | 15.01%   | 9.68%     | 33.33% |
+| **Electrodo** | 12.49%   | 5.55%    | 3.12%     | 25.00% |
+| **Corriente** | 34.64%   | 25.73%   | 17.32%    | 50.00% |
 
 > **Nota:** Resultados muy pobres debido a contexto temporal insuficiente (1 frame VGGish). El modelo predice consistentemente la clase mayoritaria.
 
@@ -140,19 +140,19 @@ El conjunto holdout contiene sesiones de soldadura nunca vistas durante el entre
 
 | Parámetro     | Accuracy | F1-Score | Precision | Recall |
 | ------------- | -------- | -------- | --------- | ------ |
-| **Placa**     | 69.53%   | 70.09%   | 70.00%    | 73.00% |
-| **Electrodo** | 76.96%   | 75.64%   | 76.00%    | 78.00% |
-| **Corriente** | 88.15%   | 87.61%   | 87.00%    | 90.00% |
+| **Placa**     | 69.53%   | 70.09%   | 69.79%    | 72.60% |
+| **Electrodo** | 76.96%   | 75.64%   | 75.70%    | 77.66% |
+| **Corriente** | 88.15%   | 87.61%   | 86.89%    | 90.19% |
 
 #### Audio de 5 segundos
 
-**Tamaño del conjunto:** 958 segmentos (87 sesiones)
+**Tamaño del conjunto:** 951 segmentos (87 sesiones)
 
 | Parámetro     | Accuracy | F1-Score | Precision | Recall |
 | ------------- | -------- | -------- | --------- | ------ |
-| **Placa**     | 74.66%   | 75.23%   | 77.00%    | 75.00% |
-| **Electrodo** | 84.96%   | 83.70%   | 86.00%    | 82.00% |
-| **Corriente** | 93.27%   | 92.84%   | 93.00%    | 93.00% |
+| **Placa**     | 74.66%   | 75.23%   | 74.60%    | 77.54% |
+| **Electrodo** | 84.96%   | 83.70%   | 83.52%    | 86.11% |
+| **Corriente** | 93.27%   | 92.84%   | 91.87%    | 94.63% |
 
 #### Audio de 10 segundos
 
@@ -160,9 +160,9 @@ El conjunto holdout contiene sesiones de soldadura nunca vistas durante el entre
 
 | Parámetro     | Accuracy | F1-Score | Precision | Recall |
 | ------------- | -------- | -------- | --------- | ------ |
-| **Placa**     | 75.39%   | 76.01%   | 77.00%    | 79.00% |
-| **Electrodo** | 86.13%   | 85.25%   | 87.00%    | 86.00% |
-| **Corriente** | 97.09%   | 96.87%   | 97.00%    | 97.00% |
+| **Placa**     | 75.39%   | 76.01%   | 75.44%    | 79.07% |
+| **Electrodo** | 86.13%   | 85.25%   | 85.01%    | 87.92% |
+| **Corriente** | 97.09%   | 96.87%   | 96.20%    | 97.75% |
 
 #### Audio de 30 segundos
 
@@ -170,9 +170,9 @@ El conjunto holdout contiene sesiones de soldadura nunca vistas durante el entre
 
 | Parámetro     | Accuracy | F1-Score | Precision | Recall |
 | ------------- | -------- | -------- | --------- | ------ |
-| **Placa**     | 69.03%   | 69.46%   | 74.00%    | 69.00% |
-| **Electrodo** | 88.50%   | 87.12%   | 91.00%    | 88.00% |
-| **Corriente** | 95.58%   | 95.24%   | 96.00%    | 96.00% |
+| **Placa**     | 69.03%   | 69.46%   | 70.66%    | 74.82% |
+| **Electrodo** | 88.50%   | 87.12%   | 86.27%    | 90.68% |
+| **Corriente** | 95.58%   | 95.24%   | 94.63%    | 96.01% |
 
 ---
 
