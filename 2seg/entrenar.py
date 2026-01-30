@@ -17,6 +17,7 @@ Fuente: "Ensemble Methods" (Dietterich, 2000)
 
 import json
 import sys
+import time
 import warnings
 from datetime import datetime
 from pathlib import Path
@@ -52,8 +53,29 @@ from utils.audio_utils import (
 
 warnings.filterwarnings("ignore")
 
+
+# ============= Parseo de argumentos =============
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Entrenamiento de modelos SMAW con K-Fold CV"
+    )
+    parser.add_argument(
+        "--k-folds",
+        type=int,
+        default=5,
+        choices=[3, 4, 5, 6, 7, 8, 9, 10],
+        help="Número de folds para cross-validation (default: 5)",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Semilla para reproducibilidad (default: 42)",
+    )
+    return parser.parse_args()
+
+
 # ============= Configuración =============
-N_FOLDS = 5
 RANDOM_SEED = 42
 BATCH_SIZE = 32
 NUM_EPOCHS = 100
@@ -69,8 +91,6 @@ SEGMENT_DURATION = get_script_segment_duration(Path(__file__))
 # Directorios
 SCRIPT_DIR = Path(__file__).parent
 VGGISH_MODEL_URL = "https://tfhub.dev/google/vggish/1"
-MODELS_DIR = SCRIPT_DIR / "models"
-MODELS_DIR.mkdir(exist_ok=True)
 
 # Cargar modelo VGGish
 print(f"Cargando modelo VGGish desde TensorFlow Hub...")
@@ -215,6 +235,7 @@ def train_one_fold(
     class_weights,
     encoders,
     device,
+    models_dir,
 ):
     """Entrena un fold y guarda el mejor modelo."""
 
@@ -283,15 +304,8 @@ def train_one_fold(
     # Training loop
     best_val_loss = float("inf")
     patience_counter = 0
-    best_metrics = {
-        "acc_plate": 0.0,
-        "acc_electrode": 0.0,
-        "acc_current": 0.0,
-        "f1_plate": 0.0,
-        "f1_electrode": 0.0,
-        "f1_current": 0.0,
-    }
-    best_state_dict = model.state_dict()
+    best_metrics = {}
+    best_state_dict = None
 
     for epoch in range(NUM_EPOCHS):
         # Training
@@ -402,7 +416,7 @@ def train_one_fold(
                 break
 
     # Guardar el mejor modelo de este fold
-    model_path = MODELS_DIR / f"model_fold_{fold_idx}.pth"
+    model_path = models_dir / f"model_fold_{fold_idx}.pth"
     torch.save(best_state_dict, model_path)
 
     print(
@@ -445,16 +459,36 @@ def ensemble_predict(models, embeddings, device):
 # ============= Main =============
 
 if __name__ == "__main__":
+    # Iniciar timer
+    start_time = time.time()
+    
+    # Parsear argumentos
+    args = parse_args()
+    N_FOLDS = args.k_folds
+    RANDOM_SEED = args.seed
+    
+    # Crear directorio de modelos basado en k-folds (models/k-fold/)
+    MODELS_BASE_DIR = SCRIPT_DIR / "models"
+    MODELS_BASE_DIR.mkdir(exist_ok=True)
+    MODELS_DIR = MODELS_BASE_DIR / f"{N_FOLDS}-fold"
+    MODELS_DIR.mkdir(exist_ok=True)
+    
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Usando dispositivo: {device}")
+    print(f"\n{'=' * 70}")
+    print(f"CONFIGURACIÓN")
+    print(f"{'=' * 70}")
+    print(f"Dispositivo: {device}")
     print(f"Duración de segmento: {SEGMENT_DURATION}s")
+    print(f"K-Folds: {N_FOLDS}")
+    print(f"Semilla: {RANDOM_SEED}")
+    print(f"Modelos se guardarán en: {MODELS_DIR}/")
 
     # Cargar todos los datos (train + test)
     train_data = pd.read_csv(SCRIPT_DIR / "train.csv")
     test_data = pd.read_csv(SCRIPT_DIR / "test.csv")
     all_data = pd.concat([train_data, test_data], ignore_index=True)
 
-    print(f"Total de segmentos: {len(all_data)}")
+    print(f"\nTotal de segmentos: {len(all_data)}")
 
     # Extraer sesión de cada path para agrupar en K-Fold
     all_data["Session"] = all_data["Audio Path"].apply(extract_session_from_path)
@@ -565,6 +599,7 @@ if __name__ == "__main__":
             class_weights,
             (plate_encoder, electrode_encoder, current_type_encoder),
             device,
+            MODELS_DIR,
         )
         fold_metrics.append(metrics)
 
@@ -721,17 +756,46 @@ if __name__ == "__main__":
     print(f"Clases: {current_type_encoder.classes_}")
 
     # Guardar resultados (acumulativo)
+    # Calcular tiempo de ejecución
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    elapsed_minutes = elapsed_time / 60
+    elapsed_hours = elapsed_time / 3600
+    
+    print(f"\nTiempo de ejecución: {elapsed_time:.2f}s ({elapsed_minutes:.2f}min / {elapsed_hours:.2f}h)")
+    
     new_entry = {
+        "id": f"{int(SEGMENT_DURATION)}seg_{N_FOLDS}fold_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
         "timestamp": datetime.now().isoformat(),
+        "execution_time": {
+            "seconds": round(elapsed_time, 2),
+            "minutes": round(elapsed_minutes, 2),
+            "hours": round(elapsed_hours, 4),
+        },
         "config": {
+            "segment_duration": SEGMENT_DURATION,
             "n_folds": N_FOLDS,
+            "models_dir": str(MODELS_DIR.name),
             "random_seed": RANDOM_SEED,
             "voting_method": "soft",
             "batch_size": BATCH_SIZE,
             "epochs": NUM_EPOCHS,
+            "learning_rate": LEARNING_RATE,
+            "weight_decay": WEIGHT_DECAY,
+            "label_smoothing": LABEL_SMOOTHING,
+            "early_stop_patience": EARLY_STOP_PATIENCE,
+        },
+        "data": {
+            "total_segments": len(all_data),
+            "unique_sessions": all_data["Session"].nunique(),
+            "classes": {
+                "plate": list(plate_encoder.classes_),
+                "electrode": list(electrode_encoder.classes_),
+                "current": list(current_type_encoder.classes_),
+            },
         },
         "fold_results": fold_metrics,
-        "results": {
+        "ensemble_results": {
             "plate": {
                 "accuracy": round(acc_p, 4),
                 "f1": round(f1_p, 4),
@@ -750,6 +814,11 @@ if __name__ == "__main__":
                 "precision": round(prec_c, 4),
                 "recall": round(rec_c, 4),
             },
+        },
+        "individual_avg": {
+            "plate": round(avg_acc_p, 4),
+            "electrode": round(avg_acc_e, 4),
+            "current": round(avg_acc_c, 4),
         },
         "improvement_vs_individual": {
             "plate": round(acc_p - avg_acc_p, 4),

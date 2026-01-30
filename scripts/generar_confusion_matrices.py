@@ -49,11 +49,11 @@ def cargar_resultados(duracion: str) -> list:
     with open(infer_json, "r") as f:
         data = json.load(f)
 
-    # Filtrar solo evaluaciones holdout con matrices de confusión
+    # Filtrar solo evaluaciones blind con matrices de confusión
     resultados = [
         r
         for r in data
-        if r.get("mode") == "holdout_evaluation" and "confusion_matrices" in r
+        if r.get("mode") == "blind_evaluation" and "confusion_matrices" in r
     ]
 
     return resultados
@@ -190,7 +190,7 @@ def procesar_duracion(duracion: str, solo_ultimo: bool = False):
     resultados = cargar_resultados(duracion)
 
     if not resultados:
-        print(f"  No hay resultados de holdout para {duracion}")
+        print(f"  No hay resultados de blind para {duracion}")
         return
 
     # Crear carpeta de salida

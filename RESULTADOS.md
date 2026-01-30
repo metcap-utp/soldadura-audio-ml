@@ -7,9 +7,9 @@ Se realizaron dos series de experimentos para comparar el rendimiento del modelo
 1. **Audios Preprocesados:** Audio con pipeline de preprocesamiento (reducción de ruido, normalización, filtrado)
 2. **Audios Crudos:** Audio sin preprocesamiento, directamente desde la captura
 
-### Resultados en Conjunto Holdout (Generalización Real)
+### Resultados en Conjunto Blind (Generalización Real)
 
-El conjunto holdout contiene sesiones de soldadura nunca vistas durante el entrenamiento, representando condiciones de uso real.
+El conjunto blind contiene sesiones de soldadura nunca vistas durante el entrenamiento, representando condiciones de uso real.
 
 #### Comparación por Duración de Segmento
 
@@ -68,7 +68,7 @@ El conjunto holdout contiene sesiones de soldadura nunca vistas durante el entre
 **Fecha de ejecución:** 2026-01-22  
 **Total de segmentos:** 38,182 | **Sesiones únicas:** 335
 
-| Parámetro     | Accuracy Promedio Fold | Accuracy Ensemble | F1-Score Ensemble |
+| Parámetro     | Accuracy Promedio Fold | Accuracy Ensemble | F1 Macro Ensemble |
 | ------------- | ---------------------- | ----------------- | ----------------- |
 | **Placa**     | 0.00%                  | 33.58%            | 16.89%            |
 | **Electrodo** | 0.00%                  | 15.43%            | 4.13%             |
@@ -81,7 +81,7 @@ El conjunto holdout contiene sesiones de soldadura nunca vistas durante el entre
 **Fecha de ejecución:** 2026-01-22  
 **Total de segmentos:** 18,848 | **Sesiones únicas:** 335
 
-| Parámetro     | Accuracy Promedio Fold | Accuracy Ensemble | F1-Score Ensemble |
+| Parámetro     | Accuracy Promedio Fold | Accuracy Ensemble | F1 Macro Ensemble |
 | ------------- | ---------------------- | ----------------- | ----------------- |
 | **Placa**     | 78.15%                 | 91.40%            | 91.38%            |
 | **Electrodo** | 83.82%                 | 94.42%            | 94.44%            |
@@ -92,7 +92,7 @@ El conjunto holdout contiene sesiones de soldadura nunca vistas durante el entre
 **Fecha de ejecución:** 2026-01-21  
 **Total de segmentos:** 7,234 | **Sesiones únicas:** 335
 
-| Parámetro     | Accuracy Promedio Fold | F1-Score Ensemble | Mejora Ensemble |
+| Parámetro     | Accuracy Promedio Fold | F1 Macro Ensemble | Mejora Ensemble |
 | ------------- | ---------------------- | ----------------- | --------------- |
 | **Placa**     | 84.64%                 | 100.00%           | +15.36%         |
 | **Electrodo** | 93.12%                 | 99.96%            | +6.84%          |
@@ -103,7 +103,7 @@ El conjunto holdout contiene sesiones de soldadura nunca vistas durante el entre
 **Fecha de ejecución:** 2026-01-21  
 **Total de segmentos:** 3,372 | **Sesiones únicas:** 335
 
-| Parámetro     | Accuracy Promedio Fold | F1-Score Ensemble | Mejora Ensemble |
+| Parámetro     | Accuracy Promedio Fold | F1 Macro Ensemble | Mejora Ensemble |
 | ------------- | ---------------------- | ----------------- | --------------- |
 | **Placa**     | 88.45%                 | 100.00%           | +11.55%         |
 | **Electrodo** | 95.07%                 | 99.97%            | +4.90%          |
@@ -114,23 +114,35 @@ El conjunto holdout contiene sesiones de soldadura nunca vistas durante el entre
 **Fecha de ejecución:** 2026-01-21  
 **Total de segmentos:** 805 | **Sesiones únicas:** 335
 
-| Parámetro     | Accuracy Promedio Fold | F1-Score Ensemble | Mejora Ensemble |
+| Parámetro     | Accuracy Promedio Fold | F1 Macro Ensemble | Mejora Ensemble |
 | ------------- | ---------------------- | ----------------- | --------------- |
 | **Placa**     | 93.43%                 | 100.00%           | +6.57%          |
 | **Electrodo** | 96.41%                 | 100.00%           | +3.59%          |
 | **Corriente** | 99.03%                 | 100.00%           | +0.97%          |
 
-### Evaluación en Conjunto Holdout
+### Evaluación en Conjunto Blind
+
+#### Métricas Globales Multi-tarea
+
+| Duración   | Exact Match | Hamming Accuracy |
+| ---------- | ----------- | ---------------- |
+| **1 seg**  | 0.00%       | 25.39%           |
+| **2 seg**  | 59.68%      | 78.22%           |
+| **5 seg**  | 68.24%      | 84.30%           |
+| **10 seg** | 69.35%      | 86.20%           |
+| **30 seg** | 67.26%      | 84.37%           |
+
+> **Nota:** Exact Match = 0% en 1 seg porque el modelo predice siempre la misma clase para cada tarea (clase mayoritaria).
 
 #### Audio de 1 segundo
 
 **Tamaño del conjunto:** 4,988 segmentos (87 sesiones)
 
-| Parámetro     | Accuracy | F1-Score | Precision | Recall |
-| ------------- | -------- | -------- | --------- | ------ |
-| **Placa**     | 29.05%   | 15.01%   | 9.68%     | 33.33% |
-| **Electrodo** | 12.49%   | 5.55%    | 3.12%     | 25.00% |
-| **Corriente** | 34.64%   | 25.73%   | 17.32%    | 50.00% |
+| Parámetro     | Accuracy | F1 (Macro) | Precision (Macro) | Recall (Macro) |
+| ------------- | -------- | ---------- | ----------------- | -------------- |
+| **Placa**     | 29.05%   | 15.01%     | 9.68%             | 33.33%         |
+| **Electrodo** | 12.49%   | 5.55%      | 3.12%             | 25.00%         |
+| **Corriente** | 34.64%   | 25.73%     | 17.32%            | 50.00%         |
 
 > **Nota:** Resultados muy pobres debido a contexto temporal insuficiente (1 frame VGGish). El modelo predice consistentemente la clase mayoritaria.
 
@@ -138,47 +150,47 @@ El conjunto holdout contiene sesiones de soldadura nunca vistas durante el entre
 
 **Tamaño del conjunto:** 2,465 segmentos (87 sesiones)
 
-| Parámetro     | Accuracy | F1-Score | Precision | Recall |
-| ------------- | -------- | -------- | --------- | ------ |
-| **Placa**     | 69.53%   | 70.09%   | 69.79%    | 72.60% |
-| **Electrodo** | 76.96%   | 75.64%   | 75.70%    | 77.66% |
-| **Corriente** | 88.15%   | 87.61%   | 86.89%    | 90.19% |
+| Parámetro     | Accuracy | F1 (Macro) | Precision (Macro) | Recall (Macro) |
+| ------------- | -------- | ---------- | ----------------- | -------------- |
+| **Placa**     | 69.53%   | 70.09%     | 69.79%            | 72.60%         |
+| **Electrodo** | 76.96%   | 75.64%     | 75.70%            | 77.66%         |
+| **Corriente** | 88.15%   | 87.61%     | 86.89%            | 90.19%         |
 
 #### Audio de 5 segundos
 
 **Tamaño del conjunto:** 951 segmentos (87 sesiones)
 
-| Parámetro     | Accuracy | F1-Score | Precision | Recall |
-| ------------- | -------- | -------- | --------- | ------ |
-| **Placa**     | 74.66%   | 75.23%   | 74.60%    | 77.54% |
-| **Electrodo** | 84.96%   | 83.70%   | 83.52%    | 86.11% |
-| **Corriente** | 93.27%   | 92.84%   | 91.87%    | 94.63% |
+| Parámetro     | Accuracy | F1 (Macro) | Precision (Macro) | Recall (Macro) |
+| ------------- | -------- | ---------- | ----------------- | -------------- |
+| **Placa**     | 74.66%   | 75.23%     | 74.60%            | 77.54%         |
+| **Electrodo** | 84.96%   | 83.70%     | 83.52%            | 86.11%         |
+| **Corriente** | 93.27%   | 92.84%     | 91.87%            | 94.63%         |
 
 #### Audio de 10 segundos
 
 **Tamaño del conjunto:** 447 segmentos (87 sesiones)
 
-| Parámetro     | Accuracy | F1-Score | Precision | Recall |
-| ------------- | -------- | -------- | --------- | ------ |
-| **Placa**     | 75.39%   | 76.01%   | 75.44%    | 79.07% |
-| **Electrodo** | 86.13%   | 85.25%   | 85.01%    | 87.92% |
-| **Corriente** | 97.09%   | 96.87%   | 96.20%    | 97.75% |
+| Parámetro     | Accuracy | F1 (Macro) | Precision (Macro) | Recall (Macro) |
+| ------------- | -------- | ---------- | ----------------- | -------------- |
+| **Placa**     | 75.39%   | 76.01%     | 75.44%            | 79.07%         |
+| **Electrodo** | 86.13%   | 85.25%     | 85.01%            | 87.92%         |
+| **Corriente** | 97.09%   | 96.87%     | 96.20%            | 97.75%         |
 
 #### Audio de 30 segundos
 
 **Tamaño del conjunto:** 113 segmentos (87 sesiones)
 
-| Parámetro     | Accuracy | F1-Score | Precision | Recall |
-| ------------- | -------- | -------- | --------- | ------ |
-| **Placa**     | 69.03%   | 69.46%   | 70.66%    | 74.82% |
-| **Electrodo** | 88.50%   | 87.12%   | 86.27%    | 90.68% |
-| **Corriente** | 95.58%   | 95.24%   | 94.63%    | 96.01% |
+| Parámetro     | Accuracy | F1 (Macro) | Precision (Macro) | Recall (Macro) |
+| ------------- | -------- | ---------- | ----------------- | -------------- |
+| **Placa**     | 69.03%   | 69.46%     | 70.66%            | 74.82%         |
+| **Electrodo** | 88.50%   | 87.12%     | 86.27%            | 90.68%         |
+| **Corriente** | 95.58%   | 95.24%     | 94.63%            | 96.01%         |
 
 ---
 
 ## III. Comparación General (Audios Crudos)
 
-| Longitud               | Validación Cruzada | Holdout Test | Diferencia |
+| Longitud               | Validación Cruzada | Blind Test | Diferencia |
 | ---------------------- | ------------------ | ------------ | ---------- |
 | **1 seg - Placa**      | 33.58%             | 29.05%       | -4.53%     |
 | **1 seg - Electrodo**  | 15.43%             | 12.49%       | -2.94%     |
@@ -203,7 +215,7 @@ El conjunto holdout contiene sesiones de soldadura nunca vistas durante el entre
 - **5-10 segundos:** Balance óptimo entre contexto temporal y cantidad de muestras
 - **30 segundos:** Menor cantidad de muestras pero mejor generalización en electrodo
 
-**Nota:** La diferencia entre validación cruzada (ensemble perfecto en datos de entrenamiento) y holdout refleja la capacidad de generalización real del modelo.
+**Nota:** La diferencia entre validación cruzada (ensemble perfecto en datos de entrenamiento) y blind refleja la capacidad de generalización real del modelo.
 
 ---
 
@@ -233,6 +245,20 @@ Las predicciones finales se obtienen mediante **soft voting**, que:
 
 Las métricas se calculan utilizando **scikit-learn**, biblioteca estándar validada en investigación científica.
 
+### Tipo de Promedio: Macro
+
+Todas las métricas reportadas (F1-Score, Precision, Recall) utilizan **promedio macro**, que calcula la métrica para cada clase independientemente y luego promedia sin ponderar:
+
+$$\text{Métrica}_{\text{macro}} = \frac{1}{N} \sum_{i=1}^{N} \text{Métrica}_i$$
+
+Donde $N$ es el número de clases.
+
+**¿Por qué macro?** El promedio macro trata todas las clases por igual, sin importar su frecuencia. Esto es importante porque:
+
+- Evita que clases mayoritarias dominen la evaluación
+- Refleja mejor el rendimiento en clases minoritarias
+- Es más exigente cuando hay desbalance de clases
+
 ### Métricas por Clase
 
 Para cada clase individual:
@@ -243,14 +269,39 @@ $$\text{Recall} = \frac{TP}{TP + FN}$$
 
 $$\text{F1-Score} = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}$$
 
-$$\text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}$$
+### Accuracy Global
+
+El accuracy se calcula como la proporción de predicciones correctas sobre el total:
+
+$$\text{Accuracy} = \frac{\text{Predicciones Correctas}}{\text{Total de Muestras}}$$
+
+### Métricas Globales Multi-tarea
+
+Para evaluar el rendimiento conjunto de las tres tareas de clasificación:
+
+#### Exact Match Accuracy (Subset Accuracy)
+
+Proporción de muestras donde **todas** las predicciones son correctas simultáneamente:
+
+$$\text{Exact Match} = \frac{1}{N} \sum_{i=1}^{N} \mathbb{1}[\hat{y}^{placa}_i = y^{placa}_i \land \hat{y}^{electrodo}_i = y^{electrodo}_i \land \hat{y}^{corriente}_i = y^{corriente}_i]$$
+
+Es la métrica más estricta: una muestra solo cuenta como correcta si las 3 predicciones son correctas.
+
+#### Hamming Accuracy
+
+Promedio de las accuracies individuales de cada tarea:
+
+$$\text{Hamming Accuracy} = \frac{\text{Acc}_{placa} + \text{Acc}_{electrodo} + \text{Acc}_{corriente}}{3}$$
+
+Mide el rendimiento promedio sin penalizar errores parciales.
+
+**Relación:** Siempre se cumple: $\text{Exact Match} \leq \text{Hamming Accuracy}$
 
 Donde:
 
 - **TP** (True Positives): Predicciones correctas de la clase
 - **FP** (False Positives): Predicciones incorrectas como esa clase
 - **FN** (False Negatives): Casos de la clase no detectados
-- **TN** (True Negatives): Correctamente no clasificados como esa clase
 
 ---
 

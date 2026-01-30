@@ -1,10 +1,10 @@
 # Métricas de Clasificación SMAW - 5seg
 
-**Fecha de evaluación:** 2026-01-21 22:01:57
+**Fecha de evaluación:** 2026-01-23 22:35:36
 
 **Configuración:**
 - Duración de segmento: 5.0s
-- Número de muestras (holdout): 951
+- Número de muestras (blind): 951
 - Número de modelos (ensemble): 5
 - Método de votación: soft
 
@@ -94,6 +94,6 @@
 
 ## Notas
 
-- Las métricas se calcularon sobre el conjunto **holdout** (datos nunca vistos durante entrenamiento).
+- Las métricas se calcularon sobre el conjunto **blind** (datos nunca vistos durante entrenamiento).
 - El ensemble usa **Soft Voting**: promedia logits de todos los modelos antes de aplicar argmax.
 - Los modelos fueron entrenados con **StratifiedGroupKFold** para evitar data leakage por sesión.

@@ -1,21 +1,24 @@
 """
 Script de predicción usando Soft Voting.
 
-Carga los 5 modelos entrenados con K-Fold y combina sus predicciones
+Carga los K modelos entrenados con K-Fold y combina sus predicciones
 promediando logits antes de aplicar argmax (soft voting).
 
 Los audios se segmentan ON-THE-FLY según la duración del directorio
 (5seg, 10seg, 30seg) - NO hay archivos segmentados en disco.
 
 Uso:
-    python infer.py                    # Muestra 10 predicciones aleatorias
-    python infer.py --audio ruta.wav   # Predice un archivo específico
-    python infer.py --evaluar          # Evalúa en conjunto holdout (vida real)
+    python infer.py                      # Usa 5-fold por defecto
+    python infer.py --k-folds 3          # Usa modelos de 3-fold
+    python infer.py --audio ruta.wav     # Predice un archivo específico
+    python infer.py --evaluar            # Evalúa en conjunto blind (vida real)
+    python infer.py --evaluar --k-folds 10  # Evalúa usando modelos de 10-fold
 """
 
 import argparse
 import json
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -23,7 +26,12 @@ import numpy as np
 import pandas as pd
 import tensorflow_hub as hub
 import torch
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, f1_score
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+    f1_score,
+)
 from sklearn.preprocessing import LabelEncoder
 
 # Añadir carpeta raíz al path para importar modelo.py
@@ -39,14 +47,44 @@ from utils.audio_utils import (
 # Definir directorios
 SCRIPT_DIR = Path(__file__).parent
 VGGISH_MODEL_URL = "https://tfhub.dev/google/vggish/1"
-MODELS_DIR = SCRIPT_DIR / "models"
 INFER_JSON = SCRIPT_DIR / "infer.json"
-
-# Número de modelos
-N_MODELS = 5
 
 # Duración de segmento basada en el nombre del directorio
 SEGMENT_DURATION = get_script_segment_duration(Path(__file__))
+
+
+# ============= Parseo de argumentos (antes de cargar modelos) =============
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Predicción de soldadura SMAW usando Ensemble con Soft Voting"
+    )
+    parser.add_argument(
+        "--k-folds",
+        type=int,
+        default=5,
+        help="Número de folds del ensemble a usar (default: 5)",
+    )
+    parser.add_argument(
+        "--audio", type=str, help="Ruta a un archivo de audio para predecir"
+    )
+    parser.add_argument(
+        "--evaluar",
+        action="store_true",
+        help="Evaluar ensemble en conjunto blind (vida real)",
+    )
+    parser.add_argument(
+        "--n",
+        type=int,
+        default=10,
+        help="Número de muestras aleatorias a mostrar (default: 10)",
+    )
+    return parser.parse_args()
+
+
+# Parsear argumentos antes de cargar modelos
+args = parse_args()
+N_MODELS = args.k_folds
+MODELS_DIR = SCRIPT_DIR / "models" / f"{N_MODELS}-fold"
 
 # Cargar modelo VGGish de TensorFlow Hub
 print(f"Cargando modelo VGGish desde TensorFlow Hub...")
@@ -160,7 +198,13 @@ def create_model():
 
 
 def load_ensemble_models():
-    """Carga los 5 modelos del ensemble."""
+    """Carga los K modelos del ensemble según --k-folds."""
+    if not MODELS_DIR.exists():
+        raise FileNotFoundError(
+            f"No se encontró la carpeta {MODELS_DIR}. "
+            f"Ejecuta primero: python entrenar.py --k-folds {N_MODELS}"
+        )
+
     models = []
 
     for fold in range(N_MODELS):
@@ -169,7 +213,7 @@ def load_ensemble_models():
         if not model_path.exists():
             raise FileNotFoundError(
                 f"No se encontró el modelo {model_path}. "
-                "Ejecuta entrenar_ensemble.py primero."
+                f"Ejecuta primero: python entrenar.py --k-folds {N_MODELS}"
             )
 
         model = create_model()
@@ -177,7 +221,7 @@ def load_ensemble_models():
         model.eval()
         models.append(model)
 
-    print(f"Cargados {len(models)} modelos desde {MODELS_DIR}")
+    print(f"Cargados {len(models)} modelos ({N_MODELS}-fold) desde {MODELS_DIR}")
     return models
 
 
@@ -188,7 +232,7 @@ ensemble_models = load_ensemble_models()
 # ============= Guardar resultados de inferencia =============
 
 
-def save_inference_result(result_data):
+def save_inference_result(result_data, elapsed_time=None):
     """
     Guarda los resultados de inferencia en infer.json.
     Conserva todas las corridas anteriores.
@@ -200,8 +244,21 @@ def save_inference_result(result_data):
     else:
         all_results = []
 
-    # Agregar timestamp al resultado
+    # Agregar metadatos al resultado
     result_data["timestamp"] = datetime.now().isoformat()
+    result_data["config"] = {
+        "segment_duration": SEGMENT_DURATION,
+        "k_folds": N_MODELS,
+        "models_dir": str(MODELS_DIR.name),
+    }
+
+    # Agregar tiempo de ejecución si está disponible
+    if elapsed_time is not None:
+        result_data["execution_time"] = {
+            "seconds": round(elapsed_time, 2),
+            "minutes": round(elapsed_time / 60, 2),
+            "hours": round(elapsed_time / 3600, 4),
+        }
 
     # Agregar nuevo resultado
     all_results.append(result_data)
@@ -221,7 +278,11 @@ def format_confusion_matrix_markdown(cm, classes):
 
     rows = [header, separator]
     for i, cls in enumerate(classes):
-        row = f"| **{cls}** | " + " | ".join(str(cm[i][j]) for j in range(len(classes))) + " |"
+        row = (
+            f"| **{cls}** | "
+            + " | ".join(str(cm[i][j]) for j in range(len(classes)))
+            + " |"
+        )
         rows.append(row)
 
     return "\n".join(rows)
@@ -240,9 +301,9 @@ def generate_metrics_document(results):
 
 **Configuración:**
 - Duración de segmento: {segment_duration}s
-- Número de muestras (holdout): {results['n_samples']}
-- Número de modelos (ensemble): {results['n_models']}
-- Método de votación: {results['voting_method']}
+- Número de muestras (blind): {results["n_samples"]}
+- Número de modelos (ensemble): {results["n_models"]}
+- Método de votación: {results["voting_method"]}
 
 ---
 
@@ -250,29 +311,29 @@ def generate_metrics_document(results):
 
 | Tarea | Accuracy | Macro F1 |
 |-------|----------|----------|
-| Plate Thickness | {results['accuracy']['plate_thickness']*100:.2f}% | {results['macro_f1']['plate_thickness']:.4f} |
-| Electrode Type | {results['accuracy']['electrode']*100:.2f}% | {results['macro_f1']['electrode']:.4f} |
-| Current Type | {results['accuracy']['current_type']*100:.2f}% | {results['macro_f1']['current_type']:.4f} |
+| Plate Thickness | {results["accuracy"]["plate_thickness"] * 100:.2f}% | {results["macro_f1"]["plate_thickness"]:.4f} |
+| Electrode Type | {results["accuracy"]["electrode"] * 100:.2f}% | {results["macro_f1"]["electrode"]:.4f} |
+| Current Type | {results["accuracy"]["current_type"] * 100:.2f}% | {results["macro_f1"]["current_type"]:.4f} |
 
 ---
 
 ## Plate Thickness (Espesor de Placa)
 
 ### Métricas
-- **Accuracy:** {results['accuracy']['plate_thickness']*100:.2f}%
-- **Macro F1-Score:** {results['macro_f1']['plate_thickness']:.4f}
+- **Accuracy:** {results["accuracy"]["plate_thickness"] * 100:.2f}%
+- **Macro F1-Score:** {results["macro_f1"]["plate_thickness"]:.4f}
 
 ### Confusion Matrix
 
-{format_confusion_matrix_markdown(results['confusion_matrices']['plate_thickness'], results['classes']['plate_thickness'])}
+{format_confusion_matrix_markdown(results["confusion_matrices"]["plate_thickness"], results["classes"]["plate_thickness"])}
 
 ### Classification Report
 """
     # Agregar métricas por clase para plate
-    cr_plate = results['classification_reports']['plate_thickness']
+    cr_plate = results["classification_reports"]["plate_thickness"]
     doc += "\n| Clase | Precision | Recall | F1-Score | Support |\n"
     doc += "|-------|-----------|--------|----------|--------|\n"
-    for cls in results['classes']['plate_thickness']:
+    for cls in results["classes"]["plate_thickness"]:
         metrics = cr_plate.get(cls, {})
         doc += f"| {cls} | {metrics.get('precision', 0):.4f} | {metrics.get('recall', 0):.4f} | {metrics.get('f1-score', 0):.4f} | {int(metrics.get('support', 0))} |\n"
 
@@ -282,20 +343,20 @@ def generate_metrics_document(results):
 ## Electrode Type (Tipo de Electrodo)
 
 ### Métricas
-- **Accuracy:** {results['accuracy']['electrode']*100:.2f}%
-- **Macro F1-Score:** {results['macro_f1']['electrode']:.4f}
+- **Accuracy:** {results["accuracy"]["electrode"] * 100:.2f}%
+- **Macro F1-Score:** {results["macro_f1"]["electrode"]:.4f}
 
 ### Confusion Matrix
 
-{format_confusion_matrix_markdown(results['confusion_matrices']['electrode'], results['classes']['electrode'])}
+{format_confusion_matrix_markdown(results["confusion_matrices"]["electrode"], results["classes"]["electrode"])}
 
 ### Classification Report
 """
     # Agregar métricas por clase para electrode
-    cr_electrode = results['classification_reports']['electrode']
+    cr_electrode = results["classification_reports"]["electrode"]
     doc += "\n| Clase | Precision | Recall | F1-Score | Support |\n"
     doc += "|-------|-----------|--------|----------|--------|\n"
-    for cls in results['classes']['electrode']:
+    for cls in results["classes"]["electrode"]:
         metrics = cr_electrode.get(cls, {})
         doc += f"| {cls} | {metrics.get('precision', 0):.4f} | {metrics.get('recall', 0):.4f} | {metrics.get('f1-score', 0):.4f} | {int(metrics.get('support', 0))} |\n"
 
@@ -305,20 +366,20 @@ def generate_metrics_document(results):
 ## Current Type (Tipo de Corriente)
 
 ### Métricas
-- **Accuracy:** {results['accuracy']['current_type']*100:.2f}%
-- **Macro F1-Score:** {results['macro_f1']['current_type']:.4f}
+- **Accuracy:** {results["accuracy"]["current_type"] * 100:.2f}%
+- **Macro F1-Score:** {results["macro_f1"]["current_type"]:.4f}
 
 ### Confusion Matrix
 
-{format_confusion_matrix_markdown(results['confusion_matrices']['current_type'], results['classes']['current_type'])}
+{format_confusion_matrix_markdown(results["confusion_matrices"]["current_type"], results["classes"]["current_type"])}
 
 ### Classification Report
 """
     # Agregar métricas por clase para current
-    cr_current = results['classification_reports']['current_type']
+    cr_current = results["classification_reports"]["current_type"]
     doc += "\n| Clase | Precision | Recall | F1-Score | Support |\n"
     doc += "|-------|-----------|--------|----------|--------|\n"
-    for cls in results['classes']['current_type']:
+    for cls in results["classes"]["current_type"]:
         metrics = cr_current.get(cls, {})
         doc += f"| {cls} | {metrics.get('precision', 0):.4f} | {metrics.get('recall', 0):.4f} | {metrics.get('f1-score', 0):.4f} | {int(metrics.get('support', 0))} |\n"
 
@@ -327,7 +388,7 @@ def generate_metrics_document(results):
 
 ## Notas
 
-- Las métricas se calcularon sobre el conjunto **holdout** (datos nunca vistos durante entrenamiento).
+- Las métricas se calcularon sobre el conjunto **blind** (datos nunca vistos durante entrenamiento).
 - El ensemble usa **Soft Voting**: promedia logits de todos los modelos antes de aplicar argmax.
 - Los modelos fueron entrenados con **StratifiedGroupKFold** para evitar data leakage por sesión.
 """
@@ -424,16 +485,18 @@ def predict_audio(audio_path):
 # ============= Funciones de Evaluación =============
 
 
-def evaluate_holdout_set():
-    """Evalúa el ensemble en el conjunto holdout (validación vida real)."""
-    holdout_csv = SCRIPT_DIR / "holdout.csv"
-    if not holdout_csv.exists():
-        print("No se encontró holdout.csv. Ejecuta generar_splits.py primero.")
+def evaluate_blind_set():
+    """Evalúa el ensemble en el conjunto blind (validación vida real)."""
+    start_time = time.time()
+
+    blind_csv = SCRIPT_DIR / "blind.csv"
+    if not blind_csv.exists():
+        print("No se encontró blind.csv. Ejecuta generar_splits.py primero.")
         return None
 
-    holdout_df = pd.read_csv(holdout_csv)
+    blind_df = pd.read_csv(blind_csv)
     print(
-        f"\nEvaluando ensemble en {len(holdout_df)} segmentos de HOLDOUT (vida real)..."
+        f"\nEvaluando ensemble en {len(blind_df)} segmentos de BLIND (vida real)..."
     )
     print(f"Duración de segmento: {SEGMENT_DURATION}s")
 
@@ -442,9 +505,9 @@ def evaluate_holdout_set():
     y_true_electrode, y_pred_electrode = [], []
     y_true_current, y_pred_current = [], []
 
-    for idx, row in holdout_df.iterrows():
+    for idx, row in blind_df.iterrows():
         if idx % 100 == 0:
-            print(f"  Procesando {idx}/{len(holdout_df)}...")
+            print(f"  Procesando {idx}/{len(blind_df)}...")
 
         audio_path = row["Audio Path"]
         segment_idx = int(row["Segment Index"])
@@ -462,22 +525,40 @@ def evaluate_holdout_set():
 
     # Calcular métricas
     print("\n" + "=" * 70)
-    print("RESULTADOS DEL ENSEMBLE EN CONJUNTO HOLDOUT (VIDA REAL)")
+    print("RESULTADOS DEL ENSEMBLE EN CONJUNTO BLIND (VIDA REAL)")
     print("=" * 70)
 
     acc_plate = accuracy_score(y_true_plate, y_pred_plate)
     acc_electrode = accuracy_score(y_true_electrode, y_pred_electrode)
     acc_current = accuracy_score(y_true_current, y_pred_current)
 
-    print(f"\nAccuracy:")
+    # Métricas globales multi-tarea
+    n_samples = len(y_true_plate)
+    exact_matches = sum(
+        1
+        for i in range(n_samples)
+        if (
+            y_pred_plate[i] == y_true_plate[i]
+            and y_pred_electrode[i] == y_true_electrode[i]
+            and y_pred_current[i] == y_true_current[i]
+        )
+    )
+    exact_match_accuracy = exact_matches / n_samples
+    hamming_accuracy = (acc_plate + acc_electrode + acc_current) / 3
+
+    print(f"\nMétricas Globales (Multi-tarea):")
+    print(f"  Exact Match Accuracy: {exact_match_accuracy * 100:.2f}%")
+    print(f"  Hamming Accuracy:     {hamming_accuracy * 100:.2f}%")
+
+    print(f"\nAccuracy por Tarea:")
     print(f"  Plate Thickness:  {acc_plate * 100:.2f}%")
     print(f"  Electrode:        {acc_electrode * 100:.2f}%")
     print(f"  Type of Current:  {acc_current * 100:.2f}%")
 
     # Calcular Macro F1
-    f1_plate = f1_score(y_true_plate, y_pred_plate, average='macro')
-    f1_electrode = f1_score(y_true_electrode, y_pred_electrode, average='macro')
-    f1_current = f1_score(y_true_current, y_pred_current, average='macro')
+    f1_plate = f1_score(y_true_plate, y_pred_plate, average="macro")
+    f1_electrode = f1_score(y_true_electrode, y_pred_electrode, average="macro")
+    f1_current = f1_score(y_true_current, y_pred_current, average="macro")
 
     print(f"\nMacro F1-Score:")
     print(f"  Plate Thickness:  {f1_plate:.4f}")
@@ -497,27 +578,37 @@ def evaluate_holdout_set():
     # Matrices de confusión
     print("\nMatrices de Confusión:")
     print("\nPlate Thickness:")
-    cm_plate = confusion_matrix(y_true_plate, y_pred_plate, labels=plate_encoder.classes_)
+    cm_plate = confusion_matrix(
+        y_true_plate, y_pred_plate, labels=plate_encoder.classes_
+    )
     print(cm_plate)
     print(f"Clases: {plate_encoder.classes_}")
 
     print("\nElectrode Type:")
-    cm_electrode = confusion_matrix(y_true_electrode, y_pred_electrode, labels=electrode_encoder.classes_)
+    cm_electrode = confusion_matrix(
+        y_true_electrode, y_pred_electrode, labels=electrode_encoder.classes_
+    )
     print(cm_electrode)
     print(f"Clases: {electrode_encoder.classes_}")
 
     print("\nType of Current:")
-    cm_current = confusion_matrix(y_true_current, y_pred_current, labels=current_type_encoder.classes_)
+    cm_current = confusion_matrix(
+        y_true_current, y_pred_current, labels=current_type_encoder.classes_
+    )
     print(cm_current)
     print(f"Clases: {current_type_encoder.classes_}")
 
     # Crear diccionario de resultados
     results = {
-        "mode": "holdout_evaluation",
+        "mode": "blind_evaluation",
         "segment_duration": SEGMENT_DURATION,
-        "n_samples": len(holdout_df),
+        "n_samples": len(blind_df),
         "n_models": N_MODELS,
         "voting_method": "soft",
+        "global_metrics": {
+            "exact_match_accuracy": float(exact_match_accuracy),
+            "hamming_accuracy": float(hamming_accuracy),
+        },
         "accuracy": {
             "plate_thickness": float(acc_plate),
             "electrode": float(acc_electrode),
@@ -551,8 +642,12 @@ def evaluate_holdout_set():
         },
     }
 
+    # Calcular tiempo de ejecución
+    elapsed_time = time.time() - start_time
+    print(f"\nTiempo de ejecución: {elapsed_time:.2f}s ({elapsed_time / 60:.2f}min)")
+
     # Guardar resultados en infer.json
-    save_inference_result(results)
+    save_inference_result(results, elapsed_time=elapsed_time)
 
     # Generar documento de métricas
     generate_metrics_document(results)
@@ -561,15 +656,17 @@ def evaluate_holdout_set():
 
 
 def show_random_predictions(n_samples=10):
-    """Muestra predicciones aleatorias del conjunto holdout."""
-    holdout_csv = SCRIPT_DIR / "holdout.csv"
-    if not holdout_csv.exists():
-        print("No se encontró holdout.csv. Ejecuta generar_splits.py primero.")
+    """Muestra predicciones aleatorias del conjunto blind."""
+    start_time = time.time()
+
+    blind_csv = SCRIPT_DIR / "blind.csv"
+    if not blind_csv.exists():
+        print("No se encontró blind.csv. Ejecuta generar_splits.py primero.")
         return
 
-    holdout_df = pd.read_csv(holdout_csv)
-    num_samples = min(n_samples, len(holdout_df))
-    samples = holdout_df.sample(n=num_samples, random_state=None)
+    blind_df = pd.read_csv(blind_csv)
+    num_samples = min(n_samples, len(blind_df))
+    samples = blind_df.sample(n=num_samples, random_state=None)
 
     print(f"\n{'=' * 80}")
     print(f"  PREDICCIONES ALEATORIAS ({num_samples} muestras)")
@@ -636,6 +733,10 @@ def show_random_predictions(n_samples=10):
     )
     print()
 
+    # Calcular tiempo de ejecución
+    elapsed_time = time.time() - start_time
+    print(f"Tiempo de ejecución: {elapsed_time:.2f}s ({elapsed_time / 60:.2f}min)")
+
     # Guardar resultados en infer.json
     inference_result = {
         "mode": "random_predictions",
@@ -649,11 +750,13 @@ def show_random_predictions(n_samples=10):
             "all_correct": correctas_todas / num_samples,
         },
     }
-    save_inference_result(inference_result)
+    save_inference_result(inference_result, elapsed_time=elapsed_time)
 
 
 def predict_single_audio(audio_path):
     """Predice un archivo de audio específico."""
+    start_time = time.time()
+
     audio_path = Path(audio_path)
 
     if not audio_path.exists():
@@ -713,35 +816,21 @@ def predict_single_audio(audio_path):
             ),
         },
     }
-    save_inference_result(inference_result)
+
+    # Calcular tiempo de ejecución
+    elapsed_time = time.time() - start_time
+    print(f"\nTiempo de ejecución: {elapsed_time:.2f}s")
+
+    save_inference_result(inference_result, elapsed_time=elapsed_time)
 
 
 # ============= Main =============
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Predicción de soldadura SMAW usando Ensemble con Soft Voting"
-    )
-    parser.add_argument(
-        "--audio", type=str, help="Ruta a un archivo de audio para predecir"
-    )
-    parser.add_argument(
-        "--evaluar",
-        action="store_true",
-        help="Evaluar ensemble en conjunto holdout (vida real)",
-    )
-    parser.add_argument(
-        "--n",
-        type=int,
-        default=10,
-        help="Número de muestras aleatorias a mostrar (default: 10)",
-    )
-
-    args = parser.parse_args()
-
+    # args ya fue parseado al inicio del script
     if args.audio:
         predict_single_audio(args.audio)
     elif args.evaluar:
-        evaluate_holdout_set()
+        evaluate_blind_set()
     else:
         show_random_predictions(n_samples=args.n)

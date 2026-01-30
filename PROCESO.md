@@ -107,7 +107,7 @@ python generar_splits.py
 | ------------ | ---------- | -------------------------------------- |
 | train.csv    | 72%        | Entrenamiento (K-Fold CV)              |
 | test.csv     | 18%        | Validación durante desarrollo          |
-| holdout.csv  | 10%        | Evaluación final (nunca en desarrollo) |
+| blind.csv  | 10%        | Evaluación final (nunca en desarrollo) |
 | completo.csv | 100%       | Referencia con columna Split           |
 
 ### 5.3 Prevención de Data Leakage
@@ -214,7 +214,7 @@ Fold 5: Train=193 sesiones, Val=48 sesiones --> model_fold_4.pth
 
 ---
 
-## 9. Evaluación en Holdout
+## 9. Evaluación en Blind
 
 ### 9.1 Ejecutar Inferencia
 
@@ -265,9 +265,9 @@ Audio de entrada
 |-- completo.csv          # Todos los datos con split asignado
 |-- train.csv             # Datos de entrenamiento
 |-- test.csv              # Datos de validación
-|-- holdout.csv           # Datos de evaluación final
+|-- blind.csv           # Datos de evaluación final
 |-- results.json          # Métricas del entrenamiento
-|-- infer.json            # Métricas de holdout
+|-- infer.json            # Métricas de blind
 +-- models/
     |-- model_fold_0.pth
     |-- model_fold_1.pth
@@ -315,7 +315,7 @@ Audio de entrada
 |                     |                                                   |
 |        +------------+------------+------------+                         |
 |        v            v            v            v                         |
-|   train.csv    test.csv    holdout.csv   completo.csv                   |
+|   train.csv    test.csv    blind.csv   completo.csv                   |
 |     (72%)        (18%)        (10%)        (100%)                       |
 |                                                                         |
 +-------------------------------------------------------------------------+
@@ -383,11 +383,11 @@ Audio de entrada
 |                    FASE 4: EVALUACION                                   |
 +-------------------------------------------------------------------------+
 |                                                                         |
-|  holdout.csv -------------------------------------------------+         |
+|  blind.csv -------------------------------------------------+         |
 |                                                                |         |
 |  +-------------------------------------------------------------+---+    |
 |  |                                                                 |    |
-|  |  Para cada segmento en holdout:                                 |    |
+|  |  Para cada segmento en blind:                                 |    |
 |  |                                                                 |    |
 |  |  +------------------------------------------+                   |    |
 |  |  | VGGish Embedding                         |                   |    |
@@ -429,7 +429,7 @@ El sistema de clasificación de audio SMAW transforma grabaciones de soldadura e
 **Pipeline:**
 
 1. **Extracción**: FFmpeg extrae audio WAV 16kHz mono de los videos
-2. **División**: Sesiones se dividen en train/test/holdout sin mezclar segmentos
+2. **División**: Sesiones se dividen en train/test/blind sin mezclar segmentos
 3. **Segmentación**: Audios se segmentan on-the-fly con 50% de solapamiento
 4. **Características**: VGGish genera embeddings de 128 dimensiones
 5. **Clasificación**: SMAWXVectorModel predice las tres etiquetas simultáneamente
