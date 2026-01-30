@@ -15,7 +15,10 @@ Los audios se segmentan ON-THE-FLY según la duración del directorio
 Fuente: "Ensemble Methods" (Dietterich, 2000)
 """
 
+import argparse
+import hashlib
 import json
+import pickle
 import sys
 import time
 import warnings
@@ -63,7 +66,7 @@ def parse_args():
         "--k-folds",
         type=int,
         default=5,
-        choices=[3, 4, 5, 6, 7, 8, 9, 10],
+        choices=[3, 4, 5, 6, 7, 8, 9, 10, 15, 20],
         help="Número de folds para cross-validation (default: 5)",
     )
     parser.add_argument(
@@ -113,6 +116,71 @@ def extract_session_from_path(audio_path: str) -> str:
             return part
     # Fallback: usar el directorio padre
     return Path(audio_path).parent.name
+
+
+# ============= Cache de Embeddings =============
+
+
+def get_embeddings_cache_path() -> Path:
+    """Obtiene la ruta del archivo de cache de embeddings."""
+    cache_dir = SCRIPT_DIR / "embeddings_cache"
+    cache_dir.mkdir(exist_ok=True)
+    return cache_dir / f"vggish_embeddings_{SEGMENT_DURATION}s.pkl"
+
+
+def compute_dataset_hash(paths: list, segment_indices: list) -> str:
+    """Calcula un hash del dataset para detectar cambios."""
+    data_str = "".join([f"{p}:{s}" for p, s in zip(paths, segment_indices)])
+    return hashlib.md5(data_str.encode()).hexdigest()
+
+
+def load_embeddings_cache(paths: list, segment_indices: list) -> tuple:
+    """Carga embeddings del cache si existe y es válido.
+
+    Returns:
+        tuple: (embeddings_list, success) donde success indica si se cargó del cache
+    """
+    cache_path = get_embeddings_cache_path()
+
+    if not cache_path.exists():
+        return None, False
+
+    try:
+        with open(cache_path, "rb") as f:
+            cache_data = pickle.load(f)
+
+        # Verificar hash
+        current_hash = compute_dataset_hash(paths, segment_indices)
+        if cache_data.get("hash") != current_hash:
+            print("  [CACHE] Hash no coincide, regenerando embeddings...")
+            return None, False
+
+        print(
+            f"  [CACHE] Cargando {len(cache_data['embeddings'])} embeddings desde cache..."
+        )
+        return cache_data["embeddings"], True
+
+    except Exception as e:
+        print(f"  [CACHE] Error leyendo cache: {e}")
+        return None, False
+
+
+def save_embeddings_cache(embeddings: list, paths: list, segment_indices: list):
+    """Guarda embeddings en cache."""
+    cache_path = get_embeddings_cache_path()
+
+    cache_data = {
+        "hash": compute_dataset_hash(paths, segment_indices),
+        "embeddings": embeddings,
+        "segment_duration": SEGMENT_DURATION,
+        "created_at": datetime.now().isoformat(),
+        "num_embeddings": len(embeddings),
+    }
+
+    with open(cache_path, "wb") as f:
+        pickle.dump(cache_data, f)
+
+    print(f"  [CACHE] Guardados {len(embeddings)} embeddings en cache")
 
 
 def extract_vggish_embeddings_from_segment(
@@ -511,15 +579,24 @@ if __name__ == "__main__":
 
     # Extraer todos los embeddings una sola vez (de segmentos on-the-fly)
     print("\nExtrayendo embeddings VGGish de todos los segmentos...")
-    all_embeddings = []
     paths = all_data["Audio Path"].values
     segment_indices = all_data["Segment Index"].values
 
-    for i, (path, seg_idx) in enumerate(zip(paths, segment_indices)):
-        if i % 100 == 0:
-            print(f"  Procesando {i}/{len(paths)}...")
-        emb = extract_vggish_embeddings_from_segment(path, int(seg_idx))
-        all_embeddings.append(emb)
+    # Intentar cargar desde cache
+    all_embeddings, loaded_from_cache = load_embeddings_cache(
+        paths.tolist(), segment_indices.tolist()
+    )
+
+    if not loaded_from_cache:
+        all_embeddings = []
+        for i, (path, seg_idx) in enumerate(zip(paths, segment_indices)):
+            if i % 100 == 0:
+                print(f"  Procesando {i}/{len(paths)}...")
+            emb = extract_vggish_embeddings_from_segment(path, int(seg_idx))
+            all_embeddings.append(emb)
+
+        # Guardar en cache
+        save_embeddings_cache(all_embeddings, paths.tolist(), segment_indices.tolist())
 
     print(f"Embeddings extraídos: {len(all_embeddings)}")
 
@@ -536,7 +613,7 @@ if __name__ == "__main__":
     print(f"\n{'=' * 70}")
     print(f"FASE 1: ENTRENAMIENTO DE {N_FOLDS} MODELOS (StratifiedGroupKFold)")
     print(f"{'=' * 70}")
-    print("[INFO] Usando StratifiedGroupKFold - sesiones NUNCA se mezclan entre folds")
+    print("[INFO] Usando StratifiedGroupKFold")
 
     sgkf = StratifiedGroupKFold(
         n_splits=N_FOLDS, shuffle=True, random_state=RANDOM_SEED

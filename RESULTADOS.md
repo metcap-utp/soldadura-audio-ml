@@ -15,10 +15,10 @@ El conjunto blind contiene sesiones de soldadura nunca vistas durante el entrena
 
 | Duración   | Parámetro | Preprocesados (Acc) | Crudos (Acc) | Diferencia | Mejor         |
 | ---------- | --------- | ------------------- | ------------ | ---------- | ------------- |
-| **5 seg**  | Placa     | 72.79%              | 74.66%       | **+1.87%** | ✅ Crudos     |
-| **5 seg**  | Electrodo | 82.33%              | 84.96%       | **+2.63%** | ✅ Crudos     |
+| **5 seg**  | Placa     | 72.79%              | 74.66%       | **+1.87%** | Crudos     |
+| **5 seg**  | Electrodo | 82.33%              | 84.96%       | **+2.63%** | Crudos     |
 | **5 seg**  | Corriente | 96.74%              | 93.27%       | -3.47%     | Preprocesados |
-| **10 seg** | Placa     | 74.55%              | 75.39%       | **+0.84%** | ✅ Crudos     |
+| **10 seg** | Placa     | 74.55%              | 75.39%       | **+0.84%** | Crudos     |
 | **10 seg** | Electrodo | 87.05%              | 86.13%       | -0.92%     | Preprocesados |
 | **10 seg** | Corriente | 98.21%              | 97.09%       | -1.12%     | Preprocesados |
 | **30 seg** | Placa     | 80.46%              | 69.03%       | -11.43%    | Preprocesados |
@@ -29,10 +29,10 @@ El conjunto blind contiene sesiones de soldadura nunca vistas durante el entrena
 
 | Duración   | Parámetro | Preprocesados (F1) | Crudos (F1) | Diferencia | Mejor         |
 | ---------- | --------- | ------------------ | ----------- | ---------- | ------------- |
-| **5 seg**  | Placa     | 73.00%             | 75.23%      | **+2.23%** | ✅ Crudos     |
-| **5 seg**  | Electrodo | 82.00%             | 83.70%      | **+1.70%** | ✅ Crudos     |
+| **5 seg**  | Placa     | 73.00%             | 75.23%      | **+2.23%** | Crudos     |
+| **5 seg**  | Electrodo | 82.00%             | 83.70%      | **+1.70%** | Crudos     |
 | **5 seg**  | Corriente | 97.00%             | 92.84%      | -4.16%     | Preprocesados |
-| **10 seg** | Placa     | 75.00%             | 76.01%      | **+1.01%** | ✅ Crudos     |
+| **10 seg** | Placa     | 75.00%             | 76.01%      | **+1.01%** | Crudos     |
 | **10 seg** | Electrodo | 87.00%             | 85.25%      | -1.75%     | Preprocesados |
 | **10 seg** | Corriente | 98.00%             | 96.87%      | -1.13%     | Preprocesados |
 | **30 seg** | Placa     | 81.00%             | 69.46%      | -11.54%    | Preprocesados |

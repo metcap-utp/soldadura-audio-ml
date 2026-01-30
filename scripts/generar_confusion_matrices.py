@@ -43,7 +43,7 @@ def cargar_resultados(duracion: str) -> list:
     infer_json = ROOT_DIR / duracion / "infer.json"
 
     if not infer_json.exists():
-        print(f"  ⚠ No se encontró {infer_json}")
+        print(f"  No se encontró {infer_json}")
         return []
 
     with open(infer_json, "r") as f:
@@ -154,13 +154,16 @@ def generar_grafica_combinada(
     # Título general
     segment_dur = resultado.get("segment_duration", duracion)
     n_samples = resultado.get("n_samples", "?")
+    k_folds = resultado.get("config", {}).get("k_folds", resultado.get("n_models", "?"))
 
     # Métricas globales si existen
     global_metrics = resultado.get("global_metrics", {})
     exact_match = global_metrics.get("exact_match_accuracy", None)
     hamming = global_metrics.get("hamming_accuracy", None)
 
-    title_parts = [f"Matrices de Confusión - {segment_dur}s ({n_samples} muestras)"]
+    title_parts = [
+        f"Matrices de Confusión - {segment_dur}s | K={k_folds} ({n_samples} muestras)"
+    ]
     if exact_match is not None and hamming is not None:
         title_parts.append(
             f"Exact Match: {exact_match * 100:.1f}% | Hamming: {hamming * 100:.1f}%"
@@ -185,7 +188,7 @@ def timestamp_to_filename(timestamp: str) -> str:
 
 def procesar_duracion(duracion: str, solo_ultimo: bool = False):
     """Procesa una duración y genera sus gráficas."""
-    print(f"\n📊 Procesando {duracion}...")
+    print(f"\nProcesando {duracion}...")
 
     resultados = cargar_resultados(duracion)
 
@@ -203,14 +206,17 @@ def procesar_duracion(duracion: str, solo_ultimo: bool = False):
 
     for i, resultado in enumerate(resultados):
         timestamp = resultado.get("timestamp", f"result_{i}")
-        filename_base = timestamp_to_filename(timestamp)
+        k_folds = resultado.get("config", {}).get(
+            "k_folds", resultado.get("n_models", 5)
+        )
+        filename_base = f"k{k_folds}_{timestamp_to_filename(timestamp)}"
 
-        print(f"  📈 Generando gráficas para {filename_base}...")
+        print(f"  Generando graficas para {filename_base}...")
 
         # Generar gráfica combinada
         output_combined = output_dir / f"combined_{filename_base}.png"
         generar_grafica_combinada(resultado, duracion, output_combined)
-        print(f"    ✓ {output_combined.name}")
+        print(f"    - {output_combined.name}")
 
         # Generar gráficas individuales
         for task in ["plate_thickness", "electrode", "current_type"]:
@@ -224,7 +230,10 @@ def procesar_duracion(duracion: str, solo_ultimo: bool = False):
             f1 = resultado["macro_f1"].get(task, None)
 
             segment_dur = resultado.get("segment_duration", duracion)
-            titulo = f"{TASK_NAMES[task]} ({segment_dur}s)"
+            k_folds = resultado.get("config", {}).get(
+                "k_folds", resultado.get("n_models", "?")
+            )
+            titulo = f"{TASK_NAMES[task]} ({segment_dur}s, K={k_folds})"
 
             output_path = output_dir / f"{task}_{filename_base}.png"
             generar_grafica_confusion(
@@ -237,9 +246,9 @@ def procesar_duracion(duracion: str, solo_ultimo: bool = False):
                 f1_macro=f1,
             )
 
-        print(f"    ✓ 3 gráficas individuales")
+        print(f"    - 3 graficas individuales")
 
-    print(f"  📁 Guardadas en: {output_dir}")
+    print(f"  Guardadas en: {output_dir}")
 
 
 def main():
@@ -281,7 +290,7 @@ def main():
         procesar_duracion(duracion, solo_ultimo=args.ultimo)
 
     print("\n" + "=" * 60)
-    print("  ✅ Proceso completado")
+    print("  Proceso completado")
     print("=" * 60)
 
 

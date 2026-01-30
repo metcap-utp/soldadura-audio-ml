@@ -2,7 +2,7 @@
 
 Sistema de clasificación de audio de soldadura SMAW (Shielded Metal Arc Welding) usando deep learning con arquitectura X-Vector y ensemble de modelos con K-Fold Cross-Validation.
 
-## 🎯 Objetivos
+## Objetivos
 
 Clasificar audio de soldadura en tres tareas:
 
@@ -10,7 +10,7 @@ Clasificar audio de soldadura en tres tareas:
 - **Electrode Type**: Tipo de electrodo (E6010, E6011, E6013, E7018)
 - **Current Type**: Tipo de corriente (AC, DC)
 
-## 📁 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 soldadura/
@@ -49,7 +49,7 @@ soldadura/
 └── infer.json               # Métricas de evaluación
 ```
 
-## 🚀 Inicio Rápido
+## Inicio Rápido
 
 ### 1. Requisitos
 
@@ -105,7 +105,7 @@ python infer.py --audio ruta/al/archivo.wav
 python infer.py --audio ruta/al/archivo.wav --k-folds 3
 ```
 
-## 📊 Resultados
+## Resultados
 
 Los resultados se guardan automáticamente en:
 
@@ -120,7 +120,7 @@ Cada entrada incluye información para identificar el experimento:
 - Timestamp
 - Métricas por tarea y por fold
 
-## 🔬 Comparar diferentes valores de K
+## Comparar diferentes valores de K
 
 ```bash
 # Entrenar con diferentes k
@@ -136,7 +136,7 @@ python infer.py --evaluar --k-folds 10
 
 Luego revisa `results.json` para comparar las métricas de cada configuración.
 
-## 📊 Visualización de Resultados
+## Visualización de Resultados
 
 ### Métricas vs Número de Folds
 
@@ -161,7 +161,7 @@ python graficar_duraciones.py --save               # Guarda imagen
 python graficar_duraciones.py --no-plot            # Solo tabla resumen
 ```
 
-## 📝 Parámetros de Entrenamiento
+## Parámetros de Entrenamiento
 
 | Parámetro       | Valor     |
 | --------------- | --------- |
@@ -172,14 +172,14 @@ python graficar_duraciones.py --no-plot            # Solo tabla resumen
 | Optimizer       | AdamW     |
 | Label Smoothing | 0.1       |
 
-## 🏗️ Arquitectura
+## Arquitectura
 
 - **VGGish**: Extracción de embeddings de audio (TensorFlow Hub)
 - **X-Vector**: Encoder temporal con Conv1D
 - **Stats Pooling**: Agregación de estadísticas (media + std)
 - **Multi-Head Classifier**: Clasificación simultánea de 3 tareas
 
-## 📚 Referencias
+## Referencias
 
 - Snyder et al. (2018) - X-Vectors
 - Dietterich (2000) - Ensemble Methods
