@@ -120,6 +120,10 @@ Cada entrada incluye información para identificar el experimento:
 - Timestamp
 - Métricas por tarea y por fold
 
+### Comparación de K (10 segundos)
+
+Se añadió una tabla comparativa de K para 10seg en [RESULTADOS.md](RESULTADOS.md).
+
 ## Comparar diferentes valores de K
 
 ```bash
@@ -171,13 +175,6 @@ python graficar_duraciones.py --no-plot            # Solo tabla resumen
 | Early Stopping  | 15 epochs |
 | Optimizer       | AdamW     |
 | Label Smoothing | 0.1       |
-
-## Arquitectura
-
-- **VGGish**: Extracción de embeddings de audio (TensorFlow Hub)
-- **X-Vector**: Encoder temporal con Conv1D
-- **Stats Pooling**: Agregación de estadísticas (media + std)
-- **Multi-Head Classifier**: Clasificación simultánea de 3 tareas
 
 ## Referencias
 

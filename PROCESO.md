@@ -169,7 +169,85 @@ Entrada: Embeddings VGGish [T, 128]
 ---
 
 ## 8. Entrenamiento
+## 12. Metodología y Métricas de Evaluación
 
+### Ensemble de Modelos
+
+El sistema utiliza un **ensemble de 5 modelos** entrenados mediante validación cruzada K-Fold. Cada modelo se entrena con una partición diferente de los datos, lo que permite:
+
+- Aprovechar toda la información disponible para entrenamiento
+- Reducir la varianza y mejorar la robustez
+- Obtener predicciones más confiables mediante votación
+
+### Soft Voting
+
+Las predicciones finales se obtienen mediante **soft voting**, que:
+
+1. Cada modelo genera probabilidades para cada clase (no solo la predicción final)
+2. Se promedian las probabilidades de todos los modelos
+3. Se selecciona la clase con mayor probabilidad promedio
+
+**Ventaja:** Aprovecha la confianza de cada modelo en sus predicciones, no solo su elección, resultando en decisiones más informadas y precisas que el hard voting (voto por mayoría simple).
+
+### Tipo de Promedio: Macro
+
+Todas las métricas reportadas (F1-Score, Precision, Recall) utilizan **promedio macro**, que calcula la métrica para cada clase independientemente y luego promedia sin ponderar:
+
+$$\text{Métrica}_{\text{macro}} = \frac{1}{N} \sum_{i=1}^{N} \text{Métrica}_i$$
+
+Donde $N$ es el número de clases.
+
+**¿Por qué macro?** El promedio macro trata todas las clases por igual, sin importar su frecuencia. Esto es importante porque:
+
+- Evita que clases mayoritarias dominen la evaluación
+- Refleja mejor el rendimiento en clases minoritarias
+- Es más exigente cuando hay desbalance de clases
+
+### Métricas por Clase
+
+Para cada clase individual:
+
+$$\text{Precision} = \frac{TP}{TP + FP}$$
+
+$$\text{Recall} = \frac{TP}{TP + FN}$$
+
+$$\text{F1-Score} = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}$$
+
+### Accuracy Global
+
+El accuracy se calcula como la proporción de predicciones correctas sobre el total:
+
+$$\text{Accuracy} = \frac{\text{Predicciones Correctas}}{\text{Total de Muestras}}$$
+
+### Métricas Globales Multi-tarea
+
+Para evaluar el rendimiento conjunto de las tres tareas de clasificación:
+
+#### Exact Match Accuracy (Subset Accuracy)
+
+Proporción de muestras donde **todas** las predicciones son correctas simultáneamente:
+
+$$\text{Exact Match} = \frac{1}{N} \sum_{i=1}^{N} \mathbb{1}[\hat{y}^{placa}_i = y^{placa}_i \land \hat{y}^{electrodo}_i = y^{electrodo}_i \land \hat{y}^{corriente}_i = y^{corriente}_i]$$
+
+Es la métrica más estricta: una muestra solo cuenta como correcta si las 3 predicciones son correctas.
+
+#### Hamming Accuracy
+
+Promedio de las accuracies individuales de cada tarea:
+
+$$\text{Hamming Accuracy} = \frac{\text{Acc}_{placa} + \text{Acc}_{electrodo} + \text{Acc}_{corriente}}{3}$$
+
+Mide el rendimiento promedio sin penalizar errores parciales.
+
+**Relación:** Siempre se cumple: $\text{Exact Match} \leq \text{Hamming Accuracy}$
+
+Donde:
+
+- **TP** (True Positives): Predicciones correctas de la clase
+- **FP** (False Positives): Predicciones incorrectas como esa clase
+- **FN** (False Negatives): Casos de la clase no detectados
+
+## 13. Resumen
 ### 8.1 Ejecutar Entrenamiento
 
 ```bash

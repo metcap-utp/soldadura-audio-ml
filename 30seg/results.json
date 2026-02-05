@@ -152,5 +152,161 @@
       "electrode": 0.0359,
       "current": 0.0097
     }
+  },
+  {
+    "id": "30seg_10fold_20260201_141225",
+    "timestamp": "2026-02-01T14:12:25.808722",
+    "execution_time": {
+      "seconds": 311.74,
+      "minutes": 5.2,
+      "hours": 0.0866
+    },
+    "config": {
+      "segment_duration": 30.0,
+      "overlap_seconds": 0.0,
+      "n_folds": 10,
+      "models_dir": "k10_overlap_0.0",
+      "random_seed": 42,
+      "voting_method": "soft",
+      "batch_size": 32,
+      "epochs": 100,
+      "learning_rate": 0.001,
+      "weight_decay": 0.0001,
+      "label_smoothing": 0.1,
+      "early_stop_patience": 15
+    },
+    "data": {
+      "total_segments": 805,
+      "unique_sessions": 335,
+      "classes": {
+        "plate": [
+          "Placa_12mm",
+          "Placa_3mm",
+          "Placa_6mm"
+        ],
+        "electrode": [
+          "E6010",
+          "E6011",
+          "E6013",
+          "E7018"
+        ],
+        "current": [
+          "AC",
+          "DC"
+        ]
+      }
+    },
+    "fold_results": [
+      {
+        "acc_plate": 0.8333333333333334,
+        "acc_electrode": 0.9230769230769231,
+        "acc_current": 1.0,
+        "f1_plate": 0.8325868996698613,
+        "f1_electrode": 0.9225885225885226,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.8229166666666666,
+        "acc_electrode": 0.8645833333333334,
+        "acc_current": 0.9166666666666666,
+        "f1_plate": 0.8250200525297643,
+        "f1_electrode": 0.8654357970678005,
+        "f1_current": 0.918346312414109
+      },
+      {
+        "acc_plate": 0.8072289156626506,
+        "acc_electrode": 0.927710843373494,
+        "acc_current": 0.963855421686747,
+        "f1_plate": 0.7989479352496639,
+        "f1_electrode": 0.9265655080493381,
+        "f1_current": 0.9638869202299393
+      },
+      {
+        "acc_plate": 0.9487179487179487,
+        "acc_electrode": 0.9615384615384616,
+        "acc_current": 0.9743589743589743,
+        "f1_plate": 0.9485529122891759,
+        "f1_electrode": 0.9631321225071224,
+        "f1_current": 0.9744809085841695
+      },
+      {
+        "acc_plate": 0.8333333333333334,
+        "acc_electrode": 0.8939393939393939,
+        "acc_current": 0.9393939393939394,
+        "f1_plate": 0.8346644741993579,
+        "f1_electrode": 0.8933522214010019,
+        "f1_current": 0.9400826446280992
+      },
+      {
+        "acc_plate": 0.8076923076923077,
+        "acc_electrode": 0.8589743589743589,
+        "acc_current": 0.9487179487179487,
+        "f1_plate": 0.8127838087711732,
+        "f1_electrode": 0.8592753455039508,
+        "f1_current": 0.9487179487179487
+      },
+      {
+        "acc_plate": 0.8470588235294118,
+        "acc_electrode": 0.9411764705882353,
+        "acc_current": 1.0,
+        "f1_plate": 0.853842627960275,
+        "f1_electrode": 0.9408223149399619,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.8588235294117647,
+        "acc_electrode": 0.9411764705882353,
+        "acc_current": 0.9882352941176471,
+        "f1_plate": 0.8573436661179074,
+        "f1_electrode": 0.9414399973537062,
+        "f1_current": 0.9882287663296696
+      },
+      {
+        "acc_plate": 0.8904109589041096,
+        "acc_electrode": 0.9863013698630136,
+        "acc_current": 1.0,
+        "f1_plate": 0.8906785313587976,
+        "f1_electrode": 0.9863166188019418,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.891566265060241,
+        "acc_electrode": 0.9518072289156626,
+        "acc_current": 1.0,
+        "f1_plate": 0.8910918075317609,
+        "f1_electrode": 0.9522566641254158,
+        "f1_current": 1.0
+      }
+    ],
+    "ensemble_results": {
+      "plate": {
+        "accuracy": 0.9627,
+        "f1": 0.9629,
+        "precision": 0.9658,
+        "recall": 0.9627
+      },
+      "electrode": {
+        "accuracy": 0.9714,
+        "f1": 0.9715,
+        "precision": 0.9728,
+        "recall": 0.9714
+      },
+      "current": {
+        "accuracy": 0.9888,
+        "f1": 0.9888,
+        "precision": 0.9891,
+        "recall": 0.9888
+      }
+    },
+    "individual_avg": {
+      "plate": 0.8541,
+      "electrode": 0.925,
+      "current": 0.9731
+    },
+    "improvement_vs_individual": {
+      "plate": 0.1086,
+      "electrode": 0.0464,
+      "current": 0.0157
+    }
   }
 ]

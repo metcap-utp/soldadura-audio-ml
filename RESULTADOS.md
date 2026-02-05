@@ -57,7 +57,7 @@ El conjunto blind contiene sesiones de soldadura nunca vistas durante el entrena
 - Para segmentos cortos, el preprocesamiento podría eliminar información acústica útil para distinguir grosor de placa
 - Los segmentos largos se benefician más del preprocesamiento al tener más oportunidad de ruido acumulado
 
----
+
 
 ## II. Resultados Detallados con Audios Crudos (Configuración Actual)
 
@@ -98,6 +98,20 @@ El conjunto blind contiene sesiones de soldadura nunca vistas durante el entrena
 | **Electrodo** | 93.12%                 | 99.96%            | +6.84%          |
 | **Corriente** | 99.03%                 | 100.00%           | +0.97%          |
 
+#### Comparación de K (5 segundos)
+
+**Fecha de ejecución:** 2026-02-01  
+**Fuente:** [5seg/results.json](5seg/results.json)
+
+| K  | Acc Fold (Placa) | Acc Fold (Electrodo) | Acc Fold (Corriente) | Acc Ensemble (Placa) | Acc Ensemble (Electrodo) | Acc Ensemble (Corriente) |
+| -- | ---------------- | -------------------- | -------------------- | -------------------- | ------------------------ | ------------------------ |
+| 3  | 84.84%           | 92.25%               | 98.19%               | 99.61%               | 99.56%                   | 99.99%                   |
+| 5  | 86.00%           | 91.80%               | 98.56%               | 99.81%               | 99.89%                   | 100.00%                  |
+| 7  | 85.89%           | 92.58%               | 98.64%               | 99.89%               | 99.89%                   | 100.00%                  |
+| 10 | 86.74%           | 92.81%               | 98.65%               | 99.97%               | 99.96%                   | 100.00%                  |
+| 15 | 87.56%           | 92.77%               | 98.70%               | 99.97%               | 99.93%                   | 100.00%                  |
+| 20 | 87.81%           | 93.31%               | 98.57%               | 99.75%               | 99.79%                   | 100.00%                  |
+
 #### Audio de 10 segundos
 
 **Fecha de ejecución:** 2026-01-21  
@@ -108,6 +122,20 @@ El conjunto blind contiene sesiones de soldadura nunca vistas durante el entrena
 | **Placa**     | 88.45%                 | 100.00%           | +11.55%         |
 | **Electrodo** | 95.07%                 | 99.97%            | +4.90%          |
 | **Corriente** | 98.88%                 | 100.00%           | +1.12%          |
+
+#### Comparación de K (10 segundos)
+
+**Fecha de ejecución:** 2026-01-31  
+**Fuente:** [10seg/results.json](10seg/results.json)
+
+| K  | Acc Fold (Placa) | Acc Fold (Electrodo) | Acc Fold (Corriente) | Acc Ensemble (Placa) | Acc Ensemble (Electrodo) | Acc Ensemble (Corriente) |
+| -- | ---------------- | -------------------- | -------------------- | -------------------- | ------------------------ | ------------------------ |
+| 3  | 88.33%           | 94.15%               | 99.11%               | 99.97%               | 99.94%                   | 100.00%                  |
+| 5  | 88.45%           | 95.07%               | 98.88%               | 100.00%              | 99.97%                   | 100.00%                  |
+| 7  | 89.61%           | 94.82%               | 99.08%               | 100.00%              | 100.00%                  | 100.00%                  |
+| 10 | 90.45%           | 95.22%               | 99.07%               | 100.00%              | 100.00%                  | 100.00%                  |
+| 15 | 91.36%           | 95.61%               | 99.24%               | 100.00%              | 100.00%                  | 100.00%                  |
+| 20 | 90.63%           | 95.82%               | 99.39%               | 100.00%              | 100.00%                  | 100.00%                  |
 
 #### Audio de 30 segundos
 
@@ -122,55 +150,6 @@ El conjunto blind contiene sesiones de soldadura nunca vistas durante el entrena
 
 ### Evaluación en Conjunto Blind
 
-#### Métricas Globales Multi-tarea
-
-| Duración   | Exact Match | Hamming Accuracy |
-| ---------- | ----------- | ---------------- |
-| **1 seg**  | 0.00%       | 25.39%           |
-| **2 seg**  | 59.68%      | 78.22%           |
-| **5 seg**  | 68.24%      | 84.30%           |
-| **10 seg** | 69.35%      | 86.20%           |
-| **30 seg** | 67.26%      | 84.37%           |
-
-> **Nota:** Exact Match = 0% en 1 seg porque el modelo predice siempre la misma clase para cada tarea (clase mayoritaria).
-
-#### Audio de 1 segundo
-
-**Tamaño del conjunto:** 4,988 segmentos (87 sesiones)
-
-| Parámetro     | Accuracy | F1 (Macro) | Precision (Macro) | Recall (Macro) |
-| ------------- | -------- | ---------- | ----------------- | -------------- |
-| **Placa**     | 29.05%   | 15.01%     | 9.68%             | 33.33%         |
-| **Electrodo** | 12.49%   | 5.55%      | 3.12%             | 25.00%         |
-| **Corriente** | 34.64%   | 25.73%     | 17.32%            | 50.00%         |
-
-> **Nota:** Resultados muy pobres debido a contexto temporal insuficiente (1 frame VGGish). El modelo predice consistentemente la clase mayoritaria.
-
-#### Audio de 2 segundos
-
-**Tamaño del conjunto:** 2,465 segmentos (87 sesiones)
-
-| Parámetro     | Accuracy | F1 (Macro) | Precision (Macro) | Recall (Macro) |
-| ------------- | -------- | ---------- | ----------------- | -------------- |
-| **Placa**     | 69.53%   | 70.09%     | 69.79%            | 72.60%         |
-| **Electrodo** | 76.96%   | 75.64%     | 75.70%            | 77.66%         |
-| **Corriente** | 88.15%   | 87.61%     | 86.89%            | 90.19%         |
-
-#### Audio de 5 segundos
-
-**Tamaño del conjunto:** 951 segmentos (87 sesiones)
-
-| Parámetro     | Accuracy | F1 (Macro) | Precision (Macro) | Recall (Macro) |
-| ------------- | -------- | ---------- | ----------------- | -------------- |
-| **Placa**     | 74.66%   | 75.23%     | 74.60%            | 77.54%         |
-| **Electrodo** | 84.96%   | 83.70%     | 83.52%            | 86.11%         |
-| **Corriente** | 93.27%   | 92.84%     | 91.87%            | 94.63%         |
-
-#### Audio de 10 segundos
-
-**Tamaño del conjunto:** 447 segmentos (87 sesiones)
-
-| Parámetro     | Accuracy | F1 (Macro) | Precision (Macro) | Recall (Macro) |
 | ------------- | -------- | ---------- | ----------------- | -------------- |
 | **Placa**     | 75.39%   | 76.01%     | 75.44%            | 79.07%         |
 | **Electrodo** | 86.13%   | 85.25%     | 85.01%            | 87.92%         |
@@ -186,7 +165,7 @@ El conjunto blind contiene sesiones de soldadura nunca vistas durante el entrena
 | **Electrodo** | 88.50%   | 87.12%     | 86.27%            | 90.68%         |
 | **Corriente** | 95.58%   | 95.24%     | 94.63%            | 96.01%         |
 
----
+<!-- fin -->
 
 ## III. Comparación General (Audios Crudos)
 
@@ -217,92 +196,10 @@ El conjunto blind contiene sesiones de soldadura nunca vistas durante el entrena
 
 **Nota:** La diferencia entre validación cruzada (ensemble perfecto en datos de entrenamiento) y blind refleja la capacidad de generalización real del modelo.
 
----
 
-## IV. Metodología
 
-### Ensemble de Modelos
 
-El sistema utiliza un **ensemble de 5 modelos** entrenados mediante validación cruzada K-Fold. Cada modelo se entrena con una partición diferente de los datos, lo que permite:
 
-- Aprovechar toda la información disponible para entrenamiento
-- Reducir la varianza y mejorar la robustez
-- Obtener predicciones más confiables mediante votación
 
-### Soft Voting
 
-Las predicciones finales se obtienen mediante **soft voting**, que:
 
-1. Cada modelo genera probabilidades para cada clase (no solo la predicción final)
-2. Se promedian las probabilidades de todos los modelos
-3. Se selecciona la clase con mayor probabilidad promedio
-
-**Ventaja:** Aprovecha la confianza de cada modelo en sus predicciones, no solo su elección, resultando en decisiones más informadas y precisas que el hard voting (voto por mayoría simple).
-
----
-
-## V. Fórmulas de Evaluación
-
-Las métricas se calculan utilizando **scikit-learn**, biblioteca estándar validada en investigación científica.
-
-### Tipo de Promedio: Macro
-
-Todas las métricas reportadas (F1-Score, Precision, Recall) utilizan **promedio macro**, que calcula la métrica para cada clase independientemente y luego promedia sin ponderar:
-
-$$\text{Métrica}_{\text{macro}} = \frac{1}{N} \sum_{i=1}^{N} \text{Métrica}_i$$
-
-Donde $N$ es el número de clases.
-
-**¿Por qué macro?** El promedio macro trata todas las clases por igual, sin importar su frecuencia. Esto es importante porque:
-
-- Evita que clases mayoritarias dominen la evaluación
-- Refleja mejor el rendimiento en clases minoritarias
-- Es más exigente cuando hay desbalance de clases
-
-### Métricas por Clase
-
-Para cada clase individual:
-
-$$\text{Precision} = \frac{TP}{TP + FP}$$
-
-$$\text{Recall} = \frac{TP}{TP + FN}$$
-
-$$\text{F1-Score} = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}$$
-
-### Accuracy Global
-
-El accuracy se calcula como la proporción de predicciones correctas sobre el total:
-
-$$\text{Accuracy} = \frac{\text{Predicciones Correctas}}{\text{Total de Muestras}}$$
-
-### Métricas Globales Multi-tarea
-
-Para evaluar el rendimiento conjunto de las tres tareas de clasificación:
-
-#### Exact Match Accuracy (Subset Accuracy)
-
-Proporción de muestras donde **todas** las predicciones son correctas simultáneamente:
-
-$$\text{Exact Match} = \frac{1}{N} \sum_{i=1}^{N} \mathbb{1}[\hat{y}^{placa}_i = y^{placa}_i \land \hat{y}^{electrodo}_i = y^{electrodo}_i \land \hat{y}^{corriente}_i = y^{corriente}_i]$$
-
-Es la métrica más estricta: una muestra solo cuenta como correcta si las 3 predicciones son correctas.
-
-#### Hamming Accuracy
-
-Promedio de las accuracies individuales de cada tarea:
-
-$$\text{Hamming Accuracy} = \frac{\text{Acc}_{placa} + \text{Acc}_{electrodo} + \text{Acc}_{corriente}}{3}$$
-
-Mide el rendimiento promedio sin penalizar errores parciales.
-
-**Relación:** Siempre se cumple: $\text{Exact Match} \leq \text{Hamming Accuracy}$
-
-Donde:
-
-- **TP** (True Positives): Predicciones correctas de la clase
-- **FP** (False Positives): Predicciones incorrectas como esa clase
-- **FN** (False Negatives): Casos de la clase no detectados
-
----
-
-_Configuración: 5-fold cross-validation, soft voting, 100 epochs, batch size 32_

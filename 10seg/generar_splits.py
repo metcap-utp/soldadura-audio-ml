@@ -21,10 +21,11 @@ Qué es una SESIÓN?
 Genera:
     - train.csv (para entrenamiento con K-Fold CV)
     - test.csv (para evaluación durante desarrollo)
-    - blind.csv (para validación final en vida real - NUNCA usar en desarrollo)
+    - blind.csv (para validación final en vida real)
     - completo.csv (todos los archivos con columna Split)
 """
 
+import argparse
 import json
 import sys
 import time
@@ -44,6 +45,7 @@ from utils.audio_utils import (
     get_all_segments_from_session,
     get_script_segment_duration,
 )
+from utils.timing import timer
 
 # =============================================================================
 # CONFIGURACION - Modificar estas variables segun necesidad
@@ -71,6 +73,22 @@ VAL_FRACTION = 0.0
 # Duración de segmento basada en el nombre del directorio (5seg -> 5.0)
 SEGMENT_DURATION = get_script_segment_duration(Path(__file__))
 
+# Solapamiento entre segmentos (en segundos). Default: 0 (sin solapamiento)
+OVERLAP_SECONDS = 0.0
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Generación de splits estratificados por sesión"
+    )
+    parser.add_argument(
+        "--overlap",
+        type=float,
+        default=0.0,
+        help="Solapamiento entre segmentos en segundos (default: 0.0)",
+    )
+    return parser.parse_args()
+
 
 def create_stratification_label(df: pd.DataFrame) -> pd.Series:
     """
@@ -85,6 +103,7 @@ def load_all_sessions() -> pd.DataFrame:
     print("Descubriendo sesiones de audio...")
     print(f"  Directorio base: {PROJECT_ROOT / 'audio'}")
     print(f"  Duración de segmento: {SEGMENT_DURATION}s")
+    print(f"  Solapamiento: {OVERLAP_SECONDS}s")
 
     sessions_df = discover_sessions()
 
@@ -96,7 +115,11 @@ def load_all_sessions() -> pd.DataFrame:
     print("  Contando segmentos por sesión...")
     segment_counts = []
     for _, row in sessions_df.iterrows():
-        segments = get_all_segments_from_session(row["Session Path"], SEGMENT_DURATION)
+        segments = get_all_segments_from_session(
+            row["Session Path"],
+            SEGMENT_DURATION,
+            overlap_seconds=OVERLAP_SECONDS,
+        )
         segment_counts.append(len(segments))
 
     sessions_df["Num Segments"] = segment_counts
@@ -117,7 +140,11 @@ def expand_sessions_to_segments(sessions_df: pd.DataFrame) -> pd.DataFrame:
 
     segments_data = []
     for _, row in sessions_df.iterrows():
-        segments = get_all_segments_from_session(row["Session Path"], SEGMENT_DURATION)
+        segments = get_all_segments_from_session(
+            row["Session Path"],
+            SEGMENT_DURATION,
+            overlap_seconds=OVERLAP_SECONDS,
+        )
         for audio_path, seg_idx in segments:
             # Path relativo desde PROJECT_ROOT
             rel_path = audio_path.relative_to(PROJECT_ROOT)
@@ -384,6 +411,7 @@ def generate_statistics(df: pd.DataFrame, sessions_df: pd.DataFrame) -> dict:
     stats = {
         "timestamp": datetime.now().isoformat(),
         "segment_duration": SEGMENT_DURATION,
+        "overlap_seconds": OVERLAP_SECONDS,
         "random_seed": RANDOM_SEED,
         "config": {
             "blind_fraction": BLIND_FRACTION,
@@ -642,6 +670,11 @@ def save_statistics(
 
 def main():
     """Genera todos los CSVs de splits."""
+    global OVERLAP_SECONDS
+
+    args = parse_args()
+    OVERLAP_SECONDS = float(args.overlap)
+
     # Iniciar timer
     start_time = time.time()
 
@@ -651,43 +684,42 @@ def main():
     print(f"\nConfiguracion:")
     print(f"  RANDOM_SEED = {RANDOM_SEED}")
     print(f"  SEGMENT_DURATION = {SEGMENT_DURATION}s")
+    print(f"  OVERLAP_SECONDS = {OVERLAP_SECONDS}s")
     print(f"  BLIND_FRACTION = {BLIND_FRACTION:.1%} (validacion vida real)")
     print(f"  TEST_FRACTION = {TEST_FRACTION:.1%} (evaluacion desarrollo)")
     print(f"  VAL_FRACTION = {VAL_FRACTION:.1%}")
-    print(
-        f"  TRAIN_FRACTION = {1 - BLIND_FRACTION - TEST_FRACTION - VAL_FRACTION:.1%}"
-    )
+    print(f"  TRAIN_FRACTION = {1 - BLIND_FRACTION - TEST_FRACTION - VAL_FRACTION:.1%}")
 
-    # Cargar todas las sesiones desde el directorio base
-    sessions_df = load_all_sessions()
+    with timer("Carga sesiones + conteo segmentos"):
+        sessions_df = load_all_sessions()
 
     if sessions_df.empty:
         print("ERROR: No hay sesiones para procesar")
         return
 
-    # Realizar split por sesión (primero a nivel de sesiones)
-    print("\n" + "=" * 80)
-    print("DIVIDIENDO POR SESION")
-    print("=" * 80)
-    sessions_df = split_by_session(
-        sessions_df, BLIND_FRACTION, TEST_FRACTION, VAL_FRACTION, RANDOM_SEED
-    )
+    with timer("Split estratificado por sesión"):
+        print("\n" + "=" * 80)
+        print("DIVIDIENDO POR SESION")
+        print("=" * 80)
+        sessions_df = split_by_session(
+            sessions_df, BLIND_FRACTION, TEST_FRACTION, VAL_FRACTION, RANDOM_SEED
+        )
 
-    # Expandir sesiones a segmentos
-    df = expand_sessions_to_segments(sessions_df)
+    with timer("Expandir sesiones a segmentos"):
+        df = expand_sessions_to_segments(sessions_df)
 
     # Asignar Split a cada segmento basándose en su sesión
     session_to_split = dict(zip(sessions_df["Session"], sessions_df["Split"]))
     df["Split"] = df["Session"].map(session_to_split)
 
-    # Guardar resultados
-    save_splits(df)
+    with timer("Guardar CSVs"):
+        save_splits(df)
 
     # Calcular tiempo de ejecución
     elapsed_time = time.time() - start_time
 
-    # Generar y guardar estadísticas (JSON y MD)
-    save_statistics(df, sessions_df, elapsed_time=elapsed_time)
+    with timer("Guardar estadísticas"):
+        save_statistics(df, sessions_df, elapsed_time=elapsed_time)
 
     # Resumen final
     print("\n" + "=" * 80)

@@ -53,6 +53,7 @@ from utils.audio_utils import (
     get_script_segment_duration,
     load_audio_segment,
 )
+from utils.timing import timer
 
 warnings.filterwarnings("ignore")
 
@@ -75,6 +76,12 @@ def parse_args():
         default=42,
         help="Semilla para reproducibilidad (default: 42)",
     )
+    parser.add_argument(
+        "--overlap",
+        type=float,
+        default=0.0,
+        help="Solapamiento entre segmentos como fracción (0-1). Ej: 0.5 = 50% (default: 0.0)",
+    )
     return parser.parse_args()
 
 
@@ -90,6 +97,11 @@ SWA_START = 5
 
 # Duración de segmento basada en el nombre del directorio (5seg -> 5.0)
 SEGMENT_DURATION = get_script_segment_duration(Path(__file__))
+
+# Solapamiento entre segmentos como fracción (0-1). Default: 0 (sin solapamiento)
+OVERLAP_RATIO = 0.0
+# Solapamiento entre segmentos en segundos (derivado de OVERLAP_RATIO)
+OVERLAP_SECONDS = 0.0
 
 # Directorios
 SCRIPT_DIR = Path(__file__).parent
@@ -121,17 +133,78 @@ def extract_session_from_path(audio_path: str) -> str:
 # ============= Cache de Embeddings =============
 
 
-def get_embeddings_cache_path() -> Path:
-    """Obtiene la ruta del archivo de cache de embeddings."""
+def _overlap_tag() -> str:
+    return str(OVERLAP_RATIO)
+
+
+def get_embeddings_cache_dir() -> Path:
+    """Directorio de cache de embeddings (siempre `embeddings_cache/`)."""
+    cache_dir = SCRIPT_DIR / "embeddings_cache"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    return cache_dir
+
+
+def get_legacy_embeddings_cache_paths() -> list[Path]:
+    """Rutas legacy posibles para reutilizar caches viejos sin borrarlos."""
     cache_dir = SCRIPT_DIR / "embeddings_cache"
     cache_dir.mkdir(exist_ok=True)
-    return cache_dir / f"vggish_embeddings_{SEGMENT_DURATION}s.pkl"
+    tag = _overlap_tag()
+    dur = float(SEGMENT_DURATION)
+    return [
+        cache_dir / f"vggish_embeddings_{dur}s_overlap{tag}s.pkl",
+        cache_dir / f"vggish_embeddings_{dur}s_overlap_{tag}.pkl",
+        cache_dir / f"vggish_embeddings_{dur}s.pkl",
+        cache_dir / f"overlap_{tag}s" / f"vggish_embeddings_{dur}s.pkl",
+        cache_dir / f"overlap_{tag}s" / f"vggish_embeddings_{dur}s_overlap{tag}s.pkl",
+    ]
+
+
+def get_embeddings_cache_path() -> Path:
+    """Obtiene la ruta del archivo de cache de embeddings."""
+    cache_dir = get_embeddings_cache_dir()
+    return (
+        cache_dir
+        / f"vggish_embeddings_{float(SEGMENT_DURATION)}s_overlap_{_overlap_tag()}.pkl"
+    )
 
 
 def compute_dataset_hash(paths: list, segment_indices: list) -> str:
     """Calcula un hash del dataset para detectar cambios."""
-    data_str = "".join([f"{p}:{s}" for p, s in zip(paths, segment_indices)])
+    data_str = f"dur={SEGMENT_DURATION}|overlap_ratio={OVERLAP_RATIO}|" + "".join(
+        [f"{p}:{s}" for p, s in zip(paths, segment_indices)]
+    )
     return hashlib.md5(data_str.encode()).hexdigest()
+
+
+def _get_cache_overlap_ratio(cache_data: dict) -> float | None:
+    if cache_data is None:
+        return None
+
+    for k in ("overlap_ratio", "overlap"):
+        v = cache_data.get(k)
+        if v is not None:
+            try:
+                return float(v)
+            except Exception:
+                return None
+
+    v = cache_data.get("overlap_seconds")
+    if v is None:
+        return None
+    try:
+        v = float(v)
+    except Exception:
+        return None
+    if 0.0 <= v <= 1.0:
+        return v
+    dur = cache_data.get("segment_duration", SEGMENT_DURATION)
+    try:
+        dur = float(dur)
+    except Exception:
+        return None
+    if dur <= 0:
+        return None
+    return v / dur
 
 
 def load_embeddings_cache(paths: list, segment_indices: list) -> tuple:
@@ -140,24 +213,46 @@ def load_embeddings_cache(paths: list, segment_indices: list) -> tuple:
     Returns:
         tuple: (embeddings_list, success) donde success indica si se cargó del cache
     """
-    cache_path = get_embeddings_cache_path()
+    new_cache_path = get_embeddings_cache_path()
+    cache_paths = [new_cache_path, *get_legacy_embeddings_cache_paths()]
+    cache_path = next((p for p in cache_paths if p.exists()), None)
 
-    if not cache_path.exists():
+    if cache_path is None:
         return None, False
 
     try:
-        with open(cache_path, "rb") as f:
-            cache_data = pickle.load(f)
+        with timer("Cargar cache embeddings VGGish"):
+            with open(cache_path, "rb") as f:
+                cache_data = pickle.load(f)
 
-        # Verificar hash
-        current_hash = compute_dataset_hash(paths, segment_indices)
-        if cache_data.get("hash") != current_hash:
-            print("  [CACHE] Hash no coincide, regenerando embeddings...")
-            return None, False
+            # Verificaciones rápidas de configuración
+            if cache_data.get("segment_duration") != SEGMENT_DURATION:
+                print("  [CACHE] Duración no coincide, regenerando embeddings...")
+                return None, False
+            cache_overlap_ratio = _get_cache_overlap_ratio(cache_data)
+            if cache_overlap_ratio is None or cache_overlap_ratio != OVERLAP_RATIO:
+                print("  [CACHE] Overlap no coincide, regenerando embeddings...")
+                return None, False
+
+            # Verificar hash
+            current_hash = compute_dataset_hash(paths, segment_indices)
+            if cache_data.get("hash") != current_hash:
+                print("  [CACHE] Hash no coincide, regenerando embeddings...")
+                return None, False
 
         print(
-            f"  [CACHE] Cargando {len(cache_data['embeddings'])} embeddings desde cache..."
+            f"  [CACHE] Cargando {len(cache_data['embeddings'])} embeddings desde cache ({cache_path})"
         )
+
+        # Si es legacy, migrar al nuevo naming sin borrar el original
+        if cache_path != new_cache_path:
+            try:
+                with timer("Migrar cache legacy -> nuevo naming"):
+                    with open(new_cache_path, "wb") as f:
+                        pickle.dump(cache_data, f)
+                print(f"  [CACHE] Migrado a: {new_cache_path}")
+            except Exception as e:
+                print(f"  [CACHE] No se pudo migrar cache legacy: {e}")
         return cache_data["embeddings"], True
 
     except Exception as e:
@@ -173,14 +268,17 @@ def save_embeddings_cache(embeddings: list, paths: list, segment_indices: list):
         "hash": compute_dataset_hash(paths, segment_indices),
         "embeddings": embeddings,
         "segment_duration": SEGMENT_DURATION,
+        "overlap_ratio": OVERLAP_RATIO,
+        "overlap_seconds": OVERLAP_SECONDS,
         "created_at": datetime.now().isoformat(),
         "num_embeddings": len(embeddings),
     }
 
-    with open(cache_path, "wb") as f:
-        pickle.dump(cache_data, f)
+    with timer("Guardar cache embeddings VGGish"):
+        with open(cache_path, "wb") as f:
+            pickle.dump(cache_data, f)
 
-    print(f"  [CACHE] Guardados {len(embeddings)} embeddings en cache")
+    print(f"  [CACHE] Guardados {len(embeddings)} embeddings en cache ({cache_path})")
 
 
 def extract_vggish_embeddings_from_segment(
@@ -195,7 +293,7 @@ def extract_vggish_embeddings_from_segment(
         segment_duration=SEGMENT_DURATION,
         segment_index=segment_idx,
         sr=16000,
-        hop_ratio=0.5,
+        overlap_seconds=OVERLAP_SECONDS,
     )
 
     if segment is None:
@@ -372,7 +470,14 @@ def train_one_fold(
     # Training loop
     best_val_loss = float("inf")
     patience_counter = 0
-    best_metrics = {}
+    best_metrics = {
+        "acc_plate": 0.0,
+        "acc_electrode": 0.0,
+        "acc_current": 0.0,
+        "f1_plate": 0.0,
+        "f1_electrode": 0.0,
+        "f1_current": 0.0,
+    }
     best_state_dict = None
 
     for epoch in range(NUM_EPOCHS):
@@ -534,11 +639,13 @@ if __name__ == "__main__":
     args = parse_args()
     N_FOLDS = args.k_folds
     RANDOM_SEED = args.seed
+    OVERLAP_RATIO = float(args.overlap)
+    OVERLAP_SECONDS = float(OVERLAP_RATIO) * float(SEGMENT_DURATION)
 
     # Crear directorio de modelos basado en k-folds (models/k-fold/)
     MODELS_BASE_DIR = SCRIPT_DIR / "models"
     MODELS_BASE_DIR.mkdir(exist_ok=True)
-    MODELS_DIR = MODELS_BASE_DIR / f"{N_FOLDS}-fold"
+    MODELS_DIR = MODELS_BASE_DIR / f"k{N_FOLDS:02d}_overlap_{_overlap_tag()}"
     MODELS_DIR.mkdir(exist_ok=True)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -547,14 +654,15 @@ if __name__ == "__main__":
     print(f"{'=' * 70}")
     print(f"Dispositivo: {device}")
     print(f"Duración de segmento: {SEGMENT_DURATION}s")
+    print(f"Solapamiento (fracción): {OVERLAP_RATIO}")
     print(f"K-Folds: {N_FOLDS}")
     print(f"Semilla: {RANDOM_SEED}")
     print(f"Modelos se guardarán en: {MODELS_DIR}/")
 
-    # Cargar todos los datos (train + test)
-    train_data = pd.read_csv(SCRIPT_DIR / "train.csv")
-    test_data = pd.read_csv(SCRIPT_DIR / "test.csv")
-    all_data = pd.concat([train_data, test_data], ignore_index=True)
+    with timer("Cargar CSVs (train/test)"):
+        train_data = pd.read_csv(SCRIPT_DIR / "train.csv")
+        test_data = pd.read_csv(SCRIPT_DIR / "test.csv")
+        all_data = pd.concat([train_data, test_data], ignore_index=True)
 
     print(f"\nTotal de segmentos: {len(all_data)}")
 
@@ -577,26 +685,27 @@ if __name__ == "__main__":
         all_data["Type of Current"]
     )
 
-    # Extraer todos los embeddings una sola vez (de segmentos on-the-fly)
-    print("\nExtrayendo embeddings VGGish de todos los segmentos...")
-    paths = all_data["Audio Path"].values
-    segment_indices = all_data["Segment Index"].values
+    with timer("Embeddings VGGish (cache/compute)"):
+        print("\nExtrayendo embeddings VGGish de todos los segmentos...")
+        paths = all_data["Audio Path"].values
+        segment_indices = all_data["Segment Index"].values
 
-    # Intentar cargar desde cache
-    all_embeddings, loaded_from_cache = load_embeddings_cache(
-        paths.tolist(), segment_indices.tolist()
-    )
+        all_embeddings, loaded_from_cache = load_embeddings_cache(
+            paths.tolist(), segment_indices.tolist()
+        )
 
-    if not loaded_from_cache:
-        all_embeddings = []
-        for i, (path, seg_idx) in enumerate(zip(paths, segment_indices)):
-            if i % 100 == 0:
-                print(f"  Procesando {i}/{len(paths)}...")
-            emb = extract_vggish_embeddings_from_segment(path, int(seg_idx))
-            all_embeddings.append(emb)
+        if not loaded_from_cache:
+            with timer("Calcular embeddings VGGish (compute)"):
+                all_embeddings = []
+                for i, (path, seg_idx) in enumerate(zip(paths, segment_indices)):
+                    if i % 100 == 0:
+                        print(f"  Procesando {i}/{len(paths)}...")
+                    emb = extract_vggish_embeddings_from_segment(path, int(seg_idx))
+                    all_embeddings.append(emb)
 
-        # Guardar en cache
-        save_embeddings_cache(all_embeddings, paths.tolist(), segment_indices.tolist())
+            save_embeddings_cache(
+                all_embeddings, paths.tolist(), segment_indices.tolist()
+            )
 
     print(f"Embeddings extraídos: {len(all_embeddings)}")
 
@@ -666,18 +775,18 @@ if __name__ == "__main__":
             ),
         }
 
-        # Entrenar fold
-        metrics = train_one_fold(
-            fold_idx,
-            train_embeddings,
-            train_labels,
-            val_embeddings,
-            val_labels,
-            class_weights,
-            (plate_encoder, electrode_encoder, current_type_encoder),
-            device,
-            MODELS_DIR,
-        )
+        with timer(f"Entrenar fold {fold_idx + 1}/{N_FOLDS}"):
+            metrics = train_one_fold(
+                fold_idx,
+                train_embeddings,
+                train_labels,
+                val_embeddings,
+                val_labels,
+                class_weights,
+                (plate_encoder, electrode_encoder, current_type_encoder),
+                device,
+                MODELS_DIR,
+            )
         fold_metrics.append(metrics)
 
     # ============= FASE 2: Evaluar Ensemble =============
@@ -685,22 +794,22 @@ if __name__ == "__main__":
     print("FASE 2: EVALUACIÓN DEL ENSEMBLE (Soft Voting)")
     print(f"{'=' * 70}")
 
-    # Cargar todos los modelos
-    models = []
-    for fold_idx in range(N_FOLDS):
-        model = SMAWXVectorModel(
-            feat_dim=128,
-            xvector_dim=512,
-            emb_dim=256,
-            num_classes_espesor=len(plate_encoder.classes_),
-            num_classes_electrodo=len(electrode_encoder.classes_),
-            num_classes_corriente=len(current_type_encoder.classes_),
-        ).to(device)
-        model.load_state_dict(torch.load(MODELS_DIR / f"model_fold_{fold_idx}.pth"))
-        model.eval()
-        models.append(model)
+    with timer("Cargar modelos del ensemble"):
+        models = []
+        for fold_idx in range(N_FOLDS):
+            model = SMAWXVectorModel(
+                feat_dim=128,
+                xvector_dim=512,
+                emb_dim=256,
+                num_classes_espesor=len(plate_encoder.classes_),
+                num_classes_electrodo=len(electrode_encoder.classes_),
+                num_classes_corriente=len(current_type_encoder.classes_),
+            ).to(device)
+            model.load_state_dict(torch.load(MODELS_DIR / f"model_fold_{fold_idx}.pth"))
+            model.eval()
+            models.append(model)
 
-    print(f"Cargados {len(models)} modelos del ensemble")
+        print(f"Cargados {len(models)} modelos del ensemble")
 
     # Evaluar en todo el dataset
     all_preds = {"plate": [], "electrode": [], "current": []}
@@ -712,16 +821,17 @@ if __name__ == "__main__":
         full_dataset, batch_size=BATCH_SIZE, shuffle=False, collate_fn=collate_fn_pad
     )
 
-    print("Evaluando ensemble en todo el dataset...")
-    for embeddings, labels_p, labels_e, labels_c in full_loader:
-        pred_p, pred_e, pred_c = ensemble_predict(models, embeddings, device)
+    with timer("Evaluación ensemble (Soft Voting)"):
+        print("Evaluando ensemble en todo el dataset...")
+        for embeddings, labels_p, labels_e, labels_c in full_loader:
+            pred_p, pred_e, pred_c = ensemble_predict(models, embeddings, device)
 
-        all_preds["plate"].extend(pred_p.cpu().numpy())
-        all_preds["electrode"].extend(pred_e.cpu().numpy())
-        all_preds["current"].extend(pred_c.cpu().numpy())
-        all_labels["plate"].extend(labels_p.numpy())
-        all_labels["electrode"].extend(labels_e.numpy())
-        all_labels["current"].extend(labels_c.numpy())
+            all_preds["plate"].extend(pred_p.cpu().numpy())
+            all_preds["electrode"].extend(pred_e.cpu().numpy())
+            all_preds["current"].extend(pred_c.cpu().numpy())
+            all_labels["plate"].extend(labels_p.numpy())
+            all_labels["electrode"].extend(labels_e.numpy())
+            all_labels["current"].extend(labels_c.numpy())
 
     # Calcular métricas del ensemble
     acc_p = np.mean(np.array(all_preds["plate"]) == np.array(all_labels["plate"]))
@@ -853,6 +963,7 @@ if __name__ == "__main__":
         },
         "config": {
             "segment_duration": SEGMENT_DURATION,
+            "overlap_seconds": OVERLAP_SECONDS,
             "n_folds": N_FOLDS,
             "models_dir": str(MODELS_DIR.name),
             "random_seed": RANDOM_SEED,

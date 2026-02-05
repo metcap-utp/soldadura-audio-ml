@@ -71,6 +71,7 @@ def extract_best_metrics(results_by_duration: dict, k_folds: int = None) -> dict
     """Extrae las mejores métricas para cada duración."""
     metrics = {
         "durations": [],
+        "duration_dirs": [],
         "plate": {"accuracy": [], "f1": [], "precision": [], "recall": []},
         "electrode": {"accuracy": [], "f1": [], "precision": [], "recall": []},
         "current": {"accuracy": [], "f1": [], "precision": [], "recall": []},
@@ -90,6 +91,7 @@ def extract_best_metrics(results_by_duration: dict, k_folds: int = None) -> dict
             continue
 
         metrics["durations"].append(duration)
+        metrics["duration_dirs"].append(data["dir"])
 
         # Tomar el mejor resultado (más reciente o mejor accuracy promedio)
         best_result = None
@@ -209,9 +211,19 @@ def plot_metrics_vs_duration(
 
     if save:
         suffix = f"_k{k_folds}" if k_folds else ""
-        output_path = ROOT_DIR / f"metricas_vs_duracion{suffix}_{metric}.png"
-        plt.savefig(output_path, dpi=150, bbox_inches="tight")
-        print(f"Gráfica guardada en: {output_path}")
+        filename = f"metricas_vs_duracion{suffix}_{metric}.png"
+        duration_dirs = metrics.get("duration_dirs", [])
+        if not duration_dirs:
+            output_path = ROOT_DIR / filename
+            plt.savefig(output_path, dpi=150, bbox_inches="tight")
+            print(f"Gráfica guardada en: {output_path}")
+        else:
+            for duration_dir in duration_dirs:
+                output_dir = ROOT_DIR / duration_dir / "metricas"
+                output_dir.mkdir(exist_ok=True)
+                output_path = output_dir / filename
+                plt.savefig(output_path, dpi=150, bbox_inches="tight")
+                print(f"Gráfica guardada en: {output_path}")
 
     plt.show()
 

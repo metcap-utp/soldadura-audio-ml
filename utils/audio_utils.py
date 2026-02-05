@@ -122,7 +122,8 @@ def load_audio_segment(
     segment_duration: float,
     segment_index: int,
     sr: int = 16000,
-    hop_ratio: float = 0.5,
+    hop_ratio: Optional[float] = None,
+    overlap_seconds: float = 0.0,
 ) -> Optional[np.ndarray]:
     """
     Carga un segmento específico de un archivo de audio.
@@ -135,20 +136,26 @@ def load_audio_segment(
         hop_ratio: Ratio de hop (0.5 = 50% overlap)
 
     Returns:
-        Array numpy con el audio del segmento, o None si el índice es inválido
+        Array numpy con el audio del segmento. Si el índice excede la duración,
+        retorna un segmento con padding de ceros.
     """
     try:
         # Cargar audio completo
         y, _ = librosa.load(audio_path, sr=sr, mono=True)
 
         segment_samples = int(segment_duration * sr)
-        hop_samples = int(segment_samples * hop_ratio)
+
+        if hop_ratio is None:
+            overlap_samples = int(max(0.0, overlap_seconds) * sr)
+            hop_samples = max(1, segment_samples - overlap_samples)
+        else:
+            hop_samples = max(1, int(segment_samples * hop_ratio))
 
         start = segment_index * hop_samples
         end = start + segment_samples
 
         if start >= len(y):
-            return None
+            return np.zeros(segment_samples, dtype=np.float32)
 
         # Si el segmento excede el final, hacer padding con zeros
         if end > len(y):
@@ -168,7 +175,8 @@ def count_segments_in_file(
     audio_path: Path,
     segment_duration: float,
     sr: int = 16000,
-    hop_ratio: float = 0.5,
+    hop_ratio: Optional[float] = None,
+    overlap_seconds: float = 0.0,
 ) -> int:
     """
     Cuenta cuántos segmentos se pueden extraer de un archivo.
@@ -184,13 +192,16 @@ def count_segments_in_file(
     """
     try:
         duration = librosa.get_duration(path=audio_path)
-        segment_samples = segment_duration
-        hop_samples = segment_samples * hop_ratio
+
+        if hop_ratio is None:
+            hop_seconds = max(1e-6, segment_duration - max(0.0, overlap_seconds))
+        else:
+            hop_seconds = max(1e-6, segment_duration * hop_ratio)
 
         if duration < segment_duration:
             return 1  # Al menos un segmento con padding
 
-        num_segments = int((duration - segment_duration) / hop_samples) + 1
+        num_segments = int((duration - segment_duration) / hop_seconds) + 1
         return max(1, num_segments)
 
     except Exception:
@@ -201,7 +212,8 @@ def count_segments_in_session(
     session_path: str,
     segment_duration: float,
     sr: int = 16000,
-    hop_ratio: float = 0.5,
+    hop_ratio: Optional[float] = None,
+    overlap_seconds: float = 0.0,
 ) -> int:
     """
     Cuenta el total de segmentos en una sesión.
@@ -218,7 +230,13 @@ def count_segments_in_session(
     audio_files = get_session_audio_files(session_path)
     total = 0
     for audio_file in audio_files:
-        total += count_segments_in_file(audio_file, segment_duration, sr, hop_ratio)
+        total += count_segments_in_file(
+            audio_file,
+            segment_duration,
+            sr=sr,
+            hop_ratio=hop_ratio,
+            overlap_seconds=overlap_seconds,
+        )
     return total
 
 
@@ -226,7 +244,8 @@ def get_all_segments_from_session(
     session_path: str,
     segment_duration: float,
     sr: int = 16000,
-    hop_ratio: float = 0.5,
+    hop_ratio: Optional[float] = None,
+    overlap_seconds: float = 0.0,
 ) -> List[Tuple[Path, int]]:
     """
     Obtiene lista de (archivo, índice_segmento) para todos los segmentos de una sesión.
@@ -244,7 +263,13 @@ def get_all_segments_from_session(
     segments = []
 
     for audio_file in audio_files:
-        num_segs = count_segments_in_file(audio_file, segment_duration, sr, hop_ratio)
+        num_segs = count_segments_in_file(
+            audio_file,
+            segment_duration,
+            sr=sr,
+            hop_ratio=hop_ratio,
+            overlap_seconds=overlap_seconds,
+        )
         for seg_idx in range(num_segs):
             segments.append((audio_file, seg_idx))
 

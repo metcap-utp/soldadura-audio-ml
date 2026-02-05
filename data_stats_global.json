@@ -1,8 +1,342 @@
 {
-  "timestamp": "2026-01-29T23:40:02.707314",
+  "timestamp": "2026-02-01T00:48:42.509720",
   "duraciones": {
-    "1seg": null,
-    "2seg": null,
+    "1seg": {
+      "timestamp": "2026-02-01T00:48:29.770586",
+      "segment_duration": 1.0,
+      "random_seed": 42,
+      "config": {
+        "blind_fraction": 0.1,
+        "test_fraction": 0.18,
+        "val_fraction": 0.0
+      },
+      "totals": {
+        "sessions": 373,
+        "segments": 43170
+      },
+      "sessions_by_label": {
+        "Plate Thickness": {
+          "Placa_3mm": 127,
+          "Placa_6mm": 126,
+          "Placa_12mm": 120
+        },
+        "Electrode": {
+          "E6011": 132,
+          "E6013": 120,
+          "E7018": 64,
+          "E6010": 57
+        },
+        "Type of Current": {
+          "DC": 250,
+          "AC": 123
+        }
+      },
+      "segments_by_label": {
+        "Plate Thickness": {
+          "Placa_3mm": 14503,
+          "Placa_6mm": 14395,
+          "Placa_12mm": 14272
+        },
+        "Electrode": {
+          "E6011": 16730,
+          "E6013": 12717,
+          "E7018": 7207,
+          "E6010": 6516
+        },
+        "Type of Current": {
+          "DC": 26047,
+          "AC": 17123
+        }
+      },
+      "splits": {
+        "blind": {
+          "sessions": 38,
+          "segments": 4988,
+          "sessions_by_label": {
+            "Plate Thickness": {
+              "Placa_6mm": 13,
+              "Placa_3mm": 13,
+              "Placa_12mm": 12
+            },
+            "Electrode": {
+              "E6011": 13,
+              "E6013": 12,
+              "E7018": 7,
+              "E6010": 6
+            },
+            "Type of Current": {
+              "DC": 26,
+              "AC": 12
+            }
+          },
+          "segments_by_label": {
+            "Plate Thickness": {
+              "Placa_6mm": 2226,
+              "Placa_12mm": 1449,
+              "Placa_3mm": 1313
+            },
+            "Electrode": {
+              "E6011": 1624,
+              "E7018": 1456,
+              "E6013": 1285,
+              "E6010": 623
+            },
+            "Type of Current": {
+              "DC": 3260,
+              "AC": 1728
+            }
+          }
+        },
+        "test": {
+          "sessions": 68,
+          "segments": 8006,
+          "sessions_by_label": {
+            "Plate Thickness": {
+              "Placa_12mm": 24,
+              "Placa_6mm": 23,
+              "Placa_3mm": 21
+            },
+            "Electrode": {
+              "E6011": 25,
+              "E6013": 21,
+              "E6010": 11,
+              "E7018": 11
+            },
+            "Type of Current": {
+              "DC": 45,
+              "AC": 23
+            }
+          },
+          "segments_by_label": {
+            "Plate Thickness": {
+              "Placa_12mm": 2839,
+              "Placa_3mm": 2656,
+              "Placa_6mm": 2511
+            },
+            "Electrode": {
+              "E6011": 3295,
+              "E6013": 2276,
+              "E6010": 1262,
+              "E7018": 1173
+            },
+            "Type of Current": {
+              "DC": 4721,
+              "AC": 3285
+            }
+          }
+        },
+        "train": {
+          "sessions": 267,
+          "segments": 30176,
+          "sessions_by_label": {
+            "Plate Thickness": {
+              "Placa_3mm": 93,
+              "Placa_6mm": 90,
+              "Placa_12mm": 84
+            },
+            "Electrode": {
+              "E6011": 94,
+              "E6013": 87,
+              "E7018": 46,
+              "E6010": 40
+            },
+            "Type of Current": {
+              "DC": 179,
+              "AC": 88
+            }
+          },
+          "segments_by_label": {
+            "Plate Thickness": {
+              "Placa_3mm": 10534,
+              "Placa_12mm": 9984,
+              "Placa_6mm": 9658
+            },
+            "Electrode": {
+              "E6011": 11811,
+              "E6013": 9156,
+              "E6010": 4631,
+              "E7018": 4578
+            },
+            "Type of Current": {
+              "DC": 18066,
+              "AC": 12110
+            }
+          }
+        }
+      },
+      "execution_time": {
+        "seconds": 2.04,
+        "minutes": 0.03
+      }
+    },
+    "2seg": {
+      "timestamp": "2026-02-01T00:48:31.623471",
+      "segment_duration": 2.0,
+      "random_seed": 42,
+      "config": {
+        "blind_fraction": 0.1,
+        "test_fraction": 0.18,
+        "val_fraction": 0.0
+      },
+      "totals": {
+        "sessions": 373,
+        "segments": 21313
+      },
+      "sessions_by_label": {
+        "Plate Thickness": {
+          "Placa_3mm": 127,
+          "Placa_6mm": 126,
+          "Placa_12mm": 120
+        },
+        "Electrode": {
+          "E6011": 132,
+          "E6013": 120,
+          "E7018": 64,
+          "E6010": 57
+        },
+        "Type of Current": {
+          "DC": 250,
+          "AC": 123
+        }
+      },
+      "segments_by_label": {
+        "Plate Thickness": {
+          "Placa_3mm": 7164,
+          "Placa_6mm": 7104,
+          "Placa_12mm": 7045
+        },
+        "Electrode": {
+          "E6011": 8266,
+          "E6013": 6268,
+          "E7018": 3560,
+          "E6010": 3219
+        },
+        "Type of Current": {
+          "DC": 12842,
+          "AC": 8471
+        }
+      },
+      "splits": {
+        "blind": {
+          "sessions": 38,
+          "segments": 2465,
+          "sessions_by_label": {
+            "Plate Thickness": {
+              "Placa_6mm": 13,
+              "Placa_3mm": 13,
+              "Placa_12mm": 12
+            },
+            "Electrode": {
+              "E6011": 13,
+              "E6013": 12,
+              "E7018": 7,
+              "E6010": 6
+            },
+            "Type of Current": {
+              "DC": 26,
+              "AC": 12
+            }
+          },
+          "segments_by_label": {
+            "Plate Thickness": {
+              "Placa_6mm": 1103,
+              "Placa_12mm": 715,
+              "Placa_3mm": 647
+            },
+            "Electrode": {
+              "E6011": 802,
+              "E7018": 723,
+              "E6013": 633,
+              "E6010": 307
+            },
+            "Type of Current": {
+              "DC": 1610,
+              "AC": 855
+            }
+          }
+        },
+        "test": {
+          "sessions": 68,
+          "segments": 3950,
+          "sessions_by_label": {
+            "Plate Thickness": {
+              "Placa_12mm": 24,
+              "Placa_6mm": 23,
+              "Placa_3mm": 21
+            },
+            "Electrode": {
+              "E6011": 25,
+              "E6013": 21,
+              "E6010": 11,
+              "E7018": 11
+            },
+            "Type of Current": {
+              "DC": 45,
+              "AC": 23
+            }
+          },
+          "segments_by_label": {
+            "Plate Thickness": {
+              "Placa_12mm": 1401,
+              "Placa_3mm": 1312,
+              "Placa_6mm": 1237
+            },
+            "Electrode": {
+              "E6011": 1627,
+              "E6013": 1121,
+              "E6010": 624,
+              "E7018": 578
+            },
+            "Type of Current": {
+              "DC": 2326,
+              "AC": 1624
+            }
+          }
+        },
+        "train": {
+          "sessions": 267,
+          "segments": 14898,
+          "sessions_by_label": {
+            "Plate Thickness": {
+              "Placa_3mm": 93,
+              "Placa_6mm": 90,
+              "Placa_12mm": 84
+            },
+            "Electrode": {
+              "E6011": 94,
+              "E6013": 87,
+              "E7018": 46,
+              "E6010": 40
+            },
+            "Type of Current": {
+              "DC": 179,
+              "AC": 88
+            }
+          },
+          "segments_by_label": {
+            "Plate Thickness": {
+              "Placa_3mm": 5205,
+              "Placa_12mm": 4929,
+              "Placa_6mm": 4764
+            },
+            "Electrode": {
+              "E6011": 5837,
+              "E6013": 4514,
+              "E6010": 2288,
+              "E7018": 2259
+            },
+            "Type of Current": {
+              "DC": 8906,
+              "AC": 5992
+            }
+          }
+        }
+      },
+      "execution_time": {
+        "seconds": 0.91,
+        "minutes": 0.02
+      }
+    },
     "5seg": {
       "timestamp": "2026-01-29T23:31:28.533446",
       "segment_duration": 5.0,
@@ -171,10 +505,678 @@
         "minutes": 0.02
       }
     },
-    "10seg": null,
-    "20seg": null,
-    "30seg": null,
-    "50seg": null
+    "10seg": {
+      "timestamp": "2026-02-01T00:48:33.162433",
+      "segment_duration": 10.0,
+      "random_seed": 42,
+      "config": {
+        "blind_fraction": 0.1,
+        "test_fraction": 0.18,
+        "val_fraction": 0.0
+      },
+      "totals": {
+        "sessions": 373,
+        "segments": 3819
+      },
+      "sessions_by_label": {
+        "Plate Thickness": {
+          "Placa_3mm": 127,
+          "Placa_6mm": 126,
+          "Placa_12mm": 120
+        },
+        "Electrode": {
+          "E6011": 132,
+          "E6013": 120,
+          "E7018": 64,
+          "E6010": 57
+        },
+        "Type of Current": {
+          "DC": 250,
+          "AC": 123
+        }
+      },
+      "segments_by_label": {
+        "Plate Thickness": {
+          "Placa_3mm": 1284,
+          "Placa_6mm": 1272,
+          "Placa_12mm": 1263
+        },
+        "Electrode": {
+          "E6011": 1498,
+          "E6013": 1108,
+          "E7018": 635,
+          "E6010": 578
+        },
+        "Type of Current": {
+          "DC": 2270,
+          "AC": 1549
+        }
+      },
+      "splits": {
+        "blind": {
+          "sessions": 38,
+          "segments": 447,
+          "sessions_by_label": {
+            "Plate Thickness": {
+              "Placa_6mm": 13,
+              "Placa_3mm": 13,
+              "Placa_12mm": 12
+            },
+            "Electrode": {
+              "E6011": 13,
+              "E6013": 12,
+              "E7018": 7,
+              "E6010": 6
+            },
+            "Type of Current": {
+              "DC": 26,
+              "AC": 12
+            }
+          },
+          "segments_by_label": {
+            "Plate Thickness": {
+              "Placa_6mm": 204,
+              "Placa_12mm": 129,
+              "Placa_3mm": 114
+            },
+            "Electrode": {
+              "E6011": 146,
+              "E7018": 135,
+              "E6013": 111,
+              "E6010": 55
+            },
+            "Type of Current": {
+              "DC": 289,
+              "AC": 158
+            }
+          }
+        },
+        "test": {
+          "sessions": 68,
+          "segments": 712,
+          "sessions_by_label": {
+            "Plate Thickness": {
+              "Placa_12mm": 24,
+              "Placa_6mm": 23,
+              "Placa_3mm": 21
+            },
+            "Electrode": {
+              "E6011": 25,
+              "E6013": 21,
+              "E6010": 11,
+              "E7018": 11
+            },
+            "Type of Current": {
+              "DC": 45,
+              "AC": 23
+            }
+          },
+          "segments_by_label": {
+            "Plate Thickness": {
+              "Placa_12mm": 253,
+              "Placa_3mm": 239,
+              "Placa_6mm": 220
+            },
+            "Electrode": {
+              "E6011": 297,
+              "E6013": 200,
+              "E6010": 113,
+              "E7018": 102
+            },
+            "Type of Current": {
+              "DC": 413,
+              "AC": 299
+            }
+          }
+        },
+        "train": {
+          "sessions": 267,
+          "segments": 2660,
+          "sessions_by_label": {
+            "Plate Thickness": {
+              "Placa_3mm": 93,
+              "Placa_6mm": 90,
+              "Placa_12mm": 84
+            },
+            "Electrode": {
+              "E6011": 94,
+              "E6013": 87,
+              "E7018": 46,
+              "E6010": 40
+            },
+            "Type of Current": {
+              "DC": 179,
+              "AC": 88
+            }
+          },
+          "segments_by_label": {
+            "Plate Thickness": {
+              "Placa_3mm": 931,
+              "Placa_12mm": 881,
+              "Placa_6mm": 848
+            },
+            "Electrode": {
+              "E6011": 1055,
+              "E6013": 797,
+              "E6010": 410,
+              "E7018": 398
+            },
+            "Type of Current": {
+              "DC": 1568,
+              "AC": 1092
+            }
+          }
+        }
+      },
+      "execution_time": {
+        "seconds": 0.62,
+        "minutes": 0.01
+      }
+    },
+    "20seg": {
+      "timestamp": "2026-01-30T00:42:04.824069",
+      "segment_duration": 20.0,
+      "random_seed": 42,
+      "config": {
+        "blind_fraction": 0.1,
+        "test_fraction": 0.18,
+        "val_fraction": 0.0
+      },
+      "totals": {
+        "sessions": 373,
+        "segments": 1640
+      },
+      "sessions_by_label": {
+        "Plate Thickness": {
+          "Placa_3mm": 127,
+          "Placa_6mm": 126,
+          "Placa_12mm": 120
+        },
+        "Electrode": {
+          "E6011": 132,
+          "E6013": 120,
+          "E7018": 64,
+          "E6010": 57
+        },
+        "Type of Current": {
+          "DC": 250,
+          "AC": 123
+        }
+      },
+      "segments_by_label": {
+        "Plate Thickness": {
+          "Placa_3mm": 556,
+          "Placa_6mm": 546,
+          "Placa_12mm": 538
+        },
+        "Electrode": {
+          "E6011": 658,
+          "E6013": 462,
+          "E7018": 270,
+          "E6010": 250
+        },
+        "Type of Current": {
+          "DC": 957,
+          "AC": 683
+        }
+      },
+      "splits": {
+        "blind": {
+          "sessions": 38,
+          "segments": 199,
+          "sessions_by_label": {
+            "Plate Thickness": {
+              "Placa_6mm": 13,
+              "Placa_3mm": 13,
+              "Placa_12mm": 12
+            },
+            "Electrode": {
+              "E6011": 13,
+              "E6013": 12,
+              "E7018": 7,
+              "E6010": 6
+            },
+            "Type of Current": {
+              "DC": 26,
+              "AC": 12
+            }
+          },
+          "segments_by_label": {
+            "Plate Thickness": {
+              "Placa_6mm": 94,
+              "Placa_12mm": 56,
+              "Placa_3mm": 49
+            },
+            "Electrode": {
+              "E6011": 66,
+              "E7018": 63,
+              "E6013": 45,
+              "E6010": 25
+            },
+            "Type of Current": {
+              "DC": 129,
+              "AC": 70
+            }
+          }
+        },
+        "test": {
+          "sessions": 68,
+          "segments": 303,
+          "sessions_by_label": {
+            "Plate Thickness": {
+              "Placa_12mm": 24,
+              "Placa_6mm": 23,
+              "Placa_3mm": 21
+            },
+            "Electrode": {
+              "E6011": 25,
+              "E6013": 21,
+              "E6010": 11,
+              "E7018": 11
+            },
+            "Type of Current": {
+              "DC": 45,
+              "AC": 23
+            }
+          },
+          "segments_by_label": {
+            "Plate Thickness": {
+              "Placa_12mm": 107,
+              "Placa_3mm": 105,
+              "Placa_6mm": 91
+            },
+            "Electrode": {
+              "E6011": 130,
+              "E6013": 83,
+              "E6010": 48,
+              "E7018": 42
+            },
+            "Type of Current": {
+              "DC": 172,
+              "AC": 131
+            }
+          }
+        },
+        "train": {
+          "sessions": 267,
+          "segments": 1138,
+          "sessions_by_label": {
+            "Plate Thickness": {
+              "Placa_3mm": 93,
+              "Placa_6mm": 90,
+              "Placa_12mm": 84
+            },
+            "Electrode": {
+              "E6011": 94,
+              "E6013": 87,
+              "E7018": 46,
+              "E6010": 40
+            },
+            "Type of Current": {
+              "DC": 179,
+              "AC": 88
+            }
+          },
+          "segments_by_label": {
+            "Plate Thickness": {
+              "Placa_3mm": 402,
+              "Placa_12mm": 375,
+              "Placa_6mm": 361
+            },
+            "Electrode": {
+              "E6011": 462,
+              "E6013": 334,
+              "E6010": 177,
+              "E7018": 165
+            },
+            "Type of Current": {
+              "DC": 656,
+              "AC": 482
+            }
+          }
+        }
+      },
+      "execution_time": {
+        "seconds": 1.28,
+        "minutes": 0.02
+      }
+    },
+    "30seg": {
+      "timestamp": "2026-02-01T00:48:34.927522",
+      "segment_duration": 30.0,
+      "random_seed": 42,
+      "config": {
+        "blind_fraction": 0.1,
+        "test_fraction": 0.18,
+        "val_fraction": 0.0
+      },
+      "totals": {
+        "sessions": 373,
+        "segments": 918
+      },
+      "sessions_by_label": {
+        "Plate Thickness": {
+          "Placa_3mm": 127,
+          "Placa_6mm": 126,
+          "Placa_12mm": 120
+        },
+        "Electrode": {
+          "E6011": 132,
+          "E6013": 120,
+          "E7018": 64,
+          "E6010": 57
+        },
+        "Type of Current": {
+          "DC": 250,
+          "AC": 123
+        }
+      },
+      "segments_by_label": {
+        "Plate Thickness": {
+          "Placa_3mm": 312,
+          "Placa_6mm": 304,
+          "Placa_12mm": 302
+        },
+        "Electrode": {
+          "E6011": 376,
+          "E6013": 245,
+          "E7018": 158,
+          "E6010": 139
+        },
+        "Type of Current": {
+          "DC": 520,
+          "AC": 398
+        }
+      },
+      "splits": {
+        "blind": {
+          "sessions": 38,
+          "segments": 113,
+          "sessions_by_label": {
+            "Plate Thickness": {
+              "Placa_6mm": 13,
+              "Placa_3mm": 13,
+              "Placa_12mm": 12
+            },
+            "Electrode": {
+              "E6011": 13,
+              "E6013": 12,
+              "E7018": 7,
+              "E6010": 6
+            },
+            "Type of Current": {
+              "DC": 26,
+              "AC": 12
+            }
+          },
+          "segments_by_label": {
+            "Plate Thickness": {
+              "Placa_6mm": 54,
+              "Placa_12mm": 30,
+              "Placa_3mm": 29
+            },
+            "Electrode": {
+              "E7018": 38,
+              "E6011": 37,
+              "E6013": 24,
+              "E6010": 14
+            },
+            "Type of Current": {
+              "DC": 73,
+              "AC": 40
+            }
+          }
+        },
+        "test": {
+          "sessions": 68,
+          "segments": 170,
+          "sessions_by_label": {
+            "Plate Thickness": {
+              "Placa_12mm": 24,
+              "Placa_6mm": 23,
+              "Placa_3mm": 21
+            },
+            "Electrode": {
+              "E6011": 25,
+              "E6013": 21,
+              "E6010": 11,
+              "E7018": 11
+            },
+            "Type of Current": {
+              "DC": 45,
+              "AC": 23
+            }
+          },
+          "segments_by_label": {
+            "Plate Thickness": {
+              "Placa_12mm": 62,
+              "Placa_3mm": 59,
+              "Placa_6mm": 49
+            },
+            "Electrode": {
+              "E6011": 73,
+              "E6013": 45,
+              "E6010": 28,
+              "E7018": 24
+            },
+            "Type of Current": {
+              "DC": 94,
+              "AC": 76
+            }
+          }
+        },
+        "train": {
+          "sessions": 267,
+          "segments": 635,
+          "sessions_by_label": {
+            "Plate Thickness": {
+              "Placa_3mm": 93,
+              "Placa_6mm": 90,
+              "Placa_12mm": 84
+            },
+            "Electrode": {
+              "E6011": 94,
+              "E6013": 87,
+              "E7018": 46,
+              "E6010": 40
+            },
+            "Type of Current": {
+              "DC": 179,
+              "AC": 88
+            }
+          },
+          "segments_by_label": {
+            "Plate Thickness": {
+              "Placa_3mm": 224,
+              "Placa_12mm": 210,
+              "Placa_6mm": 201
+            },
+            "Electrode": {
+              "E6011": 266,
+              "E6013": 176,
+              "E6010": 97,
+              "E7018": 96
+            },
+            "Type of Current": {
+              "DC": 353,
+              "AC": 282
+            }
+          }
+        }
+      },
+      "execution_time": {
+        "seconds": 0.68,
+        "minutes": 0.01
+      }
+    },
+    "50seg": {
+      "timestamp": "2026-01-31T20:01:20.080182",
+      "segment_duration": 50.0,
+      "random_seed": 42,
+      "config": {
+        "blind_fraction": 0.1,
+        "test_fraction": 0.18,
+        "val_fraction": 0.0
+      },
+      "totals": {
+        "sessions": 373,
+        "segments": 448
+      },
+      "sessions_by_label": {
+        "Plate Thickness": {
+          "Placa_3mm": 127,
+          "Placa_6mm": 126,
+          "Placa_12mm": 120
+        },
+        "Electrode": {
+          "E6011": 132,
+          "E6013": 120,
+          "E7018": 64,
+          "E6010": 57
+        },
+        "Type of Current": {
+          "DC": 250,
+          "AC": 123
+        }
+      },
+      "segments_by_label": {
+        "Plate Thickness": {
+          "Placa_3mm": 153,
+          "Placa_6mm": 149,
+          "Placa_12mm": 146
+        },
+        "Electrode": {
+          "E6011": 171,
+          "E6013": 132,
+          "E7018": 84,
+          "E6010": 61
+        },
+        "Type of Current": {
+          "DC": 274,
+          "AC": 174
+        }
+      },
+      "splits": {
+        "blind": {
+          "sessions": 38,
+          "segments": 59,
+          "sessions_by_label": {
+            "Plate Thickness": {
+              "Placa_6mm": 13,
+              "Placa_3mm": 13,
+              "Placa_12mm": 12
+            },
+            "Electrode": {
+              "E6011": 13,
+              "E6013": 12,
+              "E7018": 7,
+              "E6010": 6
+            },
+            "Type of Current": {
+              "DC": 26,
+              "AC": 12
+            }
+          },
+          "segments_by_label": {
+            "Plate Thickness": {
+              "Placa_6mm": 28,
+              "Placa_12mm": 16,
+              "Placa_3mm": 15
+            },
+            "Electrode": {
+              "E7018": 21,
+              "E6011": 17,
+              "E6013": 14,
+              "E6010": 7
+            },
+            "Type of Current": {
+              "DC": 41,
+              "AC": 18
+            }
+          }
+        },
+        "test": {
+          "sessions": 68,
+          "segments": 84,
+          "sessions_by_label": {
+            "Plate Thickness": {
+              "Placa_12mm": 24,
+              "Placa_6mm": 23,
+              "Placa_3mm": 21
+            },
+            "Electrode": {
+              "E6011": 25,
+              "E6013": 21,
+              "E6010": 11,
+              "E7018": 11
+            },
+            "Type of Current": {
+              "DC": 45,
+              "AC": 23
+            }
+          },
+          "segments_by_label": {
+            "Plate Thickness": {
+              "Placa_3mm": 31,
+              "Placa_12mm": 29,
+              "Placa_6mm": 24
+            },
+            "Electrode": {
+              "E6011": 34,
+              "E6013": 24,
+              "E6010": 13,
+              "E7018": 13
+            },
+            "Type of Current": {
+              "DC": 49,
+              "AC": 35
+            }
+          }
+        },
+        "train": {
+          "sessions": 267,
+          "segments": 305,
+          "sessions_by_label": {
+            "Plate Thickness": {
+              "Placa_3mm": 93,
+              "Placa_6mm": 90,
+              "Placa_12mm": 84
+            },
+            "Electrode": {
+              "E6011": 94,
+              "E6013": 87,
+              "E7018": 46,
+              "E6010": 40
+            },
+            "Type of Current": {
+              "DC": 179,
+              "AC": 88
+            }
+          },
+          "segments_by_label": {
+            "Plate Thickness": {
+              "Placa_3mm": 107,
+              "Placa_12mm": 101,
+              "Placa_6mm": 97
+            },
+            "Electrode": {
+              "E6011": 120,
+              "E6013": 94,
+              "E7018": 50,
+              "E6010": 41
+            },
+            "Type of Current": {
+              "DC": 184,
+              "AC": 121
+            }
+          }
+        }
+      },
+      "execution_time": {
+        "seconds": 1.24,
+        "minutes": 0.02
+      }
+    }
   },
   "execution_time": {
     "seconds": 0.0

@@ -43,6 +43,7 @@ from utils.audio_utils import (
     get_script_segment_duration,
     load_audio_segment,
 )
+from utils.timing import timer
 
 # Definir directorios
 SCRIPT_DIR = Path(__file__).parent
@@ -50,7 +51,7 @@ VGGISH_MODEL_URL = "https://tfhub.dev/google/vggish/1"
 INFER_JSON = SCRIPT_DIR / "infer.json"
 
 # Duración de segmento basada en el nombre del directorio
-SEGMENT_DURATION = get_script_segment_duration(Path(__file__))
+DEFAULT_SEGMENT_DURATION = get_script_segment_duration(Path(__file__))
 
 
 # ============= Parseo de argumentos (antes de cargar modelos) =============
@@ -78,19 +79,66 @@ def parse_args():
         default=10,
         help="Número de muestras aleatorias a mostrar (default: 10)",
     )
+    parser.add_argument(
+        "--overlap",
+        type=float,
+        default=0.0,
+        help="Solapamiento del modelo entrenado como fracción (0-1). Ej: 0.5 = 50%% (default: 0.0)",
+    )
+    parser.add_argument(
+        "--train-seconds",
+        type=int,
+        default=None,
+        help="Duración (seg) usada para entrenar el modelo a cargar (ej: 30). Default: el directorio actual.",
+    )
+    parser.add_argument(
+        "--test-seconds",
+        type=int,
+        default=None,
+        help="Duración (seg) usada para segmentar/evaluar en inferencia (ej: 1). Default: el directorio actual.",
+    )
     return parser.parse_args()
 
 
 # Parsear argumentos antes de cargar modelos
 args = parse_args()
 N_MODELS = args.k_folds
-MODELS_DIR = SCRIPT_DIR / "models" / f"{N_MODELS}-fold"
+
+DEFAULT_SECONDS = int(DEFAULT_SEGMENT_DURATION)
+TRAIN_SECONDS = (
+    int(args.train_seconds) if args.train_seconds is not None else DEFAULT_SECONDS
+)
+TEST_SECONDS = (
+    int(args.test_seconds) if args.test_seconds is not None else DEFAULT_SECONDS
+)
+
+TRAIN_DIR = ROOT_DIR / f"{TRAIN_SECONDS}seg"
+TEST_DIR = ROOT_DIR / f"{TEST_SECONDS}seg"
+
+# Duración efectiva de segmentación en inferencia
+SEGMENT_DURATION = float(TEST_SECONDS)
+
+# Solapamiento: fracción 0-1 usada en entrenamiento
+OVERLAP_RATIO = float(args.overlap)
+OVERLAP_SECONDS = OVERLAP_RATIO * SEGMENT_DURATION  # Segundos para inferencia
+
+OVERLAP_TAG = str(OVERLAP_RATIO)
+MODELS_DIR_NEW = TRAIN_DIR / "models" / f"k{N_MODELS:02d}_overlap_{OVERLAP_TAG}"
+MODELS_DIR_OLD = TRAIN_DIR / "models" / f"{N_MODELS}-fold"
+MODELS_DIR = MODELS_DIR_NEW if MODELS_DIR_NEW.exists() else MODELS_DIR_OLD
+
+if MODELS_DIR == MODELS_DIR_OLD and MODELS_DIR_NEW != MODELS_DIR_OLD:
+    print(f"[INFO] Modelos (legacy): {MODELS_DIR}")
+else:
+    print(f"[INFO] Modelos:          {MODELS_DIR}")
 
 # Cargar modelo VGGish de TensorFlow Hub
 print(f"Cargando modelo VGGish desde TensorFlow Hub...")
 vggish_model = hub.load(VGGISH_MODEL_URL)
 print("Modelo VGGish cargado correctamente.")
-print(f"Duración de segmento: {SEGMENT_DURATION}s")
+print(f"Duración segmento (train): {TRAIN_SECONDS}s")
+print(f"Duración segmento (test):  {SEGMENT_DURATION}s")
+print(f"Solapamiento (test):       {OVERLAP_SECONDS}s")
 
 
 # ============= Extracción de embeddings VGGish =============
@@ -108,7 +156,7 @@ def extract_vggish_embeddings_from_segment(
         segment_duration=SEGMENT_DURATION,
         segment_index=segment_idx,
         sr=16000,
-        hop_ratio=0.5,
+        overlap_seconds=OVERLAP_SECONDS,
     )
 
     if segment is None:
@@ -169,7 +217,7 @@ def extract_vggish_embeddings(audio_path):
 
 # ============= Cargar encoders desde train.csv =============
 
-train_data = pd.read_csv(SCRIPT_DIR / "train.csv")
+train_data = pd.read_csv(TRAIN_DIR / "train.csv")
 
 plate_encoder = LabelEncoder()
 electrode_encoder = LabelEncoder()
@@ -204,7 +252,7 @@ def load_ensemble_models():
             f"No se encontró la carpeta {MODELS_DIR}. "
             f"Ejecuta primero: python entrenar.py --k-folds {N_MODELS}"
         )
-    
+
     models = []
 
     for fold in range(N_MODELS):
@@ -247,11 +295,15 @@ def save_inference_result(result_data, elapsed_time=None):
     # Agregar metadatos al resultado
     result_data["timestamp"] = datetime.now().isoformat()
     result_data["config"] = {
-        "segment_duration": SEGMENT_DURATION,
+        "train_seconds": TRAIN_SECONDS,
+        "test_seconds": SEGMENT_DURATION,
+        "overlap_seconds": OVERLAP_SECONDS,
         "k_folds": N_MODELS,
-        "models_dir": str(MODELS_DIR.name),
+        "models_dir": str(MODELS_DIR),
+        "train_dir": str(TRAIN_DIR),
+        "test_dir": str(TEST_DIR),
     }
-    
+
     # Agregar tiempo de ejecución si está disponible
     if elapsed_time is not None:
         result_data["execution_time"] = {
@@ -394,7 +446,9 @@ def generate_metrics_document(results):
 """
 
     # Guardar documento
-    metrics_file = SCRIPT_DIR / "METRICAS.md"
+    metrics_dir = SCRIPT_DIR / "metricas"
+    metrics_dir.mkdir(exist_ok=True)
+    metrics_file = metrics_dir / "METRICAS.md"
     with open(metrics_file, "w", encoding="utf-8") as f:
         f.write(doc)
 
@@ -488,40 +542,43 @@ def predict_audio(audio_path):
 def evaluate_blind_set():
     """Evalúa el ensemble en el conjunto blind (validación vida real)."""
     start_time = time.time()
-    
-    blind_csv = SCRIPT_DIR / "blind.csv"
+
+    blind_csv = TEST_DIR / "blind.csv"
     if not blind_csv.exists():
-        print("No se encontró blind.csv. Ejecuta generar_splits.py primero.")
+        print(
+            f"No se encontró {blind_csv}. Ejecuta generar_splits.py en {TEST_DIR.name} primero."
+        )
         return None
 
-    blind_df = pd.read_csv(blind_csv)
-    print(
-        f"\nEvaluando ensemble en {len(blind_df)} segmentos de BLIND (vida real)..."
-    )
-    print(f"Duración de segmento: {SEGMENT_DURATION}s")
+    with timer("Cargar blind.csv"):
+        blind_df = pd.read_csv(blind_csv)
+    print(f"\nEvaluando ensemble en {len(blind_df)} segmentos de BLIND (vida real)...")
+    print(f"Duración de segmento (test): {SEGMENT_DURATION}s")
+    print(f"Solapamiento (test): {OVERLAP_SECONDS}s")
 
     # Listas para almacenar predicciones y etiquetas reales
     y_true_plate, y_pred_plate = [], []
     y_true_electrode, y_pred_electrode = [], []
     y_true_current, y_pred_current = [], []
 
-    for idx, row in blind_df.iterrows():
-        if idx % 100 == 0:
-            print(f"  Procesando {idx}/{len(blind_df)}...")
+    with timer("Inferencia BLIND (segmentos)"):
+        for idx, row in blind_df.iterrows():
+            if idx % 100 == 0:
+                print(f"  Procesando {idx}/{len(blind_df)}...")
 
-        audio_path = row["Audio Path"]
-        segment_idx = int(row["Segment Index"])
+            audio_path = row["Audio Path"]
+            segment_idx = int(row["Segment Index"])
 
-        # Etiquetas reales
-        y_true_plate.append(row["Plate Thickness"])
-        y_true_electrode.append(row["Electrode"])
-        y_true_current.append(row["Type of Current"])
+            # Etiquetas reales
+            y_true_plate.append(row["Plate Thickness"])
+            y_true_electrode.append(row["Electrode"])
+            y_true_current.append(row["Type of Current"])
 
-        # Predicciones usando segmento on-the-fly
-        result = predict_segment(audio_path, segment_idx)
-        y_pred_plate.append(result["plate"])
-        y_pred_electrode.append(result["electrode"])
-        y_pred_current.append(result["current"])
+            # Predicciones usando segmento on-the-fly
+            result = predict_segment(audio_path, segment_idx)
+            y_pred_plate.append(result["plate"])
+            y_pred_electrode.append(result["electrode"])
+            y_pred_current.append(result["current"])
 
     # Calcular métricas
     print("\n" + "=" * 70)
@@ -644,8 +701,8 @@ def evaluate_blind_set():
 
     # Calcular tiempo de ejecución
     elapsed_time = time.time() - start_time
-    print(f"\nTiempo de ejecución: {elapsed_time:.2f}s ({elapsed_time/60:.2f}min)")
-    
+    print(f"\nTiempo de ejecución: {elapsed_time:.2f}s ({elapsed_time / 60:.2f}min)")
+
     # Guardar resultados en infer.json
     save_inference_result(results, elapsed_time=elapsed_time)
 
@@ -658,13 +715,16 @@ def evaluate_blind_set():
 def show_random_predictions(n_samples=10):
     """Muestra predicciones aleatorias del conjunto blind."""
     start_time = time.time()
-    
-    blind_csv = SCRIPT_DIR / "blind.csv"
+
+    blind_csv = TEST_DIR / "blind.csv"
     if not blind_csv.exists():
-        print("No se encontró blind.csv. Ejecuta generar_splits.py primero.")
+        print(
+            f"No se encontró {blind_csv}. Ejecuta generar_splits.py en {TEST_DIR.name} primero."
+        )
         return
 
-    blind_df = pd.read_csv(blind_csv)
+    with timer("Cargar blind.csv"):
+        blind_df = pd.read_csv(blind_csv)
     num_samples = min(n_samples, len(blind_df))
     samples = blind_df.sample(n=num_samples, random_state=None)
 
@@ -679,13 +739,14 @@ def show_random_predictions(n_samples=10):
     correctas_current = 0
     correctas_todas = 0
 
-    for _, row in samples.iterrows():
-        audio_path = SCRIPT_DIR / row["Audio Path"]
-        real_plate = row["Plate Thickness"]
-        real_electrode = row["Electrode"]
-        real_current = row["Type of Current"]
+    with timer("Inferencia muestras aleatorias"):
+        for _, row in samples.iterrows():
+            audio_path = PROJECT_ROOT / row["Audio Path"]
+            real_plate = row["Plate Thickness"]
+            real_electrode = row["Electrode"]
+            real_current = row["Type of Current"]
 
-        result = predict_audio(str(audio_path))
+            result = predict_audio(str(audio_path))
 
         correct_plate = result["plate"] == real_plate
         correct_electrode = result["electrode"] == real_electrode
@@ -735,8 +796,8 @@ def show_random_predictions(n_samples=10):
 
     # Calcular tiempo de ejecución
     elapsed_time = time.time() - start_time
-    print(f"Tiempo de ejecución: {elapsed_time:.2f}s ({elapsed_time/60:.2f}min)")
-    
+    print(f"Tiempo de ejecución: {elapsed_time:.2f}s ({elapsed_time / 60:.2f}min)")
+
     # Guardar resultados en infer.json
     inference_result = {
         "mode": "random_predictions",
@@ -756,7 +817,7 @@ def show_random_predictions(n_samples=10):
 def predict_single_audio(audio_path):
     """Predice un archivo de audio específico."""
     start_time = time.time()
-    
+
     audio_path = Path(audio_path)
 
     if not audio_path.exists():
@@ -766,7 +827,8 @@ def predict_single_audio(audio_path):
     print(f"\nPrediciendo: {audio_path}")
     print("=" * 70)
 
-    result = predict_audio(str(audio_path))
+    with timer("Inferencia audio"):
+        result = predict_audio(str(audio_path))
 
     print(f"\nResultados (Ensemble de {N_MODELS} modelos con Soft Voting):")
     print(f"\n  Plate Thickness: {result['plate']}")
@@ -816,11 +878,11 @@ def predict_single_audio(audio_path):
             ),
         },
     }
-    
+
     # Calcular tiempo de ejecución
     elapsed_time = time.time() - start_time
     print(f"\nTiempo de ejecución: {elapsed_time:.2f}s")
-    
+
     save_inference_result(inference_result, elapsed_time=elapsed_time)
 
 
