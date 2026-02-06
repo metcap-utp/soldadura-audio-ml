@@ -1121,5 +1121,335 @@
       "electrode": 0.0418,
       "current": 0.0061
     }
+  },
+  {
+    "id": "10seg_10fold_20260205_153853",
+    "timestamp": "2026-02-05T15:38:53.603899",
+    "execution_time": {
+      "seconds": 3373.16,
+      "minutes": 56.22,
+      "hours": 0.937
+    },
+    "training_time": {
+      "seconds": 2070.91,
+      "minutes": 34.52
+    },
+    "vggish_extraction": {
+      "from_cache": false,
+      "extraction_time_seconds": 1422.66,
+      "extraction_time_minutes": 23.71
+    },
+    "config": {
+      "segment_duration": 10.0,
+      "overlap_seconds": 0.0,
+      "n_folds": 10,
+      "models_dir": "k10_overlap_0.0",
+      "random_seed": 42,
+      "voting_method": "soft",
+      "batch_size": 32,
+      "epochs": 100,
+      "learning_rate": 0.001,
+      "weight_decay": 0.0001,
+      "label_smoothing": 0.1,
+      "early_stop_patience": 15
+    },
+    "data": {
+      "total_segments": 3372,
+      "unique_sessions": 335,
+      "classes": {
+        "plate": [
+          "Placa_12mm",
+          "Placa_3mm",
+          "Placa_6mm"
+        ],
+        "electrode": [
+          "E6010",
+          "E6011",
+          "E6013",
+          "E7018"
+        ],
+        "current": [
+          "AC",
+          "DC"
+        ]
+      }
+    },
+    "fold_results": [
+      {
+        "acc_plate": 0.5862068965517241,
+        "acc_electrode": 0.6081504702194357,
+        "acc_current": 0.7962382445141066,
+        "f1_plate": 0.595797610609594,
+        "f1_electrode": 0.6368852100362922,
+        "f1_current": 0.7915999441526103
+      },
+      {
+        "acc_plate": 0.672316384180791,
+        "acc_electrode": 0.7175141242937854,
+        "acc_current": 0.827683615819209,
+        "f1_plate": 0.6821217878947364,
+        "f1_electrode": 0.7109599078009635,
+        "f1_current": 0.8153694987341613
+      },
+      {
+        "acc_plate": 0.6403269754768393,
+        "acc_electrode": 0.6103542234332425,
+        "acc_current": 0.7929155313351499,
+        "f1_plate": 0.6630651636410064,
+        "f1_electrode": 0.639639046881119,
+        "f1_current": 0.7849770378044798
+      },
+      {
+        "acc_plate": 0.603988603988604,
+        "acc_electrode": 0.6153846153846154,
+        "acc_current": 0.7777777777777778,
+        "f1_plate": 0.6302552043292784,
+        "f1_electrode": 0.6415657210850445,
+        "f1_current": 0.7754418698834216
+      },
+      {
+        "acc_plate": 0.6328358208955224,
+        "acc_electrode": 0.6567164179104478,
+        "acc_current": 0.7194029850746269,
+        "f1_plate": 0.6479908721470828,
+        "f1_electrode": 0.666115528398363,
+        "f1_current": 0.7337729031461081
+      },
+      {
+        "acc_plate": 0.6818181818181818,
+        "acc_electrode": 0.6396103896103896,
+        "acc_current": 0.7532467532467533,
+        "f1_plate": 0.6813286118220052,
+        "f1_electrode": 0.6910237952259594,
+        "f1_current": 0.7573880664789755
+      },
+      {
+        "acc_plate": 0.6927374301675978,
+        "acc_electrode": 0.611731843575419,
+        "acc_current": 0.8072625698324022,
+        "f1_plate": 0.6897685378591569,
+        "f1_electrode": 0.6824895945756132,
+        "f1_current": 0.7993591348525172
+      },
+      {
+        "acc_plate": 0.6378205128205128,
+        "acc_electrode": 0.6282051282051282,
+        "acc_current": 0.7884615384615384,
+        "f1_plate": 0.6513970376892607,
+        "f1_electrode": 0.6661039765657261,
+        "f1_current": 0.7868423551756886
+      },
+      {
+        "acc_plate": 0.6607669616519174,
+        "acc_electrode": 0.6283185840707964,
+        "acc_current": 0.7610619469026548,
+        "f1_plate": 0.6556766975771293,
+        "f1_electrode": 0.6882281881825104,
+        "f1_current": 0.7604048438629372
+      },
+      {
+        "acc_plate": 0.7203647416413373,
+        "acc_electrode": 0.5987841945288754,
+        "acc_current": 0.7689969604863222,
+        "f1_plate": 0.7184696800252922,
+        "f1_electrode": 0.6623252908557662,
+        "f1_current": 0.7694707822282473
+      }
+    ],
+    "ensemble_results": {
+      "plate": {
+        "accuracy": 0.7453,
+        "f1": 0.7503,
+        "precision": 0.8481,
+        "recall": 0.7453
+      },
+      "electrode": {
+        "accuracy": 0.6776,
+        "f1": 0.7207,
+        "precision": 0.8908,
+        "recall": 0.6776
+      },
+      "current": {
+        "accuracy": 0.7874,
+        "f1": 0.7857,
+        "precision": 0.8597,
+        "recall": 0.7874
+      }
+    },
+    "individual_avg": {
+      "plate": 0.6529,
+      "electrode": 0.6315,
+      "current": 0.7793
+    },
+    "improvement_vs_individual": {
+      "plate": 0.0923,
+      "electrode": 0.0462,
+      "current": 0.0081
+    }
+  },
+  {
+    "id": "10seg_10fold_20260205_153900",
+    "timestamp": "2026-02-05T15:39:00.650813",
+    "execution_time": {
+      "seconds": 3415.58,
+      "minutes": 56.93,
+      "hours": 0.9488
+    },
+    "training_time": {
+      "seconds": 2234.48,
+      "minutes": 37.24
+    },
+    "vggish_extraction": {
+      "from_cache": false,
+      "extraction_time_seconds": 1295.46,
+      "extraction_time_minutes": 21.59
+    },
+    "config": {
+      "segment_duration": 10.0,
+      "overlap_seconds": 0.0,
+      "n_folds": 10,
+      "models_dir": "k10_overlap_0.0",
+      "random_seed": 42,
+      "voting_method": "soft",
+      "batch_size": 32,
+      "epochs": 100,
+      "learning_rate": 0.001,
+      "weight_decay": 0.0001,
+      "label_smoothing": 0.1,
+      "early_stop_patience": 15
+    },
+    "data": {
+      "total_segments": 3372,
+      "unique_sessions": 335,
+      "classes": {
+        "plate": [
+          "Placa_12mm",
+          "Placa_3mm",
+          "Placa_6mm"
+        ],
+        "electrode": [
+          "E6010",
+          "E6011",
+          "E6013",
+          "E7018"
+        ],
+        "current": [
+          "AC",
+          "DC"
+        ]
+      }
+    },
+    "fold_results": [
+      {
+        "acc_plate": 0.6175548589341693,
+        "acc_electrode": 0.6394984326018809,
+        "acc_current": 0.8056426332288401,
+        "f1_plate": 0.6250619203323179,
+        "f1_electrode": 0.6701286022608487,
+        "f1_current": 0.8017745359819601
+      },
+      {
+        "acc_plate": 0.672316384180791,
+        "acc_electrode": 0.635593220338983,
+        "acc_current": 0.7711864406779662,
+        "f1_plate": 0.6826233874610149,
+        "f1_electrode": 0.6656079291167756,
+        "f1_current": 0.770483331752832
+      },
+      {
+        "acc_plate": 0.6539509536784741,
+        "acc_electrode": 0.6103542234332425,
+        "acc_current": 0.7956403269754768,
+        "f1_plate": 0.6653012182468163,
+        "f1_electrode": 0.642645278145165,
+        "f1_current": 0.7884818856553698
+      },
+      {
+        "acc_plate": 0.5982905982905983,
+        "acc_electrode": 0.6210826210826211,
+        "acc_current": 0.7777777777777778,
+        "f1_plate": 0.6238512043977704,
+        "f1_electrode": 0.6490249024544769,
+        "f1_current": 0.7754418698834216
+      },
+      {
+        "acc_plate": 0.6238805970149254,
+        "acc_electrode": 0.6537313432835821,
+        "acc_current": 0.7164179104477612,
+        "f1_plate": 0.634685993786632,
+        "f1_electrode": 0.6629632835352516,
+        "f1_current": 0.730855920524705
+      },
+      {
+        "acc_plate": 0.672077922077922,
+        "acc_electrode": 0.6396103896103896,
+        "acc_current": 0.7564935064935064,
+        "f1_plate": 0.6692680742302274,
+        "f1_electrode": 0.6868790373687435,
+        "f1_current": 0.7609507768518369
+      },
+      {
+        "acc_plate": 0.6787709497206704,
+        "acc_electrode": 0.6089385474860335,
+        "acc_current": 0.8072625698324022,
+        "f1_plate": 0.6719615740280782,
+        "f1_electrode": 0.6828719207872397,
+        "f1_current": 0.7998159355292479
+      },
+      {
+        "acc_plate": 0.657051282051282,
+        "acc_electrode": 0.6314102564102564,
+        "acc_current": 0.7852564102564102,
+        "f1_plate": 0.6670763824843872,
+        "f1_electrode": 0.6717935298163106,
+        "f1_current": 0.7837743232120078
+      },
+      {
+        "acc_plate": 0.6460176991150443,
+        "acc_electrode": 0.6371681415929203,
+        "acc_current": 0.7640117994100295,
+        "f1_plate": 0.6444939595382073,
+        "f1_electrode": 0.6982810354331324,
+        "f1_current": 0.7635312469965474
+      },
+      {
+        "acc_plate": 0.7051671732522796,
+        "acc_electrode": 0.6109422492401215,
+        "acc_current": 0.7720364741641338,
+        "f1_plate": 0.6886099836633798,
+        "f1_electrode": 0.6764529599606364,
+        "f1_current": 0.7726515386089855
+      }
+    ],
+    "ensemble_results": {
+      "plate": {
+        "accuracy": 0.7488,
+        "f1": 0.7539,
+        "precision": 0.8522,
+        "recall": 0.7488
+      },
+      "electrode": {
+        "accuracy": 0.68,
+        "f1": 0.7235,
+        "precision": 0.8942,
+        "recall": 0.68
+      },
+      "current": {
+        "accuracy": 0.7874,
+        "f1": 0.7857,
+        "precision": 0.8597,
+        "recall": 0.7874
+      }
+    },
+    "individual_avg": {
+      "plate": 0.6525,
+      "electrode": 0.6288,
+      "current": 0.7752
+    },
+    "improvement_vs_individual": {
+      "plate": 0.0963,
+      "electrode": 0.0512,
+      "current": 0.0122
+    }
   }
 ]

@@ -635,6 +635,12 @@
       "plate": 0.1478,
       "electrode": 0.073,
       "current": 0.018
+    },
+    "training_time": {
+      "seconds": 177.6,
+      "minutes": 2.96,
+      "estimated": true,
+      "note": "Estimado basado en 0.986 min/fold medido con K=3 y K=5"
     }
   },
   {
@@ -750,6 +756,12 @@
       "plate": 0.144,
       "electrode": 0.0811,
       "current": 0.0147
+    },
+    "training_time": {
+      "seconds": 296.0,
+      "minutes": 4.93,
+      "estimated": true,
+      "note": "Estimado basado en 0.986 min/fold medido con K=3 y K=5"
     }
   },
   {
@@ -881,6 +893,12 @@
       "plate": 0.14,
       "electrode": 0.073,
       "current": 0.0136
+    },
+    "training_time": {
+      "seconds": 414.4,
+      "minutes": 6.91,
+      "estimated": true,
+      "note": "Estimado basado en 0.986 min/fold medido con K=3 y K=5"
     }
   },
   {
@@ -1036,6 +1054,12 @@
       "plate": 0.1323,
       "electrode": 0.0715,
       "current": 0.0135
+    },
+    "training_time": {
+      "seconds": 592.0,
+      "minutes": 9.87,
+      "estimated": true,
+      "note": "Estimado basado en 0.986 min/fold medido con K=3 y K=5"
     }
   },
   {
@@ -1231,6 +1255,12 @@
       "plate": 0.1241,
       "electrode": 0.0716,
       "current": 0.013
+    },
+    "training_time": {
+      "seconds": 888.0,
+      "minutes": 14.8,
+      "estimated": true,
+      "note": "Estimado basado en 0.986 min/fold medido con K=3 y K=5"
     }
   },
   {
@@ -1466,6 +1496,12 @@
       "plate": 0.1194,
       "electrode": 0.0648,
       "current": 0.0143
+    },
+    "training_time": {
+      "seconds": 1184.0,
+      "minutes": 19.73,
+      "estimated": true,
+      "note": "Estimado basado en 0.986 min/fold medido con K=3 y K=5"
     }
   },
   {
@@ -1581,6 +1617,240 @@
       "plate": 0.1381,
       "electrode": 0.0809,
       "current": 0.0144
+    }
+  },
+  {
+    "id": "5seg_5fold_20260205_185934",
+    "timestamp": "2026-02-05T18:59:34.088472",
+    "execution_time": {
+      "seconds": 227.14,
+      "minutes": 3.79,
+      "hours": 0.0631
+    },
+    "training_time": {
+      "seconds": 225.28,
+      "minutes": 3.75
+    },
+    "vggish_extraction": {
+      "from_cache": true,
+      "extraction_time_seconds": null,
+      "extraction_time_minutes": null
+    },
+    "config": {
+      "segment_duration": 5.0,
+      "overlap_seconds": 0.0,
+      "n_folds": 5,
+      "models_dir": "k05_overlap_0.0",
+      "random_seed": 42,
+      "voting_method": "soft",
+      "batch_size": 32,
+      "epochs": 100,
+      "learning_rate": 0.001,
+      "weight_decay": 0.0001,
+      "label_smoothing": 0.1,
+      "early_stop_patience": 15
+    },
+    "data": {
+      "total_segments": 7234,
+      "unique_sessions": 335,
+      "classes": {
+        "plate": [
+          "Placa_12mm",
+          "Placa_3mm",
+          "Placa_6mm"
+        ],
+        "electrode": [
+          "E6010",
+          "E6011",
+          "E6013",
+          "E7018"
+        ],
+        "current": [
+          "AC",
+          "DC"
+        ]
+      }
+    },
+    "fold_results": [
+      {
+        "acc_plate": 0.5774834437086093,
+        "acc_electrode": 0.5536423841059602,
+        "acc_current": 0.7192052980132451,
+        "f1_plate": 0.571826916276982,
+        "f1_electrode": 0.5879985355429894,
+        "f1_current": 0.7133422460052415
+      },
+      {
+        "acc_plate": 0.6578947368421053,
+        "acc_electrode": 0.5654338549075392,
+        "acc_current": 0.7098150782361309,
+        "f1_plate": 0.632479247979143,
+        "f1_electrode": 0.5985403045676346,
+        "f1_current": 0.7102777835321386
+      },
+      {
+        "acc_plate": 0.6004084411164057,
+        "acc_electrode": 0.5656909462219196,
+        "acc_current": 0.7222600408441117,
+        "f1_plate": 0.6014669798072139,
+        "f1_electrode": 0.5922706420598008,
+        "f1_current": 0.7170168475003939
+      },
+      {
+        "acc_plate": 0.6325301204819277,
+        "acc_electrode": 0.5890227576974565,
+        "acc_current": 0.7208835341365462,
+        "f1_plate": 0.6178329474375057,
+        "f1_electrode": 0.6174185650024568,
+        "f1_current": 0.7156939207080796
+      },
+      {
+        "acc_plate": 0.6280442804428045,
+        "acc_electrode": 0.555719557195572,
+        "acc_current": 0.7623616236162362,
+        "f1_plate": 0.6191160288856702,
+        "f1_electrode": 0.6183811865162717,
+        "f1_current": 0.7526557294957333
+      }
+    ],
+    "ensemble_results": {
+      "plate": {
+        "accuracy": 0.6857,
+        "f1": 0.6885,
+        "precision": 0.8129,
+        "recall": 0.6857
+      },
+      "electrode": {
+        "accuracy": 0.6117,
+        "f1": 0.66,
+        "precision": 0.8753,
+        "recall": 0.6117
+      },
+      "current": {
+        "accuracy": 0.74,
+        "f1": 0.7351,
+        "precision": 0.839,
+        "recall": 0.74
+      }
+    },
+    "individual_avg": {
+      "plate": 0.6193,
+      "electrode": 0.5659,
+      "current": 0.7269
+    },
+    "improvement_vs_individual": {
+      "plate": 0.0664,
+      "electrode": 0.0458,
+      "current": 0.0131
+    }
+  },
+  {
+    "id": "5seg_3fold_20260205_192710",
+    "timestamp": "2026-02-05T19:27:10.321386",
+    "execution_time": {
+      "seconds": 537.0,
+      "minutes": 8.95,
+      "hours": 0.1492
+    },
+    "training_time": {
+      "seconds": 220.04,
+      "minutes": 3.67
+    },
+    "vggish_extraction": {
+      "from_cache": false,
+      "extraction_time_seconds": 346.54,
+      "extraction_time_minutes": 5.78
+    },
+    "config": {
+      "segment_duration": 5.0,
+      "overlap_seconds": 0.0,
+      "n_folds": 3,
+      "models_dir": "k03",
+      "random_seed": 42,
+      "voting_method": "soft",
+      "batch_size": 32,
+      "epochs": 100,
+      "learning_rate": 0.001,
+      "weight_decay": 0.0001,
+      "label_smoothing": 0.1,
+      "early_stop_patience": 15
+    },
+    "data": {
+      "total_segments": 7234,
+      "unique_sessions": 335,
+      "classes": {
+        "plate": [
+          "Placa_12mm",
+          "Placa_3mm",
+          "Placa_6mm"
+        ],
+        "electrode": [
+          "E6010",
+          "E6011",
+          "E6013",
+          "E7018"
+        ],
+        "current": [
+          "AC",
+          "DC"
+        ]
+      }
+    },
+    "fold_results": [
+      {
+        "acc_plate": 0.6083473861720068,
+        "acc_electrode": 0.5708263069139966,
+        "acc_current": 0.6913996627318718,
+        "f1_plate": 0.5918732044251535,
+        "f1_electrode": 0.602122578226373,
+        "f1_current": 0.6948700051546829
+      },
+      {
+        "acc_plate": 0.6095717884130982,
+        "acc_electrode": 0.572208228379513,
+        "acc_current": 0.7518891687657431,
+        "f1_plate": 0.6042848166077504,
+        "f1_electrode": 0.6074530991856731,
+        "f1_current": 0.7429220321233935
+      },
+      {
+        "acc_plate": 0.5983870967741935,
+        "acc_electrode": 0.5588709677419355,
+        "acc_current": 0.7310483870967742,
+        "f1_plate": 0.5933737785998497,
+        "f1_electrode": 0.5839995140845606,
+        "f1_current": 0.7236565131743017
+      }
+    ],
+    "ensemble_results": {
+      "plate": {
+        "accuracy": 0.6894,
+        "f1": 0.686,
+        "precision": 0.8058,
+        "recall": 0.6894
+      },
+      "electrode": {
+        "accuracy": 0.6095,
+        "f1": 0.6573,
+        "precision": 0.8724,
+        "recall": 0.6095
+      },
+      "current": {
+        "accuracy": 0.7408,
+        "f1": 0.7359,
+        "precision": 0.8404,
+        "recall": 0.7408
+      }
+    },
+    "individual_avg": {
+      "plate": 0.6054,
+      "electrode": 0.5673,
+      "current": 0.7248
+    },
+    "improvement_vs_individual": {
+      "plate": 0.0839,
+      "electrode": 0.0422,
+      "current": 0.016
     }
   }
 ]

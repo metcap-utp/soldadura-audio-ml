@@ -1,11 +1,11 @@
 # Métricas de Clasificación SMAW - 5seg
 
-**Fecha de evaluación:** 2026-02-01 01:25:44
+**Fecha de evaluación:** 2026-02-05 19:17:24
 
 **Configuración:**
 - Duración de segmento: 5.0s
 - Número de muestras (blind): 951
-- Número de modelos (ensemble): 20
+- Número de modelos (ensemble): 5
 - Método de votación: soft
 
 ---
@@ -14,81 +14,81 @@
 
 | Tarea | Accuracy | Macro F1 |
 |-------|----------|----------|
-| Plate Thickness | 74.13% | 0.7469 |
-| Electrode Type | 85.70% | 0.8446 |
-| Current Type | 93.69% | 0.9327 |
+| Plate Thickness | 0.5331 | 0.5421 |
+| Electrode Type | 0.4995 | 0.5161 |
+| Current Type | 0.6614 | 0.6613 |
 
 ---
 
 ## Plate Thickness (Espesor de Placa)
 
 ### Métricas
-- **Accuracy:** 74.13%
-- **Macro F1-Score:** 0.7469
+- **Accuracy:** 0.5331
+- **Macro F1-Score:** 0.5421
 
 ### Confusion Matrix
 
 | Pred \ Real | Placa_12mm | Placa_3mm | Placa_6mm |
 |---|---|---|---|
-| **Placa_12mm** | 207 | 13 | 55 |
-| **Placa_3mm** | 8 | 232 | 7 |
-| **Placa_6mm** | 101 | 62 | 266 |
+| **Placa_12mm** | 228 | 10 | 37 |
+| **Placa_3mm** | 115 | 125 | 7 |
+| **Placa_6mm** | 245 | 30 | 154 |
 
 ### Classification Report
 
 | Clase | Precision | Recall | F1-Score | Support |
 |-------|-----------|--------|----------|--------|
-| Placa_12mm | 0.6551 | 0.7527 | 0.7005 | 275 |
-| Placa_3mm | 0.7557 | 0.9393 | 0.8375 | 247 |
-| Placa_6mm | 0.8110 | 0.6200 | 0.7028 | 429 |
+| Placa_12mm | 0.3878 | 0.8291 | 0.5284 | 275 |
+| Placa_3mm | 0.7576 | 0.5061 | 0.6068 | 247 |
+| Placa_6mm | 0.7778 | 0.3590 | 0.4912 | 429 |
 
 ---
 
 ## Electrode Type (Tipo de Electrodo)
 
 ### Métricas
-- **Accuracy:** 85.70%
-- **Macro F1-Score:** 0.8446
+- **Accuracy:** 0.4995
+- **Macro F1-Score:** 0.5161
 
 ### Confusion Matrix
 
 | Pred \ Real | E6010 | E6011 | E6013 | E7018 |
 |---|---|---|---|---|
-| **E6010** | 109 | 4 | 5 | 0 |
-| **E6011** | 8 | 291 | 7 | 4 |
-| **E6013** | 4 | 8 | 220 | 9 |
-| **E7018** | 41 | 28 | 18 | 195 |
+| **E6010** | 110 | 3 | 1 | 4 |
+| **E6011** | 145 | 153 | 9 | 3 |
+| **E6013** | 110 | 10 | 112 | 9 |
+| **E7018** | 149 | 23 | 10 | 100 |
 
 ### Classification Report
 
 | Clase | Precision | Recall | F1-Score | Support |
 |-------|-----------|--------|----------|--------|
-| E6010 | 0.6728 | 0.9237 | 0.7786 | 118 |
-| E6011 | 0.8792 | 0.9387 | 0.9080 | 310 |
-| E6013 | 0.8800 | 0.9129 | 0.8961 | 241 |
-| E7018 | 0.9375 | 0.6915 | 0.7959 | 282 |
+| E6010 | 0.2140 | 0.9322 | 0.3481 | 118 |
+| E6011 | 0.8095 | 0.4935 | 0.6132 | 310 |
+| E6013 | 0.8485 | 0.4647 | 0.6005 | 241 |
+| E7018 | 0.8621 | 0.3546 | 0.5025 | 282 |
 
 ---
 
 ## Current Type (Tipo de Corriente)
 
 ### Métricas
-- **Accuracy:** 93.69%
-- **Macro F1-Score:** 0.9327
+- **Accuracy:** 0.6614
+- **Macro F1-Score:** 0.6613
 
 ### Confusion Matrix
 
 | Pred \ Real | AC | DC |
 |---|---|---|
-| **AC** | 326 | 4 |
-| **DC** | 56 | 565 |
+| **AC** | 321 | 9 |
+| **DC** | 313 | 308 |
 
 ### Classification Report
 
 | Clase | Precision | Recall | F1-Score | Support |
 |-------|-----------|--------|----------|--------|
-| AC | 0.8534 | 0.9879 | 0.9157 | 330 |
-| DC | 0.9930 | 0.9098 | 0.9496 | 621 |
+| AC | 0.5063 | 0.9727 | 0.6660 | 330 |
+| DC | 0.9716 | 0.4960 | 0.6567 | 621 |
 
 ---
 

@@ -80,12 +80,6 @@ def parse_args():
         help="Número de muestras aleatorias a mostrar (default: 10)",
     )
     parser.add_argument(
-        "--overlap",
-        type=float,
-        default=0.0,
-        help="Solapamiento del modelo entrenado como fracción (0-1). Ej: 0.5 = 50%% (default: 0.0)",
-    )
-    parser.add_argument(
         "--train-seconds",
         type=int,
         default=None,
@@ -116,18 +110,17 @@ TRAIN_DIR = ROOT_DIR / f"{TRAIN_SECONDS}seg"
 TEST_DIR = ROOT_DIR / f"{TEST_SECONDS}seg"
 
 SEGMENT_DURATION = float(TEST_SECONDS)
-OVERLAP_RATIO = float(args.overlap)  # Fracción 0-1 usada en entrenamiento
-OVERLAP_SECONDS = OVERLAP_RATIO * SEGMENT_DURATION  # Segundos para inferencia
+# Overlap fijo en 0.0 (sin solapamiento)
+OVERLAP_SECONDS = 0.0
 
-OVERLAP_TAG = str(OVERLAP_RATIO)
-MODELS_DIR_NEW = TRAIN_DIR / "models" / f"k{N_MODELS:02d}_overlap_{OVERLAP_TAG}"
-MODELS_DIR_OLD = TRAIN_DIR / "models" / f"{N_MODELS}-fold"
-MODELS_DIR = MODELS_DIR_NEW if MODELS_DIR_NEW.exists() else MODELS_DIR_OLD
+# Directorio de modelos (nuevo naming: kXX)
+MODELS_DIR = TRAIN_DIR / "models" / f"k{N_MODELS:02d}"
 
-if MODELS_DIR == MODELS_DIR_OLD and MODELS_DIR_NEW != MODELS_DIR_OLD:
-    print(f"[INFO] Modelos (legacy): {MODELS_DIR}")
-else:
-    print(f"[INFO] Modelos:          {MODELS_DIR}")
+if not MODELS_DIR.exists():
+    print(f"[ERROR] No se encontró el directorio de modelos: {MODELS_DIR}")
+    sys.exit(1)
+
+print(f"[INFO] Modelos:          {MODELS_DIR}")
 
 # Cargar modelo VGGish de TensorFlow Hub
 print(f"Cargando modelo VGGish desde TensorFlow Hub...")
@@ -135,7 +128,6 @@ vggish_model = hub.load(VGGISH_MODEL_URL)
 print("Modelo VGGish cargado correctamente.")
 print(f"Duración segmento (train): {TRAIN_SECONDS}s")
 print(f"Duración segmento (test):  {SEGMENT_DURATION}s")
-print(f"Solapamiento (test):       {OVERLAP_SECONDS}s")
 
 
 # ============= Extracción de embeddings VGGish =============
@@ -360,16 +352,16 @@ def generate_metrics_document(results):
 
 | Tarea | Accuracy | Macro F1 |
 |-------|----------|----------|
-| Plate Thickness | {results["accuracy"]["plate_thickness"] * 100:.2f}% | {results["macro_f1"]["plate_thickness"]:.4f} |
-| Electrode Type | {results["accuracy"]["electrode"] * 100:.2f}% | {results["macro_f1"]["electrode"]:.4f} |
-| Current Type | {results["accuracy"]["current_type"] * 100:.2f}% | {results["macro_f1"]["current_type"]:.4f} |
+| Plate Thickness | {results["accuracy"]["plate_thickness"]:.4f} | {results["macro_f1"]["plate_thickness"]:.4f} |
+| Electrode Type | {results["accuracy"]["electrode"]:.4f} | {results["macro_f1"]["electrode"]:.4f} |
+| Current Type | {results["accuracy"]["current_type"]:.4f} | {results["macro_f1"]["current_type"]:.4f} |
 
 ---
 
 ## Plate Thickness (Espesor de Placa)
 
 ### Métricas
-- **Accuracy:** {results["accuracy"]["plate_thickness"] * 100:.2f}%
+- **Accuracy:** {results["accuracy"]["plate_thickness"]:.4f}
 - **Macro F1-Score:** {results["macro_f1"]["plate_thickness"]:.4f}
 
 ### Confusion Matrix
@@ -392,7 +384,7 @@ def generate_metrics_document(results):
 ## Electrode Type (Tipo de Electrodo)
 
 ### Métricas
-- **Accuracy:** {results["accuracy"]["electrode"] * 100:.2f}%
+- **Accuracy:** {results["accuracy"]["electrode"]:.4f}
 - **Macro F1-Score:** {results["macro_f1"]["electrode"]:.4f}
 
 ### Confusion Matrix
@@ -415,7 +407,7 @@ def generate_metrics_document(results):
 ## Current Type (Tipo de Corriente)
 
 ### Métricas
-- **Accuracy:** {results["accuracy"]["current_type"] * 100:.2f}%
+- **Accuracy:** {results["accuracy"]["current_type"]:.4f}
 - **Macro F1-Score:** {results["macro_f1"]["current_type"]:.4f}
 
 ### Confusion Matrix
@@ -551,7 +543,6 @@ def evaluate_blind_set():
         blind_df = pd.read_csv(blind_csv)
     print(f"\nEvaluando ensemble en {len(blind_df)} segmentos de BLIND (vida real)...")
     print(f"Duración de segmento (test): {SEGMENT_DURATION}s")
-    print(f"Solapamiento (test): {OVERLAP_SECONDS}s")
 
     # Listas para almacenar predicciones y etiquetas reales
     y_true_plate, y_pred_plate = [], []
@@ -601,13 +592,13 @@ def evaluate_blind_set():
     hamming_accuracy = (acc_plate + acc_electrode + acc_current) / 3
 
     print(f"\nMétricas Globales (Multi-tarea):")
-    print(f"  Exact Match Accuracy: {exact_match_accuracy * 100:.2f}%")
-    print(f"  Hamming Accuracy:     {hamming_accuracy * 100:.2f}%")
+    print(f"  Exact Match Accuracy: {exact_match_accuracy:.4f}")
+    print(f"  Hamming Accuracy:     {hamming_accuracy:.4f}")
 
     print(f"\nAccuracy por Tarea:")
-    print(f"  Plate Thickness:  {acc_plate * 100:.2f}%")
-    print(f"  Electrode:        {acc_electrode * 100:.2f}%")
-    print(f"  Type of Current:  {acc_current * 100:.2f}%")
+    print(f"  Plate Thickness:  {acc_plate:.4f}")
+    print(f"  Electrode:        {acc_electrode:.4f}")
+    print(f"  Type of Current:  {acc_current:.4f}")
 
     # Calcular Macro F1
     f1_plate = f1_score(y_true_plate, y_pred_plate, average="macro")
@@ -778,16 +769,16 @@ def show_random_predictions(n_samples=10):
     print(f"  RESUMEN ({N_MODELS} modelos con Soft Voting)")
     print(f"{'=' * 80}")
     print(
-        f"\n  Plate Thickness:  {correctas_plate:>2}/{num_samples} = {correctas_plate / num_samples * 100:>6.2f}%"
+        f"\n  Plate Thickness:  {correctas_plate:>2}/{num_samples} = {correctas_plate / num_samples:.4f}"
     )
     print(
-        f"  Electrode:        {correctas_electrode:>2}/{num_samples} = {correctas_electrode / num_samples * 100:>6.2f}%"
+        f"  Electrode:        {correctas_electrode:>2}/{num_samples} = {correctas_electrode / num_samples:.4f}"
     )
     print(
-        f"  Type of Current:  {correctas_current:>2}/{num_samples} = {correctas_current / num_samples * 100:>6.2f}%"
+        f"  Type of Current:  {correctas_current:>2}/{num_samples} = {correctas_current / num_samples:.4f}"
     )
     print(
-        f"  Todas correctas:  {correctas_todas:>2}/{num_samples} = {correctas_todas / num_samples * 100:>6.2f}%"
+        f"  Todas correctas:  {correctas_todas:>2}/{num_samples} = {correctas_todas / num_samples:.4f}"
     )
     print()
 

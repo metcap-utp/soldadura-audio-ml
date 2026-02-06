@@ -21,7 +21,7 @@ import seaborn as sns
 ROOT_DIR = Path(__file__).parent.parent
 
 # Duraciones disponibles
-DURACIONES = ["1seg", "2seg", "5seg", "10seg", "30seg"]
+DURACIONES = ["1seg", "2seg", "5seg", "10seg", "20seg", "30seg", "50seg"]
 
 # Nombres legibles para las tareas
 TASK_NAMES = {
@@ -93,9 +93,9 @@ def generar_grafica_confusion(
     if accuracy is not None or f1_macro is not None:
         metrics_text = []
         if accuracy is not None:
-            metrics_text.append(f"Accuracy: {accuracy * 100:.2f}%")
+            metrics_text.append(f"Accuracy: {accuracy:.4f}")
         if f1_macro is not None:
-            metrics_text.append(f"F1 Macro: {f1_macro * 100:.2f}%")
+            metrics_text.append(f"F1 Macro: {f1_macro:.4f}")
 
         ax.text(
             0.5,
@@ -148,7 +148,7 @@ def generar_grafica_combinada(
         ax.set_ylabel("Real", fontsize=10)
 
         # Título con métricas
-        titulo = f"{TASK_NAMES[task]}\nAcc: {acc * 100:.1f}% | F1: {f1 * 100:.1f}%"
+        titulo = f"{TASK_NAMES[task]}\nAcc: {acc:.3f} | F1: {f1:.3f}"
         ax.set_title(titulo, fontsize=11, fontweight="bold")
 
     # Título general
@@ -184,7 +184,7 @@ def generar_grafica_combinada(
     ]
     if exact_match is not None and hamming is not None:
         title_parts.append(
-            f"Exact Match: {exact_match * 100:.1f}% | Hamming: {hamming * 100:.1f}%"
+            f"Exact Match: {exact_match:.3f} | Hamming: {hamming:.3f}"
         )
 
     fig.suptitle("\n".join(title_parts), fontsize=13, fontweight="bold", y=1.02)

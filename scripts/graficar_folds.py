@@ -14,7 +14,6 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.ticker import PercentFormatter
 
 # Directorio raíz del proyecto
 ROOT_DIR = Path(__file__).parent.parent
@@ -71,26 +70,52 @@ def load_global_metrics(duration_dir: str) -> dict:
 
 
 def extract_metrics_by_folds(results: list) -> dict:
-    """Extrae métricas por número de folds usando la última ejecución por K."""
+    """Extrae métricas de validación cruzada (promedio de fold_results) por K."""
+    import numpy as np
+    
     metrics_by_k = {}
 
     for entry in results:
         k = entry.get("config", {}).get("n_folds", 5)
-
-        # Usar ensemble_results si existe, sino results
-        res = entry.get("ensemble_results", entry.get("results", {}))
-
+        
         metrics_by_k[k] = {
             "plate": {},
             "electrode": {},
             "current": {},
         }
 
-        for task in ["plate", "electrode", "current"]:
-            if task in res:
-                for metric in ["accuracy", "f1", "precision", "recall"]:
-                    if metric in res[task]:
-                        metrics_by_k[k][task][metric] = res[task][metric]
+        # Usar fold_results (métricas de validación) en lugar de ensemble_results
+        fold_results = entry.get("fold_results", [])
+        
+        if fold_results:
+            # Calcular promedio de las métricas de cada fold
+            for task in ["plate", "electrode", "current"]:
+                acc_key = f"acc_{task}"
+                f1_key = f"f1_{task}"
+                
+                accs = [fr[acc_key] for fr in fold_results if acc_key in fr]
+                f1s = [fr[f1_key] for fr in fold_results if f1_key in fr]
+                
+                if accs:
+                    metrics_by_k[k][task]["accuracy"] = np.mean(accs)
+                if f1s:
+                    metrics_by_k[k][task]["f1"] = np.mean(f1s)
+                    
+                # precision y recall no están en fold_results, usar del ensemble si están
+                res = entry.get("ensemble_results", entry.get("results", {}))
+                if task in res:
+                    for metric in ["precision", "recall"]:
+                        if metric in res[task]:
+                            # Nota: estos vienen del ensemble, no de CV
+                            pass  # No incluir para no confundir
+        else:
+            # Fallback: usar ensemble_results (compatibilidad con formato antiguo)
+            res = entry.get("ensemble_results", entry.get("results", {}))
+            for task in ["plate", "electrode", "current"]:
+                if task in res:
+                    for metric in ["accuracy", "f1", "precision", "recall"]:
+                        if metric in res[task]:
+                            metrics_by_k[k][task][metric] = res[task][metric]
 
     return metrics_by_k
 
@@ -194,28 +219,22 @@ def plot_metrics_vs_folds(
         ax.legend(loc="best")
         ax.grid(True, alpha=0.3)
         ax.set_xticks(k_values)
-        ax.yaxis.set_major_formatter(PercentFormatter(1.0))
-        ax.axhline(1.0, color="#666666", linestyle="--", linewidth=1, alpha=0.6)
 
         # Ajustar límites del eje Y (zoom dinámico para resaltar diferencias)
         if all_values:
             y_min = min(all_values)
             y_max = max(all_values)
             span = y_max - y_min
-            pad = max(0.005, span * 0.2)
-            # Mantener 100% cerca del borde superior
-            y_upper = 1.0002
+            pad = max(0.02, span * 0.1)
             y_lower = max(0.0, y_min - pad)
-            # Si el rango es muy pequeño, acercar aún más el techo
-            if y_upper - y_lower > 0.15:
-                y_lower = max(0.0, 1.0 - 0.15)
+            y_upper = min(1.05, y_max + pad)
             ax.set_ylim([y_lower, y_upper])
         else:
-            ax.set_ylim([0.85, 1.0002])
+            ax.set_ylim([0.0, 1.05])
 
-        # Mantener etiquetas hasta 100% y dejar margen mínimo arriba
-        tick_min = max(0.0, ax.get_ylim()[0])
-        ax.set_yticks(np.linspace(tick_min, 1.0, 5))
+        # Línea de referencia en 1.0 si está en el rango
+        if ax.get_ylim()[1] >= 1.0:
+            ax.axhline(1.0, color="#666666", linestyle="--", linewidth=1, alpha=0.6)
 
     plt.suptitle(f"Métricas vs Número de Folds - {duration}", fontsize=16, y=1.02)
     plt.tight_layout()
@@ -227,8 +246,8 @@ def plot_metrics_vs_folds(
         output_path = output_dir / f"metricas_vs_folds_{metric}.png"
         plt.savefig(output_path, dpi=150, bbox_inches="tight")
         print(f"Gráfica guardada en: {output_path}")
-
-    plt.show()
+    
+    plt.close(fig)
 
     # Gráfica adicional: métricas globales (Exact Match y Hamming)
     if global_by_k:
@@ -262,26 +281,23 @@ def plot_metrics_vs_folds(
         ax_g.grid(True, alpha=0.3)
         ax_g.legend(loc="best")
         ax_g.set_xticks(k_global)
-        ax_g.yaxis.set_major_formatter(PercentFormatter(1.0))
-        ax_g.axhline(1.0, color="#666666", linestyle="--", linewidth=1, alpha=0.6)
 
-        # Ajustar límites del eje Y (mismo criterio de margen)
+        # Ajustar límites del eje Y (rango dinámico)
         vals = [v for v in exact_values + hamming_values if v is not None]
         if vals:
             y_min = min(vals)
             y_max = max(vals)
             span = y_max - y_min
-            pad = max(0.005, span * 0.2)
-            y_upper = 1.0002
+            pad = max(0.02, span * 0.1)
             y_lower = max(0.0, y_min - pad)
-            if y_upper - y_lower > 0.15:
-                y_lower = max(0.0, 1.0 - 0.15)
+            y_upper = min(1.05, y_max + pad)
             ax_g.set_ylim([y_lower, y_upper])
         else:
-            ax_g.set_ylim([0.85, 1.0002])
+            ax_g.set_ylim([0.0, 1.05])
 
-        tick_min = max(0.0, ax_g.get_ylim()[0])
-        ax_g.set_yticks(np.linspace(tick_min, 1.0, 5))
+        # Línea de referencia en 1.0 si está en el rango
+        if ax_g.get_ylim()[1] >= 1.0:
+            ax_g.axhline(1.0, color="#666666", linestyle="--", linewidth=1, alpha=0.6)
 
         plt.tight_layout()
 
@@ -290,7 +306,7 @@ def plot_metrics_vs_folds(
             plt.savefig(output_path, dpi=150, bbox_inches="tight")
             print(f"Gráfica guardada en: {output_path}")
 
-        plt.show()
+        plt.close(fig_g)
 
 
 def main():

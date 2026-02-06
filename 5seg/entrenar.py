@@ -77,10 +77,9 @@ def parse_args():
         help="Semilla para reproducibilidad (default: 42)",
     )
     parser.add_argument(
-        "--overlap",
-        type=float,
-        default=0.0,
-        help="Solapamiento entre segmentos como fracción (0-1). Ej: 0.5 = 50% (default: 0.0)",
+        "--no-cache",
+        action="store_true",
+        help="No usar cache de embeddings VGGish (fuerza recalculo)",
     )
     return parser.parse_args()
 
@@ -133,10 +132,6 @@ def extract_session_from_path(audio_path: str) -> str:
 # ============= Cache de Embeddings =============
 
 
-def _overlap_tag() -> str:
-    return str(OVERLAP_RATIO)
-
-
 def get_embeddings_cache_dir() -> Path:
     """Directorio de cache de embeddings (siempre `embeddings_cache/`)."""
     cache_dir = SCRIPT_DIR / "embeddings_cache"
@@ -148,63 +143,26 @@ def get_legacy_embeddings_cache_paths() -> list[Path]:
     """Rutas legacy posibles para reutilizar caches viejos sin borrarlos."""
     cache_dir = SCRIPT_DIR / "embeddings_cache"
     cache_dir.mkdir(exist_ok=True)
-    tag = _overlap_tag()
     dur = float(SEGMENT_DURATION)
     return [
-        cache_dir / f"vggish_embeddings_{dur}s_overlap{tag}s.pkl",
-        cache_dir / f"vggish_embeddings_{dur}s_overlap_{tag}.pkl",
+        cache_dir / f"vggish_embeddings_{dur}s_overlap0.0s.pkl",
+        cache_dir / f"vggish_embeddings_{dur}s_overlap_0.0.pkl",
         cache_dir / f"vggish_embeddings_{dur}s.pkl",
-        cache_dir / f"overlap_{tag}s" / f"vggish_embeddings_{dur}s.pkl",
-        cache_dir / f"overlap_{tag}s" / f"vggish_embeddings_{dur}s_overlap{tag}s.pkl",
     ]
 
 
 def get_embeddings_cache_path() -> Path:
     """Obtiene la ruta del archivo de cache de embeddings."""
     cache_dir = get_embeddings_cache_dir()
-    return (
-        cache_dir
-        / f"vggish_embeddings_{float(SEGMENT_DURATION)}s_overlap_{_overlap_tag()}.pkl"
-    )
+    return cache_dir / f"vggish_embeddings_{float(SEGMENT_DURATION)}s.pkl"
 
 
 def compute_dataset_hash(paths: list, segment_indices: list) -> str:
     """Calcula un hash del dataset para detectar cambios."""
-    data_str = f"dur={SEGMENT_DURATION}|overlap_ratio={OVERLAP_RATIO}|" + "".join(
+    data_str = f"dur={SEGMENT_DURATION}|" + "".join(
         [f"{p}:{s}" for p, s in zip(paths, segment_indices)]
     )
     return hashlib.md5(data_str.encode()).hexdigest()
-
-
-def _get_cache_overlap_ratio(cache_data: dict) -> float | None:
-    if cache_data is None:
-        return None
-
-    for k in ("overlap_ratio", "overlap"):
-        v = cache_data.get(k)
-        if v is not None:
-            try:
-                return float(v)
-            except Exception:
-                return None
-
-    v = cache_data.get("overlap_seconds")
-    if v is None:
-        return None
-    try:
-        v = float(v)
-    except Exception:
-        return None
-    if 0.0 <= v <= 1.0:
-        return v
-    dur = cache_data.get("segment_duration", SEGMENT_DURATION)
-    try:
-        dur = float(dur)
-    except Exception:
-        return None
-    if dur <= 0:
-        return None
-    return v / dur
 
 
 def load_embeddings_cache(paths: list, segment_indices: list) -> tuple:
@@ -225,13 +183,9 @@ def load_embeddings_cache(paths: list, segment_indices: list) -> tuple:
             with open(cache_path, "rb") as f:
                 cache_data = pickle.load(f)
 
-            # Verificaciones rápidas de configuración
+            # Verificar duración del segmento
             if cache_data.get("segment_duration") != SEGMENT_DURATION:
                 print("  [CACHE] Duración no coincide, regenerando embeddings...")
-                return None, False
-            cache_overlap_ratio = _get_cache_overlap_ratio(cache_data)
-            if cache_overlap_ratio is None or cache_overlap_ratio != OVERLAP_RATIO:
-                print("  [CACHE] Overlap no coincide, regenerando embeddings...")
                 return None, False
 
             # Verificar hash
@@ -639,13 +593,15 @@ if __name__ == "__main__":
     args = parse_args()
     N_FOLDS = args.k_folds
     RANDOM_SEED = args.seed
-    OVERLAP_RATIO = float(args.overlap)
-    OVERLAP_SECONDS = float(OVERLAP_RATIO) * float(SEGMENT_DURATION)
+    USE_CACHE = not args.no_cache
+    # Overlap fijo en 0.0 (sin solapamiento)
+    OVERLAP_RATIO = 0.0
+    OVERLAP_SECONDS = 0.0
 
-    # Crear directorio de modelos basado en k-folds (models/k-fold/)
+    # Crear directorio de modelos basado en k-folds (models/kXX/)
     MODELS_BASE_DIR = SCRIPT_DIR / "models"
     MODELS_BASE_DIR.mkdir(exist_ok=True)
-    MODELS_DIR = MODELS_BASE_DIR / f"k{N_FOLDS:02d}_overlap_{_overlap_tag()}"
+    MODELS_DIR = MODELS_BASE_DIR / f"k{N_FOLDS:02d}"
     MODELS_DIR.mkdir(exist_ok=True)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -654,9 +610,9 @@ if __name__ == "__main__":
     print(f"{'=' * 70}")
     print(f"Dispositivo: {device}")
     print(f"Duración de segmento: {SEGMENT_DURATION}s")
-    print(f"Solapamiento (fracción): {OVERLAP_RATIO}")
     print(f"K-Folds: {N_FOLDS}")
     print(f"Semilla: {RANDOM_SEED}")
+    print(f"Usar cache: {USE_CACHE}")
     print(f"Modelos se guardarán en: {MODELS_DIR}/")
 
     with timer("Cargar CSVs (train/test)"):
@@ -685,29 +641,45 @@ if __name__ == "__main__":
         all_data["Type of Current"]
     )
 
-    with timer("Embeddings VGGish (cache/compute)"):
+    vggish_extraction_time = None  # Tiempo de extraccion VGGish (solo si no cache)
+    embeddings_from_cache = False
+
+    with timer("Embeddings VGGish (cache/compute)") as get_total_embed_time:
         print("\nExtrayendo embeddings VGGish de todos los segmentos...")
         paths = all_data["Audio Path"].values
         segment_indices = all_data["Segment Index"].values
 
-        all_embeddings, loaded_from_cache = load_embeddings_cache(
-            paths.tolist(), segment_indices.tolist()
-        )
+        all_embeddings = None
+        loaded_from_cache = False
+
+        # Solo intentar cargar cache si USE_CACHE=True
+        if USE_CACHE:
+            all_embeddings, loaded_from_cache = load_embeddings_cache(
+                paths.tolist(), segment_indices.tolist()
+            )
+        
+        embeddings_from_cache = loaded_from_cache
 
         if not loaded_from_cache:
-            with timer("Calcular embeddings VGGish (compute)"):
+            with timer("Calcular embeddings VGGish (compute)") as get_extract_time:
                 all_embeddings = []
                 for i, (path, seg_idx) in enumerate(zip(paths, segment_indices)):
                     if i % 100 == 0:
                         print(f"  Procesando {i}/{len(paths)}...")
                     emb = extract_vggish_embeddings_from_segment(path, int(seg_idx))
                     all_embeddings.append(emb)
+            
+            vggish_extraction_time = get_extract_time().seconds
 
-            save_embeddings_cache(
-                all_embeddings, paths.tolist(), segment_indices.tolist()
-            )
+            # Guardar cache solo si USE_CACHE=True
+            if USE_CACHE:
+                save_embeddings_cache(
+                    all_embeddings, paths.tolist(), segment_indices.tolist()
+                )
 
     print(f"Embeddings extraídos: {len(all_embeddings)}")
+    if vggish_extraction_time:
+        print(f"Tiempo extraccion VGGish: {vggish_extraction_time:.2f}s ({vggish_extraction_time/60:.2f}min)")
 
     # Preparar arrays
     y_plate = all_data["Plate Encoded"].values
@@ -723,6 +695,9 @@ if __name__ == "__main__":
     print(f"FASE 1: ENTRENAMIENTO DE {N_FOLDS} MODELOS (StratifiedGroupKFold)")
     print(f"{'=' * 70}")
     print("[INFO] Usando StratifiedGroupKFold")
+
+    # Iniciar timer de entrenamiento puro (sin VGGish)
+    training_start_time = time.time()
 
     sgkf = StratifiedGroupKFold(
         n_splits=N_FOLDS, shuffle=True, random_state=RANDOM_SEED
@@ -788,6 +763,12 @@ if __name__ == "__main__":
                 MODELS_DIR,
             )
         fold_metrics.append(metrics)
+
+    # Calcular tiempo de entrenamiento puro
+    training_end_time = time.time()
+    training_time = training_end_time - training_start_time
+    training_time_minutes = training_time / 60
+    print(f"\nTiempo de entrenamiento puro: {training_time:.2f}s ({training_time_minutes:.2f}min)")
 
     # ============= FASE 2: Evaluar Ensemble =============
     print(f"\n{'=' * 70}")
@@ -960,6 +941,15 @@ if __name__ == "__main__":
             "seconds": round(elapsed_time, 2),
             "minutes": round(elapsed_minutes, 2),
             "hours": round(elapsed_hours, 4),
+        },
+        "training_time": {
+            "seconds": round(training_time, 2),
+            "minutes": round(training_time_minutes, 2),
+        },
+        "vggish_extraction": {
+            "from_cache": embeddings_from_cache,
+            "extraction_time_seconds": round(vggish_extraction_time, 2) if vggish_extraction_time else None,
+            "extraction_time_minutes": round(vggish_extraction_time / 60, 2) if vggish_extraction_time else None,
         },
         "config": {
             "segment_duration": SEGMENT_DURATION,

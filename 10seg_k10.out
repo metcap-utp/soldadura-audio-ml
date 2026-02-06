@@ -1,0 +1,249 @@
+nohup: ignoring input
+2026-02-05 14:42:30.415282: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2026-02-05 14:42:30.490635: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2026-02-05 14:42:32.194995: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+/home/luis/.local/lib/python3.10/site-packages/tensorflow_hub/__init__.py:61: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import parse_version
+Cargando modelo VGGish desde TensorFlow Hub...
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1770320555.103657   70651 gpu_device.cc:2020] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 3582 MB memory:  -> device: 0, name: NVIDIA GeForce RTX 3060 Laptop GPU, pci bus id: 0000:01:00.0, compute capability: 8.6
+Modelo VGGish cargado correctamente.
+
+===========Cargando modelo VGGish desde TensorFlow Hub...
+Modelo VGGish cargado correctamente.
+
+======================================================================
+CONFIGURACIÓN
+======================================================================
+Dispositivo: cuda
+Duración de segmento: 10.0s
+Solapamiento (fracción): 0.0
+K-Folds: 10
+Semilla: 42
+Usar cache: True
+Modelos se guardarán en: /home/luis/projects/tesis/audio/soldadura/10seg/models/k10_overlap_0.0/
+[TIMER] Cargar CSVs (train/test)...
+[TIMER] Cargar CSVs (train/test): 0.02s (0.00min)
+
+Total de segmentos: 3372
+Sesiones únicas: 335
+[TIMER] Embeddings VGGish (cache/compute)...
+
+Extrayendo embeddings VGGish de todos los segmentos...
+[TIMER] Calcular embeddings VGGish (compute)...
+  Procesando 0/3372...
+  Procesando 100/3372...
+  Procesando 200/3372...
+  Procesando 300/3372...
+  Procesando 400/3372...
+  Procesando 500/3372...
+  Procesando 600/3372...
+  Procesando 700/3372...
+  Procesando 800/3372...
+  Procesando 900/3372...
+  Procesando 1000/3372...
+  Procesando 1100/3372...
+  Procesando 1200/3372...
+  Procesando 1300/3372...
+  Procesando 1400/3372...
+  Procesando 1500/3372...
+  Procesando 1600/3372...
+  Procesando 1700/3372...
+  Procesando 1800/3372...
+  Procesando 1900/3372...
+  Procesando 2000/3372...
+  Procesando 2100/3372...
+  Procesando 2200/3372...
+  Procesando 2300/3372...
+  Procesando 2400/3372...
+  Procesando 2500/3372...
+  Procesando 2600/3372...
+  Procesando 2700/3372...
+  Procesando 2800/3372...
+  Procesando 2900/3372...
+  Procesando 3000/3372...
+  Procesando 3100/3372...
+  Procesando 3200/3372...
+  Procesando 3300/3372...
+[TIMER] Calcular embeddings VGGish (compute): 1295.46s (21.59min)
+[TIMER] Guardar cache embeddings VGGish...
+[TIMER] Guardar cache embeddings VGGish: 0.24s (0.00min)
+  [CACHE] Guardados 3372 embeddings en cache (/home/luis/projects/tesis/audio/soldadura/10seg/embeddings_cache/vggish_embeddings_10.0s_overlap_0.0.pkl)
+[TIMER] Embeddings VGGish (cache/compute): 1295.71s (21.60min)
+Embeddings extraídos: 3372
+Tiempo extraccion VGGish: 1295.46s (21.59min)
+
+======================================================================
+FASE 1: ENTRENAMIENTO DE 10 MODELOS (StratifiedGroupKFold)
+======================================================================
+[INFO] Usando StratifiedGroupKFold
+
+Fold 1/10
+  Train: 3053 segmentos (303 sesiones)
+  Val: 319 segmentos (32 sesiones)
+[TIMER] Entrenar fold 1/10...
+  Fold 1: Plate=0.6176 | Electrode=0.6395 | Current=0.8056 | Guardado: model_fold_0.pth
+[TIMER] Entrenar fold 1/10: 408.30s (6.81min)
+
+Fold 2/10
+  Train: 3018 segmentos (302 sesiones)
+  Val: 354 segmentos (33 sesiones)
+[TIMER] Entrenar fold 2/10...
+  Fold 2: Plate=0.6723 | Electrode=0.6356 | Current=0.7712 | Guardado: model_fold_1.pth
+[TIMER] Entrenar fold 2/10: 308.49s (5.14min)
+
+Fold 3/10
+  Train: 3005 segmentos (302 sesiones)
+  Val: 367 segmentos (33 sesiones)
+[TIMER] Entrenar fold 3/10...
+  Fold 3: Plate=0.6540 | Electrode=0.6104 | Current=0.7956 | Guardado: model_fold_2.pth
+[TIMER] Entrenar fold 3/10: 214.44s (3.57min)
+
+Fold 4/10
+  Train: 3021 segmentos (301 sesiones)
+  Val: 351 segmentos (34 sesiones)
+[TIMER] Entrenar fold 4/10...
+  Fold 4: Plate=0.5983 | Electrode=0.6211 | Current=0.7778 | Guardado: model_fold_3.pth
+[TIMER] Entrenar fold 4/10: 129.29s (2.15min)
+
+Fold 5/10
+  Train: 3037 segmentos (302 sesiones)
+  Val: 335 segmentos (33 sesiones)
+[TIMER] Entrenar fold 5/10...
+  Fold 5: Plate=0.6239 | Electrode=0.6537 | Current=0.7164 | Guardado: model_fold_4.pth
+[TIMER] Entrenar fold 5/10: 324.06s (5.40min)
+
+Fold 6/10
+  Train: 3064 segmentos (300 sesiones)
+  Val: 308 segmentos (35 sesiones)
+[TIMER] Entrenar fold 6/10...
+  Fold 6: Plate=0.6721 | Electrode=0.6396 | Current=0.7565 | Guardado: model_fold_5.pth
+[TIMER] Entrenar fold 6/10: 141.33s (2.36min)
+
+Fold 7/10
+  Train: 3014 segmentos (302 sesiones)
+  Val: 358 segmentos (33 sesiones)
+[TIMER] Entrenar fold 7/10...
+  Fold 7: Plate=0.6788 | Electrode=0.6089 | Current=0.8073 | Guardado: model_fold_6.pth
+[TIMER] Entrenar fold 7/10: 190.32s (3.17min)
+
+Fold 8/10
+  Train: 3060 segmentos (301 sesiones)
+  Val: 312 segmentos (34 sesiones)
+[TIMER] Entrenar fold 8/10...
+  Fold 8: Plate=0.6571 | Electrode=0.6314 | Current=0.7853 | Guardado: model_fold_7.pth
+[TIMER] Entrenar fold 8/10: 181.82s (3.03min)
+
+Fold 9/10
+  Train: 3033 segmentos (301 sesiones)
+  Val: 339 segmentos (34 sesiones)
+[TIMER] Entrenar fold 9/10...
+  Fold 9: Plate=0.6460 | Electrode=0.6372 | Current=0.7640 | Guardado: model_fold_8.pth
+[TIMER] Entrenar fold 9/10: 154.62s (2.58min)
+
+Fold 10/10
+  Train: 3043 segmentos (301 sesiones)
+  Val: 329 segmentos (34 sesiones)
+[TIMER] Entrenar fold 10/10...
+  Fold 10: Plate=0.7052 | Electrode=0.6109 | Current=0.7720 | Guardado: model_fold_9.pth
+[TIMER] Entrenar fold 10/10: 339.66s (5.66min)
+
+Tiempo de entrenamiento puro: 2234.48s (37.24min)
+
+======================================================================
+FASE 2: EVALUACIÓN DEL ENSEMBLE (Soft Voting)
+======================================================================
+[TIMER] Cargar modelos del ensemble...
+Cargados 10 modelos del ensemble
+[TIMER] Cargar modelos del ensemble: 0.32s (0.01min)
+[TIMER] Evaluación ensemble (Soft Voting)...
+Evaluando ensemble en todo el dataset...
+[TIMER] Evaluación ensemble (Soft Voting): 2.47s (0.04min)
+
+======================================================================
+RESULTADOS FINALES
+======================================================================
+
+Métricas individuales por fold (promedio):
+  Plate:     0.6525
+  Electrode: 0.6288
+  Current:   0.7752
+
+Métricas del ENSEMBLE (Soft Voting, 10 modelos):
+  Plate:     Acc=0.7488 | F1=0.7539 | Prec=0.8522 | Rec=0.7488
+  Electrode: Acc=0.6800 | F1=0.7235 | Prec=0.8942 | Rec=0.6800
+  Current:   Acc=0.7874 | F1=0.7857 | Prec=0.8597 | Rec=0.7874
+
+Mejora del Ensemble vs Promedio Individual:
+  Plate:     +0.0963
+  Electrode: +0.0512
+  Current:   +0.0122
+
+======================================================================
+REPORTES DE CLASIFICACIÓN
+======================================================================
+
+--- Plate Thickness ---
+              precision    recall  f1-score   support
+
+  Placa_12mm       0.57      0.99      0.73      1134
+   Placa_3mm       1.00      0.62      0.77      1170
+   Placa_6mm       0.99      0.63      0.77      1068
+
+    accuracy                           0.75      3372
+   macro avg       0.85      0.75      0.75      3372
+weighted avg       0.85      0.75      0.75      3372
+
+
+--- Electrode Type ---
+              precision    recall  f1-score   support
+
+       E6010       0.33      1.00      0.49       523
+       E6011       1.00      0.61      0.76      1352
+       E6013       1.00      0.63      0.78       997
+       E7018       0.99      0.63      0.77       500
+
+    accuracy                           0.68      3372
+   macro avg       0.83      0.72      0.70      3372
+weighted avg       0.89      0.68      0.72      3372
+
+
+--- Type of Current ---
+              precision    recall  f1-score   support
+
+          AC       0.66      1.00      0.80      1391
+          DC       1.00      0.64      0.78      1981
+
+    accuracy                           0.79      3372
+   macro avg       0.83      0.82      0.79      3372
+weighted avg       0.86      0.79      0.79      3372
+
+
+======================================================================
+MATRICES DE CONFUSIÓN
+======================================================================
+
+Plate Thickness:
+[[1125    1    8]
+ [ 441  729    0]
+ [ 397    0  671]]
+Clases: ['Placa_12mm' 'Placa_3mm' 'Placa_6mm']
+
+Electrode Type:
+[[523   0   0   0]
+ [529 822   0   1]
+ [364   1 631   1]
+ [183   0   0 317]]
+Clases: ['E6010' 'E6011' 'E6013' 'E7018']
+
+Type of Current:
+[[1391    0]
+ [ 717 1264]]
+Clases: ['AC' 'DC']
+
+Tiempo de ejecución: 3415.58s (56.93min / 0.95h)
+
+Resultados guardados en: /home/luis/projects/tesis/audio/soldadura/10seg/results.json (entrada #11)
+Modelos guardados en: /home/luis/projects/tesis/audio/soldadura/10seg/models/k10_overlap_0.0/
+dels/k10_overlap_0.0/
