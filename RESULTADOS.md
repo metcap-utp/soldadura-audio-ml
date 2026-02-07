@@ -97,7 +97,7 @@ El modelo con segmentos de 1 segundo presenta rendimiento muy bajo. VGGish produ
 ### Comparación de K (5 segundos)
 
 **Fecha de ejecución:** 2026-02-01  
-**Fuente:** [5seg/results.json](5seg/results.json)
+**Fuente:** [05seg/resultados.json](05seg/resultados.json)
 
 | K  | Acc Fold (Placa) | Acc Fold (Electrodo) | Acc Fold (Corriente) | Acc Ensemble (Placa) | Acc Ensemble (Electrodo) | Acc Ensemble (Corriente) |
 | -- | ---------------- | -------------------- | -------------------- | -------------------- | ------------------------ | ------------------------ |
@@ -122,7 +122,7 @@ El modelo con segmentos de 1 segundo presenta rendimiento muy bajo. VGGish produ
 ### Comparación de K (10 segundos)
 
 **Fecha de ejecución:** 2026-01-31  
-**Fuente:** [10seg/results.json](10seg/results.json)
+**Fuente:** [10seg/resultados.json](10seg/resultados.json)
 
 | K  | Acc Fold (Placa) | Acc Fold (Electrodo) | Acc Fold (Corriente) | Acc Ensemble (Placa) | Acc Ensemble (Electrodo) | Acc Ensemble (Corriente) |
 | -- | ---------------- | -------------------- | -------------------- | -------------------- | ------------------------ | ------------------------ |
@@ -182,7 +182,7 @@ El conjunto blind contiene sesiones de soldadura que nunca fueron vistas durante
 
 **Matriz de confusión (1 segundo):**
 
-![Matriz de confusión combinada - 1 segundo](1seg/confusion_matrices/combined_k5_2026-02-05_20-19-05.png)
+![Matriz de confusión combinada - 1 segundo](01seg/matrices_confusion/combined_k5_2026-02-05_20-19-05.png)
 
 ### Audio de 2 segundos
 
@@ -196,7 +196,7 @@ El conjunto blind contiene sesiones de soldadura que nunca fueron vistas durante
 
 **Matriz de confusión (2 segundos):**
 
-![Matriz de confusión combinada - 2 segundos](2seg/confusion_matrices/combined_k5_2026-01-23_22-42-50.png)
+![Matriz de confusión combinada - 2 segundos](02seg/matrices_confusion/combined_k5_2026-01-23_22-42-50.png)
 
 ### Audio de 5 segundos
 
@@ -210,7 +210,7 @@ El conjunto blind contiene sesiones de soldadura que nunca fueron vistas durante
 
 **Matriz de confusión (5 segundos):**
 
-![Matriz de confusión combinada - 5 segundos](5seg/confusion_matrices/combined_k5_2026-02-01_01-20-41.png)
+![Matriz de confusión combinada - 5 segundos](05seg/matrices_confusion/combined_k5_2026-02-01_01-20-41.png)
 
 ### Audio de 10 segundos
 
@@ -224,7 +224,7 @@ El conjunto blind contiene sesiones de soldadura que nunca fueron vistas durante
 
 **Matriz de confusión (10 segundos):**
 
-![Matriz de confusión combinada - 10 segundos](10seg/confusion_matrices/combined_k5_2026-02-01_01-27-23.png)
+![Matriz de confusión combinada - 10 segundos](10seg/matrices_confusion/combined_k5_2026-02-01_01-27-23.png)
 
 ### Audio de 20 segundos
 
@@ -238,7 +238,7 @@ El conjunto blind contiene sesiones de soldadura que nunca fueron vistas durante
 
 **Matriz de confusión (20 segundos):**
 
-![Matriz de confusión combinada - 20 segundos](20seg/confusion_matrices/combined_k5_2026-02-05_13-25-28.png)
+![Matriz de confusión combinada - 20 segundos](20seg/matrices_confusion/combined_k5_2026-02-05_13-25-28.png)
 
 ### Audio de 30 segundos
 
@@ -252,7 +252,7 @@ El conjunto blind contiene sesiones de soldadura que nunca fueron vistas durante
 
 **Matriz de confusión (30 segundos):**
 
-![Matriz de confusión combinada - 30 segundos](30seg/confusion_matrices/combined_k5_2026-01-23_22-40-27.png)
+![Matriz de confusión combinada - 30 segundos](30seg/matrices_confusion/combined_k5_2026-01-23_22-40-27.png)
 
 ### Audio de 50 segundos
 
@@ -266,7 +266,7 @@ El conjunto blind contiene sesiones de soldadura que nunca fueron vistas durante
 
 **Matriz de confusión (50 segundos):**
 
-![Matriz de confusión combinada - 50 segundos](50seg/confusion_matrices/combined_k5_2026-02-05_13-27-29.png)
+![Matriz de confusión combinada - 50 segundos](50seg/matrices_confusion/combined_k5_2026-02-05_13-27-29.png)
 
 ## IV. Comparación General (Audios Crudos)
 
@@ -329,25 +329,24 @@ El conjunto blind contiene sesiones de soldadura que nunca fueron vistas durante
 La diferencia entre la evaluación durante entrenamiento (ensamble con datos de K-Fold) y blind refleja la capacidad de generalización real del modelo ante datos nunca vistos.
 
 ## V. Análisis de K-Folds
+### Métricas vs K-Folds — 10 segundos (mantener únicamente)
 
-### Métricas vs K-Folds en Conjunto Blind (5 segundos)
+Se mantienen únicamente las gráficas de métricas vs K-Folds para la duración de **10 segundos**, ya que es la única duración con el conjunto completo de K (3, 5, 7, 10, 15, 20). Las gráficas y tablas para las demás duraciones se han eliminado de este apartado para evitar redundancia; sus análisis siguen disponibles en las secciones de Overlap y Evaluación Blind.
 
-Se evaluo el impacto del número de folds (modelos en el ensemble) en el rendimiento sobre el conjunto blind:
+**Configuración representativa:** segmentos de **10 segundos**, evaluación ciega (447 muestras).
 
-| K  | Accuracy (Placa) | Accuracy (Electrodo) | Accuracy (Corriente) | F1 (Placa) | F1 (Electrodo) | F1 (Corriente) |
-| -- | ---------------- | -------------------- | -------------------- | ---------- | -------------- | -------------- |
-| 3  | 0.7434           | 0.8465               | 0.9285               | 0.7479     | 0.8388         | 0.9242         |
-| 5  | 0.7455           | 0.8559               | 0.9295               | 0.7490     | 0.8437         | 0.9254         |
-| 7  | 0.7497           | 0.8486               | 0.9317               | 0.7551     | 0.8392         | 0.9276         |
-| 10 | 0.7413           | 0.8444               | 0.9295               | 0.7472     | 0.8330         | 0.9252         |
-| 15 | 0.7487           | 0.8601               | 0.9401               | 0.7535     | 0.8520         | 0.9372         |
-| 20 | 0.7413           | 0.8570               | 0.9369               | 0.7469     | 0.8446         | 0.9327         |
+| K  | Accuracy (Placa) | Accuracy (Electrodo) | Accuracy (Corriente) | Acc Ensemble (Placa) | Acc Ensemble (Electrodo) | Acc Ensemble (Corriente) |
+| -- | ---------------- | -------------------- | -------------------- | -------------------- | ------------------------ | ------------------------ |
+| 3  | 0.8833           | 0.9415               | 0.9911               | 0.9997               | 0.9994                   | 1.0000                   |
+| 5  | 0.8845           | 0.9507               | 0.9888               | 1.0000               | 0.9997                   | 1.0000                   |
+| 7  | 0.8961           | 0.9482               | 0.9908               | 1.0000               | 1.0000                   | 1.0000                   |
+| 10 | 0.9045           | 0.9522               | 0.9907               | 1.0000               | 1.0000                   | 1.0000                   |
+| 15 | 0.9136           | 0.9561               | 0.9924               | 1.0000               | 1.0000                   | 1.0000                   |
+| 20 | 0.9063           | 0.9582               | 0.9939               | 1.0000               | 1.0000                   | 1.0000                   |
 
-![Plate Thickness vs K-Folds](5seg/metricas/plate_vs_kfolds.png)
+![Métricas vs K-Folds — 10seg, Evaluación Ciega (Accuracy: línea continua, F1: línea punteada)](10seg/metricas/metricas_vs_folds.png)
 
-![Electrode Type vs K-Folds](5seg/metricas/electrode_vs_kfolds.png)
-
-![Current Type vs K-Folds](5seg/metricas/current_vs_kfolds.png)
+![Métricas Globales vs K-Folds — 10seg, Evaluación Ciega (Exact Match y Hamming Accuracy)](10seg/metricas/metricas_globales_vs_folds.png)
 
 ### Comparación de Overlap en Entrenamiento
 
@@ -372,6 +371,8 @@ Se evaluó el efecto del solapamiento (overlap) entre segmentos durante el entre
 
 El overlap de 75% cuadruplica los segmentos de evaluación y mejora el Exact Match en +7.0 puntos porcentuales para segmentos de 5 segundos. La comparación detallada por duración y overlap se encuentra en la **Sección VII**.
 
+![Métricas vs Overlap — 05seg, K=5, Evaluación Ciega (Accuracy: línea continua, F1: línea punteada)](05seg/metricas/overlap_comparison_k05.png)
+
 > **Nota:** Para generar gráficas comparativas de overlap ejecutar:
 > ```bash
 > python scripts/graficar_overlap.py --save           # Gráficas individuales y heatmaps
@@ -393,41 +394,65 @@ El tiempo de entrenamiento incluye solo el proceso de K-Fold CV y evaluación de
 | 15      | 14.80                      |
 | 20      | 19.73                      |
 
-![Tiempo vs K-Folds - 5 segundos](5seg/metricas/tiempo_vs_kfolds_5seg_2026-02-05_19-51-47.png)
+![Tiempo vs K-Folds - 5 segundos](05seg/metricas/tiempo_vs_kfolds_5seg_2026-02-05_19-51-47.png)
 
 El tiempo de entrenamiento crece aproximadamente de forma lineal con el número de folds.
 
+
 ### Tiempo de Extracción VGGish
 
-El tiempo de extracción de embeddings VGGish se ejecuta una sola vez por configuración (duración + overlap) y se cachea para entrenamientos posteriores.
+El proceso de extracción de embeddings VGGish se ejecuta una sola vez por configuración (duración + overlap) y se cachea para entrenamientos posteriores. La tabla siguiente resume, por duración de segmento, el ratio de overlap usado para los splits actuales y el número de segmentos generados (totales y en la split `blind`), junto con una medición representativa del tiempo de extracción cuando estuvo disponible.
 
-#### Tiempo por Duración de Segmento
+#### Resumen: extracción VGGish por duración
 
-| Duración | Segmentos | Tiempo VGGish (min) | ms/segmento |
-| -------- | --------- | ------------------- | ----------- |
-| 2seg     | 18,848    | 5.36                | 17.1        |
-| 5seg     | 7,234     | 5.78                | 47.9        |
-| 10seg    | 3,372     | 23.71               | 421.9       |
-| 50seg    | 389       | 22.70               | 3,500.9     |
+| Duración | Overlap | Segmentos (totales) | Segmentos (blind) | Tiempo VGGish (min) | ms/segmento |
+| -------- | -------:| -------------------: | -----------------: | ------------------: | -----------: |
+| 01seg     | 0.75    | 86,159              | 9,958              | 5.88                | 4.1         |
+| 02seg     | 0.75    | 42,424              | 4,912              | 2.60                | 3.7         |
+| 05seg     | 0.75    | 16,182              | 1,885              | 5.78                | 21.4        |
+| 10seg    | 0.75    | 7,448               | 878                | 23.71               | 191.0       |
+| 20seg    | 0.75    | 3,088               | 375                | 2.09                | 40.6        |
+| 30seg    | 0.75    | 1,646               | 208                | 1.89                | 68.9        |
+| 50seg    | 0.75    | 602                 | 89                 | 22.70               | 2262.5      |
 
-El tiempo por segmento aumenta con la duración porque VGGish procesa el audio en ventanas de 0.96s, generando más frames para segmentos más largos:
+Las mediciones de `Tiempo VGGish (min)` son valores representativos extraídos de ejecuciones donde la extracción no estaba marcada como "from_cache": en caso de extracción desde caché el campo aparece como `null` y la operación no se vuelve a ejecutar. El campo `ms/segmento` se calcula como el tiempo total de extracción (en ms) dividido entre el número de segmentos totales listados en `data_stats.json`.
+
+El número de frames que VGGish produce por segmento crece con la duración del segmento porque utiliza ventanas de ~0.96s:
+- **1s**: ~1 frame VGGish
 - **2s**: ~2 frames VGGish
-- **5s**: ~5 frames VGGish  
+- **5s**: ~5 frames VGGish
 - **10s**: ~10 frames VGGish
 - **50s**: ~52 frames VGGish
 
-### Tiempo de Entrenamiento K=10 por Duración
+### Tiempo de Entrenamiento K=10 por Duración y Overlap
+
+Los tiempos corresponden al entrenamiento K-Fold CV (10 folds) con SWA habilitado, ejecutados el 2026-02-06 en una misma sesión de entrenamiento para garantizar condiciones comparables. No incluyen extracción de embeddings VGGish (se usa caché).
+
+#### K=10, Overlap 0.25 (todos los datos disponibles)
 
 | Duración | Segmentos | Tiempo Entrenamiento (min) |
 | -------- | --------- | -------------------------- |
-| 2seg     | 18,848    | 21.59                      |
-| 5seg     | 7,234     | 9.87                       |
-| 10seg    | 3,372     | 9.84                       |
-| 20seg    | 1,441     | 17.86                      |
-| 30seg    | 805       | 5.20                       |
-| 50seg    | 389       | 5.32                       |
+| 01seg     | 25,520    | 14.82                      |
+| 02seg     | 12,608    | 11.85                      |
+| 05seg     | 4,878     | 6.82                       |
+| 10seg    | 2,292     | 5.44                       |
+| 20seg    | 1,022     | 2.17                       |
+| 30seg    | 590       | 1.71                       |
+| 50seg    | 358       | 1.49                       |
 
-El tiempo de entrenamiento no es directamente proporcional al número de segmentos debido a factores como: tamaño del batch, early stopping, y complejidad de los datos.
+#### K=10, Overlap 0.75
+
+| Duración | Segmentos | Tiempo Entrenamiento (min) |
+| -------- | --------- | -------------------------- |
+| 01seg     | 76,201    | 46.01                      |
+| 02seg     | 37,512    | 38.19                      |
+| 05seg     | 14,297    | 19.29                      |
+| 10seg    | 6,570     | 13.92                      |
+| 20seg    | 2,713     | 5.26                       |
+| 30seg    | 1,438     | 3.07                       |
+| 50seg    | 513       | 1.72                       |
+
+El tiempo de entrenamiento es directamente proporcional al número de segmentos. Con overlap 0.75, el tiempo se multiplica ~3–4× respecto a overlap 0.25 debido a la generación de ~4× más segmentos a partir del mismo audio.
 
 ## VII. Comparación de Overlap
 
@@ -465,6 +490,10 @@ Accuracy promedio de las 3 tareas en el conjunto blind para cada combinación de
 
 **Mejora (0.75 vs 0.0, K=5):** Placa +4.78%, Electrodo +2.10%, Corriente −0.51% | Exact Match +5.55%
 
+![Métricas vs Overlap — 02seg, K=5, Evaluación Ciega (Accuracy: línea continua, F1: línea punteada)](02seg/metricas/overlap_comparison_k05.png)
+
+![Métricas vs Overlap — 02seg, K=10, Evaluación Ciega](02seg/metricas/overlap_comparison_k10.png)
+
 #### 2 segundos — Validación Cruzada (Fold Avg)
 
 | Overlap | K | Acc Placa | Acc Electrodo | Acc Corriente |
@@ -489,6 +518,10 @@ Accuracy promedio de las 3 tareas en el conjunto blind para cada combinación de
 | 0.75    | 10 | 1885    | 0.7825    | 0.8568        | 0.9135        | 0.7888   | 0.8475       | 0.9091       | 0.7215      |
 
 **Mejora (0.75 vs 0.0, K=5):** Placa +3.95%, Electrodo +3.07%, Corriente −1.48% | Exact Match +6.98%
+
+![Métricas vs Overlap — 05seg, K=5, Evaluación Ciega (Accuracy: línea continua, F1: línea punteada)](05seg/metricas/overlap_comparison_k05.png)
+
+![Métricas vs Overlap — 05seg, K=10, Evaluación Ciega](05seg/metricas/overlap_comparison_k10.png)
 
 #### 5 segundos — Validación Cruzada (Fold Avg)
 
@@ -516,6 +549,10 @@ Accuracy promedio de las 3 tareas en el conjunto blind para cada combinación de
 
 **Mejora (0.75 vs 0.0, K=5):** Placa +2.56%, Electrodo +0.60%, Corriente −0.33% | Exact Match +3.95%
 
+![Métricas vs Overlap — 10seg, K=5, Evaluación Ciega (Accuracy: línea continua, F1: línea punteada)](10seg/metricas/overlap_comparison_k05.png)
+
+![Métricas vs Overlap — 10seg, K=10, Evaluación Ciega](10seg/metricas/overlap_comparison_k10.png)
+
 #### 10 segundos — Validación Cruzada (Fold Avg)
 
 | Overlap | K | Acc Placa | Acc Electrodo | Acc Corriente |
@@ -540,6 +577,10 @@ Accuracy promedio de las 3 tareas en el conjunto blind para cada combinación de
 | 0.75    | 10 | 375     | 0.7440    | 0.8587        | 0.9627        | 0.7488   | 0.8603       | 0.9602       | 0.7120      |
 
 **Mejora (0.75 vs 0.0, K=5):** Placa +2.58%, Electrodo −0.87%, Corriente −0.31% | Exact Match +2.11%
+
+![Métricas vs Overlap — 20seg, K=5, Evaluación Ciega (Accuracy: línea continua, F1: línea punteada)](20seg/metricas/overlap_comparison_k05.png)
+
+![Métricas vs Overlap — 20seg, K=10, Evaluación Ciega](20seg/metricas/overlap_comparison_k10.png)
 
 #### 20 segundos — Validación Cruzada (Fold Avg)
 
@@ -566,6 +607,10 @@ Accuracy promedio de las 3 tareas en el conjunto blind para cada combinación de
 
 **Mejora (0.75 vs 0.0, K=5):** Placa −0.47%, Electrodo +1.21%, Corriente −2.81% | Exact Match +1.68%
 
+![Métricas vs Overlap — 30seg, K=5, Evaluación Ciega (Accuracy: línea continua, F1: línea punteada)](30seg/metricas/overlap_comparison_k05.png)
+
+![Métricas vs Overlap — 30seg, K=10, Evaluación Ciega](30seg/metricas/overlap_comparison_k10.png)
+
 #### 30 segundos — Validación Cruzada (Fold Avg)
 
 | Overlap | K | Acc Placa | Acc Electrodo | Acc Corriente |
@@ -591,6 +636,10 @@ Accuracy promedio de las 3 tareas en el conjunto blind para cada combinación de
 | 0.75    | 10 | 89      | 0.5730    | 0.8202        | 0.9551        | 0.5851   | 0.8485       | 0.9505       | 0.5506      |
 
 **Mejora (0.75 vs 0.0, K=5):** Placa −9.31%, Electrodo −10.21%, Corriente +6.64% | Exact Match −9.34%
+
+![Métricas vs Overlap — 50seg, K=5, Evaluación Ciega (Accuracy: línea continua, F1: línea punteada)](50seg/metricas/overlap_comparison_k05.png)
+
+![Métricas vs Overlap — 50seg, K=10, Evaluación Ciega](50seg/metricas/overlap_comparison_k10.png)
 
 #### 50 segundos — Validación Cruzada (Fold Avg)
 
@@ -627,7 +676,68 @@ Accuracy promedio de las 3 tareas en el conjunto blind para cada combinación de
 | **30s**  | 0.25 (K=5)            | 0.7059      | 0.8667           |
 | **50s**  | 0.25 (K=5)            | 0.7000      | 0.8400           |
 
+### Gráficas Comparativas — Todas las Duraciones
+
+Las siguientes gráficas muestran Accuracy y F1 vs Overlap Ratio para las 3 tareas, con una línea por cada duración de segmento. Evaluación ciega (blind), K=5.
+
+![Accuracy vs Overlap — Todas las duraciones, K=5, Evaluación Ciega](scripts/overlap_all_durations_accuracy_k05.png)
+
+![F1 vs Overlap — Todas las duraciones, K=5, Evaluación Ciega](scripts/overlap_all_durations_f1_k05.png)
+
+![Accuracy vs Overlap — Todas las duraciones, K=10, Evaluación Ciega](scripts/overlap_all_durations_accuracy_k10.png)
+
+![F1 vs Overlap — Todas las duraciones, K=10, Evaluación Ciega](scripts/overlap_all_durations_f1_k10.png)
+
+### Heatmaps — Accuracy por Duración × Overlap
+
+Visualización de la Accuracy por tarea en función de la duración del segmento y el overlap ratio. Evaluación ciega (blind).
+
+![Heatmap Accuracy — Duración × Overlap, K=5, Evaluación Ciega](scripts/heatmap_overlap_k05.png)
+
+![Heatmap Accuracy — Duración × Overlap, K=10, Evaluación Ciega](scripts/heatmap_overlap_k10.png)
+
+### Segmentos de Evaluación vs Overlap
+
+El overlap multiplica la cantidad de segmentos disponibles para entrenamiento y evaluación. La siguiente gráfica muestra la relación estimada entre overlap ratio y número de segmentos por duración.
+
+![Segmentos estimados vs Overlap Ratio](scripts/segments_vs_overlap.png)
+
 > **Conclusión:** El overlap óptimo depende de la duración del segmento. Para duraciones ≤10s, se recomienda overlap de 0.5–0.75. Para duraciones ≥20s, se recomienda overlap de 0.0–0.25. La mejor combinación global es **10 segundos con overlap 0.25 y K=10**, que alcanza **Hamming Accuracy de 0.8784** y **Exact Match de 0.7329** en el conjunto blind.
+
+
+<!-- VGGish extraction table (filtrada: no-cache) -->
+
+## Tabla: Tiempo de Extracción VGGish (por Duración y Overlap)
+
+Se incluyen solo ejecuciones donde la extracción se midió (no leída desde caché). La tabla está agrupada por duración y overlap.
+
+| Duración | Overlap ratio | Overlap(s) | Tiempo VGGish (min) | ms/segmento | Segmentos | Archivo |
+|---------:|--------------:|-----------:|-------------------:|------------:|--------:|:-------:|
+| 01seg | 0.50 | 0.5 | 5.88 | 9.23 | 38182 | 01seg/resultados.json |
+| 01seg | 0.75 | 0.75 | 11.84 | 9.33 | 76201 | 01seg/resultados.json |
+| 02seg | 0.00 | 0.0 | 5.36 | 17.08 | 18848 | 02seg/resultados.json |
+| 02seg | 0.25 | 0.5 | 3.44 | 16.39 | 12608 | 02seg/resultados.json |
+| 02seg | 0.50 | 1.0 | 5.06 | 16.12 | 18848 | 02seg/resultados.json |
+| 02seg | 0.75 | 1.5 | 11.43 | 18.28 | 37512 | 02seg/resultados.json |
+| 05seg | 0.00 | 0.0 | 5.78 | 47.9 | 7234 | 05seg/resultados.json |
+| 05seg | 0.25 | 1.25 | 3.35 | 41.23 | 4878 | 05seg/resultados.json |
+| 05seg | 0.75 | 3.75 | 9.49 | 39.81 | 14297 | 05seg/resultados.json |
+| 10seg | 0.00 | 0.0 | 23.71 | 421.9 | 3372 | 10seg/resultados.json |
+| 10seg | 0.25 | 2.5 | 3.08 | 80.6 | 2292 | 10seg/resultados.json |
+| 10seg | 0.75 | 7.5 | 8.65 | 79.0 | 6570 | 10seg/resultados.json |
+| 20seg | 0.00 | 0.0 | 2.09 | 155.19 | 809 | 20seg/resultados.json |
+| 20seg | 0.25 | 5.0 | 2.67 | 156.81 | 1022 | 20seg/resultados.json |
+| 20seg | 0.50 | 10.0 | 3.72 | 154.72 | 1441 | 20seg/resultados.json |
+| 20seg | 0.75 | 15.0 | 6.88 | 152.17 | 2713 | 20seg/resultados.json |
+| 30seg | 0.00 | 0.0 | 1.89 | 235.38 | 481 | 30seg/resultados.json |
+| 30seg | 0.25 | 7.5 | 2.25 | 228.58 | 590 | 30seg/resultados.json |
+| 30seg | 0.50 | 15.0 | 3.07 | 229.02 | 805 | 30seg/resultados.json |
+| 30seg | 0.75 | 22.5 | 5.63 | 234.95 | 1438 | 30seg/resultados.json |
+| 50seg | 0.00 | 0.0 | 22.70 | 3500.87 | 389 | 50seg/resultados.json |
+| 50seg | 0.25 | 12.5 | 2.74 | 458.85 | 358 | 50seg/resultados.json |
+| 50seg | 0.50 | 25.0 | 3.32 | 511.67 | 389 | 50seg/resultados.json |
+| 50seg | 0.75 | 37.5 | 4.22 | 494.04 | 513 | 50seg/resultados.json |
+
 
 
 

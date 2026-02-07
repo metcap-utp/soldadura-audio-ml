@@ -7,7 +7,7 @@ niveles de overlap (0.0, 0.25, 0.5, 0.75) para cada duración de segmento.
 Uso:
     python graficar_overlap.py                          # Todas las duraciones, K=5
     python graficar_overlap.py --k-folds 10             # Usa modelos de 10-fold
-    python graficar_overlap.py --duration 5             # Solo 5seg
+    python graficar_overlap.py --duration 5             # Solo 05seg
     python graficar_overlap.py --save                   # Guarda las imágenes
     python graficar_overlap.py --heatmap                # Genera heatmaps duración×overlap
 """
@@ -32,6 +32,48 @@ TASK_LABELS = {
     "plate_thickness": "Plate Thickness",
     "electrode": "Electrode",
     "current_type": "Current Type",
+}
+
+# ── i18n ──────────────────────────────────────────────────────────────
+I18N = {
+    "es": {
+        "task_names": {
+            "plate": "Espesor de Placa",
+            "electrode": "Tipo de Electrodo",
+            "current": "Tipo de Corriente",
+        },
+        "xlabel_overlap": "Overlap Ratio",
+        "ylabel_metric": "Valor de Métrica",
+        "title_overlap": "Métricas vs Overlap — {dur}seg (K={k}, {source})",
+        "title_all": "{task} - {metric} vs Overlap (K={k})",
+        "title_heatmap_task": "{task} Accuracy",
+        "title_heatmap_avg": "Accuracy Promedio",
+        "title_heatmap_sup": "Heatmap: Accuracy por Duración × Overlap (K={k})",
+        "ylabel_dur": "Duración del Segmento",
+        "title_segments": "Segmentos vs Overlap Ratio (estimado)",
+        "ylabel_segments": "Segmentos Estimados",
+        "source_blind": "Blind",
+        "source_val": "Val. Cruzada",
+    },
+    "en": {
+        "task_names": {
+            "plate": "Plate Thickness",
+            "electrode": "Electrode Type",
+            "current": "Current Type",
+        },
+        "xlabel_overlap": "Overlap Ratio",
+        "ylabel_metric": "Metric Value",
+        "title_overlap": "Metrics vs Overlap — {dur}s (K={k}, {source})",
+        "title_all": "{task} - {metric} vs Overlap (K={k})",
+        "title_heatmap_task": "{task} Accuracy",
+        "title_heatmap_avg": "Average Accuracy",
+        "title_heatmap_sup": "Heatmap: Accuracy by Duration × Overlap (K={k})",
+        "ylabel_dur": "Segment Duration",
+        "title_segments": "Segments vs Overlap Ratio (estimated)",
+        "ylabel_segments": "Estimated Segments",
+        "source_blind": "Blind",
+        "source_val": "Cross-Val",
+    },
 }
 
 COLORS = {
@@ -81,17 +123,24 @@ def parse_args():
         choices=["accuracy", "f1", "both"],
         help="Métrica a graficar (default: both)",
     )
+    parser.add_argument(
+        "--lang",
+        type=str,
+        default="es",
+        choices=["es", "en"],
+        help="Idioma de las gráficas (default: es)",
+    )
     return parser.parse_args()
 
 
 def load_results_for_overlap(duration: int, k_folds: int) -> dict:
     """
-    Carga resultados de results.json para una duración dada,
+    Carga resultados de resultados.json para una duración dada,
     buscando modelos con diferentes overlap ratios.
 
     Retorna: dict[overlap_ratio] -> resultado
     """
-    results_path = ROOT_DIR / f"{duration}seg" / "results.json"
+    results_path = ROOT_DIR / f"{duration}seg" / "resultados.json"
 
     if not results_path.exists():
         return {}
@@ -133,11 +182,11 @@ def load_results_for_overlap(duration: int, k_folds: int) -> dict:
 
 def load_infer_for_overlap(duration: int, k_folds: int) -> dict:
     """
-    Carga resultados de infer.json (blind evaluation) para una duración dada.
+    Carga resultados de inferencia.json (blind evaluation) para una duración dada.
 
     Retorna: dict[overlap_ratio] -> resultado
     """
-    infer_path = ROOT_DIR / f"{duration}seg" / "infer.json"
+    infer_path = ROOT_DIR / f"{duration}seg" / "inferencia.json"
 
     if not infer_path.exists():
         return {}
@@ -200,7 +249,7 @@ def _avg_accuracy_infer(entry: dict) -> float:
 
 
 def extract_metrics_from_results(entry: dict) -> dict:
-    """Extrae métricas de un resultado de results.json (entrenamiento)."""
+    """Extrae métricas de un resultado de resultados.json (entrenamiento)."""
     val = entry.get("best_val_metrics", {})
     return {
         "plate_accuracy": val.get("acc_plate_thickness", 0),
@@ -213,7 +262,7 @@ def extract_metrics_from_results(entry: dict) -> dict:
 
 
 def extract_metrics_from_infer(entry: dict) -> dict:
-    """Extrae métricas de un resultado de infer.json (blind)."""
+    """Extrae métricas de un resultado de inferencia.json (blind)."""
     acc = entry.get("accuracy", {})
     f1 = entry.get("macro_f1", {})
     return {
@@ -231,10 +280,15 @@ def extract_metrics_from_infer(entry: dict) -> dict:
 # =============================================================================
 
 
-def plot_overlap_comparison(duration: int, k_folds: int, metric: str, save: bool):
+def plot_overlap_comparison(
+    duration: int, k_folds: int, metric: str, save: bool, lang: str = "es"
+):
     """
     Grafica métricas vs overlap ratio para una duración específica.
-    Usa datos de infer.json (blind) si disponible, sino results.json (val).
+
+    Genera UNA sola figura con Accuracy (línea continua) y F1 (línea
+    punteada) para las 3 etiquetas con leyenda compartida.
+    Usa datos de inferencia.json (blind) si disponible, sino resultados.json (val).
     """
     # Intentar cargar datos de blind primero
     infer_results = load_infer_for_overlap(duration, k_folds)
@@ -263,58 +317,68 @@ def plot_overlap_comparison(duration: int, k_folds: int, metric: str, save: bool
         )
         return
 
+    L = I18N[lang]
     tasks = ["plate", "electrode", "current"]
-    task_names = {
-        "plate": "Plate Thickness",
-        "electrode": "Electrode",
-        "current": "Current Type",
+    task_names = L["task_names"]
+    task_colors = {
+        "plate": "#2ecc71",
+        "electrode": "#3498db",
+        "current": "#e74c3c",
     }
+    metric_markers = {"accuracy": "o", "f1": "s"}
+    metric_styles = {"accuracy": "-", "f1": "--"}
+
+    source_label = L["source_blind"] if source == "blind" else L["source_val"]
 
     show_acc = metric in ("accuracy", "both")
     show_f1 = metric in ("f1", "both")
-    n_plots = (1 if show_acc else 0) + (1 if show_f1 else 0)
 
-    fig, axes = plt.subplots(1, n_plots, figsize=(7 * n_plots, 5))
-    if n_plots == 1:
-        axes = [axes]
+    fig, ax = plt.subplots(figsize=(10, 6))
+    all_values = []
 
-    plot_idx = 0
+    for task in tasks:
+        metrics_to_plot = []
+        if show_acc:
+            metrics_to_plot.append("accuracy")
+        if show_f1:
+            metrics_to_plot.append("f1")
 
-    if show_acc:
-        ax = axes[plot_idx]
-        for task in tasks:
-            key = f"{task}_accuracy"
+        for m_name in metrics_to_plot:
+            key = f"{task}_{m_name}"
             values = [overlap_data[ov].get(key, 0) for ov in overlaps]
-            ax.plot(overlaps, values, marker="o", linewidth=2, label=task_names[task])
+            all_values.extend(values)
 
-        ax.set_xlabel("Overlap Ratio", fontsize=12)
-        ax.set_ylabel("Accuracy", fontsize=12)
-        ax.set_title(
-            f"Accuracy vs Overlap - {duration}seg (K={k_folds}, {source})", fontsize=13
-        )
-        ax.set_xticks(overlaps)
-        ax.set_xticklabels([f"{ov:.0%}" for ov in overlaps])
-        ax.legend()
-        ax.grid(True, alpha=0.3)
-        ax.set_ylim(0, 1.05)
-        plot_idx += 1
+            label = f"{task_names[task]} — {m_name.capitalize()}"
+            ax.plot(
+                overlaps,
+                values,
+                marker=metric_markers[m_name],
+                linestyle=metric_styles[m_name],
+                color=task_colors[task],
+                linewidth=2,
+                markersize=6,
+                label=label,
+            )
 
-    if show_f1:
-        ax = axes[plot_idx]
-        for task in tasks:
-            key = f"{task}_f1"
-            values = [overlap_data[ov].get(key, 0) for ov in overlaps]
-            ax.plot(overlaps, values, marker="s", linewidth=2, label=task_names[task])
+    ax.set_xlabel(L["xlabel_overlap"], fontsize=12)
+    ax.set_ylabel(L["ylabel_metric"], fontsize=12)
+    ax.set_title(
+        L["title_overlap"].format(dur=duration, k=k_folds, source=source_label),
+        fontsize=14,
+    )
+    ax.set_xticks(overlaps)
+    ax.set_xticklabels([str(ov) for ov in overlaps])
+    ax.legend(loc="best", fontsize=9, ncol=2)
+    ax.grid(True, alpha=0.3)
 
-        ax.set_xlabel("Overlap Ratio", fontsize=12)
-        ax.set_ylabel("Macro F1-Score", fontsize=12)
-        ax.set_title(
-            f"F1 vs Overlap - {duration}seg (K={k_folds}, {source})", fontsize=13
-        )
-        ax.set_xticks(overlaps)
-        ax.set_xticklabels([f"{ov:.0%}" for ov in overlaps])
-        ax.legend()
-        ax.grid(True, alpha=0.3)
+    # Ajustar eje Y según datos
+    if all_values:
+        y_min = min(all_values)
+        y_max = max(all_values)
+        span = y_max - y_min
+        pad = max(0.02, span * 0.15)
+        ax.set_ylim(max(0.0, y_min - pad), min(1.05, y_max + pad))
+    else:
         ax.set_ylim(0, 1.05)
 
     plt.tight_layout()
@@ -330,16 +394,14 @@ def plot_overlap_comparison(duration: int, k_folds: int, metric: str, save: bool
         plt.show()
 
 
-def plot_overlap_all_durations(k_folds: int, metric: str, save: bool):
+def plot_overlap_all_durations(k_folds: int, metric: str, save: bool, lang: str = "es"):
     """
     Grafica comparación de overlap para cada tarea, con una línea por duración.
+    Una sola figura con 3 subplots (uno por tarea), con Accuracy y F1 juntas.
     """
     tasks = ["plate", "electrode", "current"]
-    task_names = {
-        "plate": "Plate Thickness",
-        "electrode": "Electrode",
-        "current": "Current Type",
-    }
+    L = I18N[lang]
+    task_names = L["task_names"]
     metric_suffix = "accuracy" if metric == "accuracy" else "f1"
     metric_label = "Accuracy" if metric == "accuracy" else "Macro F1"
 
@@ -393,16 +455,19 @@ def plot_overlap_all_durations(k_folds: int, metric: str, save: bool):
                 label=f"{dur}seg",
             )
 
-        ax.set_xlabel("Overlap Ratio", fontsize=12)
+        ax.set_xlabel(L["xlabel_overlap"], fontsize=12)
         ax.set_ylabel(metric_label, fontsize=12)
         ax.set_title(
-            f"{task_names[task]} - {metric_label} vs Overlap (K={k_folds})", fontsize=12
+            L["title_all"].format(
+                task=task_names[task], metric=metric_label, k=k_folds
+            ),
+            fontsize=12,
         )
         ax.legend(fontsize=9)
         ax.grid(True, alpha=0.3)
         ax.set_ylim(0, 1.05)
         ax.set_xticks(OVERLAPS)
-        ax.set_xticklabels([f"{ov:.0%}" for ov in OVERLAPS])
+        ax.set_xticklabels([str(ov) for ov in OVERLAPS])
 
     plt.tight_layout()
 
@@ -416,17 +481,14 @@ def plot_overlap_all_durations(k_folds: int, metric: str, save: bool):
         plt.show()
 
 
-def plot_heatmap(k_folds: int, save: bool):
+def plot_heatmap(k_folds: int, save: bool, lang: str = "es"):
     """
     Genera heatmaps de duración × overlap para cada tarea.
     Muestra accuracy promedio (hamming) o por tarea.
     """
     tasks = ["plate", "electrode", "current"]
-    task_names = {
-        "plate": "Plate Thickness",
-        "electrode": "Electrode",
-        "current": "Current Type",
-    }
+    L = I18N[lang]
+    task_names = L["task_names"]
 
     # Construir matrices
     matrices_acc = {
@@ -468,10 +530,12 @@ def plot_heatmap(k_folds: int, save: bool):
     fig, axes = plt.subplots(2, 2, figsize=(14, 10))
 
     duration_labels = [f"{d}s" for d in DURATIONS]
-    overlap_labels = [f"{o:.0%}" for o in OVERLAPS]
+    overlap_labels = [str(o) for o in OVERLAPS]
 
     all_matrices = list(matrices_acc.values()) + [matrix_avg]
-    all_titles = [f"{task_names[t]} Accuracy" for t in tasks] + ["Average Accuracy"]
+    all_titles = [L["title_heatmap_task"].format(task=task_names[t]) for t in tasks] + [
+        L["title_heatmap_avg"]
+    ]
 
     for idx, (matrix, title) in enumerate(zip(all_matrices, all_titles)):
         ax = axes[idx // 2][idx % 2]
@@ -483,8 +547,8 @@ def plot_heatmap(k_folds: int, save: bool):
         ax.set_xticklabels(overlap_labels)
         ax.set_yticks(range(len(DURATIONS)))
         ax.set_yticklabels(duration_labels)
-        ax.set_xlabel("Overlap Ratio")
-        ax.set_ylabel("Segment Duration")
+        ax.set_xlabel(L["xlabel_overlap"])
+        ax.set_ylabel(L["ylabel_dur"])
         ax.set_title(f"{title} (K={k_folds})")
 
         # Anotar valores
@@ -510,7 +574,7 @@ def plot_heatmap(k_folds: int, save: bool):
         fig.colorbar(im, ax=ax, shrink=0.8)
 
     plt.suptitle(
-        f"Heatmap: Accuracy por Duración × Overlap (K={k_folds})",
+        L["title_heatmap_sup"].format(k=k_folds),
         fontsize=14,
         fontweight="bold",
     )
@@ -526,13 +590,14 @@ def plot_heatmap(k_folds: int, save: bool):
         plt.show()
 
 
-def plot_segments_vs_overlap(k_folds: int, save: bool):
+def plot_segments_vs_overlap(k_folds: int, save: bool, lang: str = "es"):
     """
     Grafica número de segmentos vs overlap ratio para cada duración.
     Muestra cómo el overlap multiplica los datos disponibles.
     """
     fig, ax = plt.subplots(figsize=(10, 6))
 
+    L = I18N[lang]
     cmap = plt.cm.viridis
     dur_colors = {
         dur: cmap(i / max(len(DURATIONS) - 1, 1)) for i, dur in enumerate(DURATIONS)
@@ -575,13 +640,13 @@ def plot_segments_vs_overlap(k_folds: int, save: bool):
             label=f"{dur}seg (real={total_segments} @ {overlap_ratio})",
         )
 
-    ax.set_xlabel("Overlap Ratio", fontsize=12)
-    ax.set_ylabel("Segmentos Estimados", fontsize=12)
-    ax.set_title(f"Segmentos vs Overlap Ratio (estimado)", fontsize=13)
+    ax.set_xlabel(L["xlabel_overlap"], fontsize=12)
+    ax.set_ylabel(L["ylabel_segments"], fontsize=12)
+    ax.set_title(L["title_segments"], fontsize=13)
     ax.legend(fontsize=9)
     ax.grid(True, alpha=0.3)
     ax.set_xticks(OVERLAPS)
-    ax.set_xticklabels([f"{ov:.0%}" for ov in OVERLAPS])
+    ax.set_xticklabels([str(ov) for ov in OVERLAPS])
 
     plt.tight_layout()
 
@@ -609,36 +674,40 @@ def main():
     print(f"K-folds: {args.k_folds}")
     print(f"Métrica: {args.metric}")
 
+    lang = args.lang
+
     if args.heatmap:
         print("\nGenerando heatmaps...")
-        plot_heatmap(args.k_folds, args.save)
-        plot_segments_vs_overlap(args.k_folds, args.save)
+        plot_heatmap(args.k_folds, args.save, lang)
+        plot_segments_vs_overlap(args.k_folds, args.save, lang)
     elif args.duration:
         print(f"\nGraficando overlap para {args.duration}seg...")
-        plot_overlap_comparison(args.duration, args.k_folds, args.metric, args.save)
+        plot_overlap_comparison(
+            args.duration, args.k_folds, args.metric, args.save, lang
+        )
     else:
         # Graficar comparación por duración individual
         print("\nGraficando overlap por duración individual...")
         for dur in DURATIONS:
             print(f"\n  {dur}seg:")
-            plot_overlap_comparison(dur, args.k_folds, args.metric, args.save)
+            plot_overlap_comparison(dur, args.k_folds, args.metric, args.save, lang)
 
         # Graficar todas las duraciones juntas
         if args.metric == "both":
             for m in ["accuracy", "f1"]:
                 print(f"\nGraficando todas las duraciones ({m})...")
-                plot_overlap_all_durations(args.k_folds, m, args.save)
+                plot_overlap_all_durations(args.k_folds, m, args.save, lang)
         else:
             print(f"\nGraficando todas las duraciones ({args.metric})...")
-            plot_overlap_all_durations(args.k_folds, args.metric, args.save)
+            plot_overlap_all_durations(args.k_folds, args.metric, args.save, lang)
 
         # Heatmaps
         print("\nGenerando heatmaps...")
-        plot_heatmap(args.k_folds, args.save)
+        plot_heatmap(args.k_folds, args.save, lang)
 
         # Segmentos vs overlap
         print("\nSegmentos vs overlap...")
-        plot_segments_vs_overlap(args.k_folds, args.save)
+        plot_segments_vs_overlap(args.k_folds, args.save, lang)
 
 
 if __name__ == "__main__":

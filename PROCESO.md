@@ -76,9 +76,9 @@ audio/
 
 | Carpeta | Duración segmento | Hop (salto) | Solapamiento |
 | ------- | ----------------- | ----------- | ------------ |
-| 1seg/   | 1 segundo         | 0.5 seg     | 50%          |
-| 2seg/   | 2 segundos        | 1 seg       | 50%          |
-| 5seg/   | 5 segundos        | 2.5 seg     | 50%          |
+| 01seg/   | 1 segundo         | 0.5 seg     | 50%          |
+| 02seg/   | 2 segundos        | 1 seg       | 50%          |
+| 05seg/   | 5 segundos        | 2.5 seg     | 50%          |
 | 10seg/  | 10 segundos       | 5 seg       | 50%          |
 | 30seg/  | 30 segundos       | 15 seg      | 50%          |
 
@@ -301,9 +301,9 @@ Fold 5: Train=193 sesiones, Val=48 sesiones --> model_fold_4.pth
 
 ```bash
 # Desde la raíz del proyecto
-python infer.py --duration 5 --overlap 0.5 --evaluar
-python infer.py --duration 5 --overlap 0.5 --audio ruta.wav
-python infer.py --duration 10 --overlap 0.0 --k-folds 10 --evaluar
+python inferir.py --duration 5 --overlap 0.5 --evaluar
+python inferir.py --duration 5 --overlap 0.5 --audio ruta.wav
+python inferir.py --duration 10 --overlap 0.0 --k-folds 10 --evaluar
 ```
 
 ### 9.2 Ensemble con Soft Voting
@@ -347,7 +347,7 @@ Audio de entrada
 # Scripts consolidados en la raíz:
 entrenar.py               # --duration, --overlap, --k-folds
 generar_splits.py          # --duration, --overlap
-infer.py                   # --duration, --overlap, --k-folds, --evaluar
+inferir.py                   # --duration, --overlap, --k-folds, --evaluar
 
 # Datos por duración:
 {N}seg/
@@ -356,8 +356,8 @@ infer.py                   # --duration, --overlap, --k-folds, --evaluar
 |-- test.csv              # Datos de validación
 |-- blind.csv             # Datos de evaluación final
 |-- data_stats.json       # Estadísticas del dataset
-|-- results.json          # Métricas del entrenamiento
-|-- infer.json            # Métricas de inferencia blind
+|-- resultados.json          # Métricas del entrenamiento
+|-- inferencia.json            # Métricas de inferencia blind
 +-- models/
     +-- k05_overlap_0.5/  # Modelos organizados por K y overlap
         |-- model_fold_0.pth
@@ -463,7 +463,7 @@ infer.py                   # --duration, --overlap, --k-folds, --evaluar
 |  |                                                                 |    |
 |  +-----------------------------------------------------------------+    |
 |                                                                         |
-|  Resultado: 5 modelos + results.json                                    |
+|  Resultado: 5 modelos + resultados.json                                    |
 |                                                                         |
 +-------------------------------------------------------------------------+
                       |
@@ -504,7 +504,7 @@ infer.py                   # --duration, --overlap, --k-folds, --evaluar
 |  |                                                                 |    |
 |  +-----------------------------------------------------------------+    |
 |                                                                         |
-|  Resultado: infer.json + METRICAS.md                                    |
+|  Resultado: inferencia.json + METRICAS.md                                    |
 |                                                                         |
 +-------------------------------------------------------------------------+
 ```

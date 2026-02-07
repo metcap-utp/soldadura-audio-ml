@@ -2,7 +2,7 @@
 # ==============================================================================
 # evaluar_todos.sh - Evaluación ciega (blind) de todos los modelos entrenados
 # ==============================================================================
-# Ejecuta infer.py --evaluar para todas las combinaciones de:
+# Ejecuta inferir.py --evaluar para todas las combinaciones de:
 #   - Duraciones: 1, 2, 5, 10, 20, 30, 50 segundos
 #   - Overlaps: 0.0, 0.25, 0.5, 0.75
 #   - K-Folds: 5, 10
@@ -68,19 +68,19 @@ echo "Dry-run:    $DRY_RUN" | tee -a "$LOG_FILE"
 echo "Force:      $FORCE" | tee -a "$LOG_FILE"
 echo "═══════════════════════════════════════════════════════════════" | tee -a "$LOG_FILE"
 
-# ─── Función: verificar si ya existe resultado en infer.json ─────────────────
+# ─── Función: verificar si ya existe resultado en inferencia.json ───────────────
 result_exists() {
     local DUR=$1
     local OV=$2
     local K=$3
-    local INFER_JSON="${DUR}seg/infer.json"
-    local EXPECTED_ID="${DUR}seg_k$(printf '%02d' $K)_overlap_${OV}"
+    local INFER_JSON="$(printf '%02d' $DUR)seg/inferencia.json"
+    local EXPECTED_ID="$(printf '%02d' $DUR)seg_k$(printf '%02d' $K)_overlap_${OV}"
 
     if [[ ! -f "$INFER_JSON" ]]; then
         return 1  # No existe el archivo
     fi
 
-    # Buscar el ID exacto en infer.json
+    # Buscar el ID exacto en inferencia.json
     if grep -q "\"id\": \"${EXPECTED_ID}\"" "$INFER_JSON" 2>/dev/null; then
         return 0  # Existe
     fi
@@ -93,7 +93,7 @@ models_exist() {
     local DUR=$1
     local OV=$2
     local K=$3
-    local MODEL_DIR="${DUR}seg/models/k$(printf '%02d' $K)_overlap_${OV}"
+    local MODEL_DIR="$(printf '%02d' $DUR)seg/modelos/k$(printf '%02d' $K)_overlap_${OV}"
 
     if [[ ! -d "$MODEL_DIR" ]]; then
         return 1
@@ -113,14 +113,14 @@ models_exist() {
 blind_csv_exists() {
     local DUR=$1
     local OV=$2
-    local CSV="${DUR}seg/blind_overlap_${OV}.csv"
+    local CSV="$(printf '%02d' $DUR)seg/blind_overlap_${OV}.csv"
 
     if [[ -f "$CSV" ]]; then
         return 0
     fi
 
     # Fallback al genérico
-    if [[ -f "${DUR}seg/blind.csv" ]]; then
+    if [[ -f "$(printf '%02d' $DUR)seg/blind.csv" ]]; then
         return 0
     fi
 
@@ -160,7 +160,7 @@ for DUR in "${DURATIONS[@]}"; do
 
             # Ejecutar evaluación
             if [[ "$DRY_RUN" == "true" ]]; then
-                echo "  → [$COMBO] Se ejecutaría: python infer.py --duration $DUR --overlap $OV --k-folds $K --evaluar" | tee -a "$LOG_FILE"
+                echo "  → [$COMBO] Se ejecutaría: python inferir.py --duration $DUR --overlap $OV --k-folds $K --evaluar" | tee -a "$LOG_FILE"
             else
                 echo "" | tee -a "$LOG_FILE"
                 echo "───────────────────────────────────────────────────────────────" | tee -a "$LOG_FILE"
@@ -169,7 +169,7 @@ for DUR in "${DURATIONS[@]}"; do
 
                 EVAL_START=$(date +%s)
 
-                if python infer.py --duration "$DUR" --overlap "$OV" --k-folds "$K" --evaluar 2>&1 | tee -a "$LOG_FILE"; then
+                if python inferir.py --duration "$DUR" --overlap "$OV" --k-folds "$K" --evaluar 2>&1 | tee -a "$LOG_FILE"; then
                     EVAL_END=$(date +%s)
                     EVAL_TIME=$((EVAL_END - EVAL_START))
                     echo "  ✓ [$COMBO] Completado en ${EVAL_TIME}s" | tee -a "$LOG_FILE"

@@ -70,7 +70,7 @@ python entrenar.py --duration 10 --overlap 0.0 --k-folds 10
 
 Los modelos se guardan en:
 
-- `5seg/models/k05_overlap_0.5/` - 5-fold con overlap 0.5
+- `05seg/models/k05_overlap_0.5/` - 5-fold con overlap 0.5
 - `10seg/models/k10_overlap_0.0/` - 10-fold sin overlap
 
 ### 4. Evaluar modelos
@@ -128,7 +128,7 @@ Luego revisa `{N}seg/results.json` y `{N}seg/infer.json` para comparar métricas
 
 ```bash
 # Graficar métricas vs k-folds para una duración específica
-python scripts/graficar_folds.py 5seg
+python scripts/graficar_folds.py 05seg
 python scripts/graficar_folds.py 10seg --save
 ```
 

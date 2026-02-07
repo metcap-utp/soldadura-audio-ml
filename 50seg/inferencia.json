@@ -1,0 +1,1915 @@
+[
+  {
+    "mode": "blind_evaluation",
+    "segment_duration": 50.0,
+    "n_samples": 59,
+    "n_models": 5,
+    "voting_method": "soft",
+    "global_metrics": {
+      "exact_match_accuracy": 0.6440677966101694,
+      "hamming_accuracy": 0.824858757062147
+    },
+    "accuracy": {
+      "plate_thickness": 0.6610169491525424,
+      "electrode": 0.847457627118644,
+      "current_type": 0.9661016949152542
+    },
+    "macro_f1": {
+      "plate_thickness": 0.6668430976876509,
+      "electrode": 0.8584547681321876,
+      "current_type": 0.9611842105263158
+    },
+    "classification_reports": {
+      "plate_thickness": {
+        "Placa_12mm": {
+          "precision": 0.7142857142857143,
+          "recall": 0.9375,
+          "f1-score": 0.8108108108108109,
+          "support": 16.0
+        },
+        "Placa_3mm": {
+          "precision": 0.5217391304347826,
+          "recall": 0.8,
+          "f1-score": 0.631578947368421,
+          "support": 15.0
+        },
+        "Placa_6mm": {
+          "precision": 0.8,
+          "recall": 0.42857142857142855,
+          "f1-score": 0.5581395348837209,
+          "support": 28.0
+        },
+        "accuracy": 0.6610169491525424,
+        "macro avg": {
+          "precision": 0.6786749482401656,
+          "recall": 0.7220238095238095,
+          "f1-score": 0.6668430976876509,
+          "support": 59.0
+        },
+        "weighted avg": {
+          "precision": 0.7060111590693757,
+          "recall": 0.6610169491525424,
+          "f1-score": 0.64533159593633,
+          "support": 59.0
+        }
+      },
+      "electrode": {
+        "E6010": {
+          "precision": 0.875,
+          "recall": 1.0,
+          "f1-score": 0.9333333333333333,
+          "support": 7.0
+        },
+        "E6011": {
+          "precision": 0.85,
+          "recall": 1.0,
+          "f1-score": 0.918918918918919,
+          "support": 17.0
+        },
+        "E6013": {
+          "precision": 0.7647058823529411,
+          "recall": 0.9285714285714286,
+          "f1-score": 0.8387096774193549,
+          "support": 14.0
+        },
+        "E7018": {
+          "precision": 0.9285714285714286,
+          "recall": 0.6190476190476191,
+          "f1-score": 0.7428571428571429,
+          "support": 21.0
+        },
+        "accuracy": 0.847457627118644,
+        "macro avg": {
+          "precision": 0.8545693277310924,
+          "recall": 0.886904761904762,
+          "f1-score": 0.8584547681321876,
+          "support": 59.0
+        },
+        "weighted avg": {
+          "precision": 0.8606929212362912,
+          "recall": 0.847457627118644,
+          "f1-score": 0.8389303464207784,
+          "support": 59.0
+        }
+      },
+      "current_type": {
+        "AC": {
+          "precision": 0.9,
+          "recall": 1.0,
+          "f1-score": 0.9473684210526315,
+          "support": 18.0
+        },
+        "DC": {
+          "precision": 1.0,
+          "recall": 0.9512195121951219,
+          "f1-score": 0.975,
+          "support": 41.0
+        },
+        "accuracy": 0.9661016949152542,
+        "macro avg": {
+          "precision": 0.95,
+          "recall": 0.975609756097561,
+          "f1-score": 0.9611842105263158,
+          "support": 59.0
+        },
+        "weighted avg": {
+          "precision": 0.9694915254237289,
+          "recall": 0.9661016949152542,
+          "f1-score": 0.9665700267618197,
+          "support": 59.0
+        }
+      }
+    },
+    "confusion_matrices": {
+      "plate_thickness": [
+        [
+          15,
+          0,
+          1
+        ],
+        [
+          1,
+          12,
+          2
+        ],
+        [
+          5,
+          11,
+          12
+        ]
+      ],
+      "electrode": [
+        [
+          7,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          17,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          13,
+          1
+        ],
+        [
+          1,
+          3,
+          4,
+          13
+        ]
+      ],
+      "current_type": [
+        [
+          18,
+          0
+        ],
+        [
+          2,
+          39
+        ]
+      ]
+    },
+    "classes": {
+      "plate_thickness": [
+        "Placa_12mm",
+        "Placa_3mm",
+        "Placa_6mm"
+      ],
+      "electrode": [
+        "E6010",
+        "E6011",
+        "E6013",
+        "E7018"
+      ],
+      "current_type": [
+        "AC",
+        "DC"
+      ]
+    },
+    "timestamp": "2026-02-05T13:27:29.176686",
+    "config": {
+      "train_seconds": 50,
+      "test_seconds": 50.0,
+      "overlap_seconds": 25.0,
+      "k_folds": 5,
+      "models_dir": "/home/luis/projects/tesis/audio/soldadura/50seg/modelos/k05_overlap_0.5",
+      "train_dir": "/home/luis/projects/tesis/audio/soldadura/50seg",
+      "test_dir": "/home/luis/projects/tesis/audio/soldadura/50seg"
+    },
+    "execution_time": {
+      "seconds": 20.69,
+      "minutes": 0.34,
+      "hours": 0.0057
+    }
+  },
+  {
+    "mode": "blind_evaluation",
+    "id": "50seg_k05_overlap_0.0",
+    "segment_duration": 50.0,
+    "overlap_ratio": 0.0,
+    "overlap_seconds": 0.0,
+    "n_samples": 45,
+    "n_models": 5,
+    "voting_method": "soft",
+    "global_metrics": {
+      "exact_match_accuracy": 0.6888888888888889,
+      "hamming_accuracy": 0.8444444444444444
+    },
+    "accuracy": {
+      "plate_thickness": 0.7111111111111111,
+      "electrode": 0.9111111111111111,
+      "current_type": 0.9111111111111111
+    },
+    "macro_f1": {
+      "plate_thickness": 0.7199597787833082,
+      "electrode": 0.9212454212454213,
+      "current_type": 0.9
+    },
+    "classification_reports": {
+      "plate_thickness": {
+        "Placa_12mm": {
+          "precision": 0.8461538461538461,
+          "recall": 0.8461538461538461,
+          "f1-score": 0.8461538461538461,
+          "support": 13.0
+        },
+        "Placa_3mm": {
+          "precision": 0.5882352941176471,
+          "recall": 0.7692307692307693,
+          "f1-score": 0.6666666666666666,
+          "support": 13.0
+        },
+        "Placa_6mm": {
+          "precision": 0.7333333333333333,
+          "recall": 0.5789473684210527,
+          "f1-score": 0.6470588235294118,
+          "support": 19.0
+        },
+        "accuracy": 0.7111111111111111,
+        "macro avg": {
+          "precision": 0.7225741578682755,
+          "recall": 0.7314439946018894,
+          "f1-score": 0.7199597787833082,
+          "support": 45.0
+        },
+        "weighted avg": {
+          "precision": 0.7240087145969498,
+          "recall": 0.7111111111111111,
+          "f1-score": 0.710239651416122,
+          "support": 45.0
+        }
+      },
+      "electrode": {
+        "E6010": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 6.0
+        },
+        "E6011": {
+          "precision": 0.8666666666666667,
+          "recall": 1.0,
+          "f1-score": 0.9285714285714286,
+          "support": 13.0
+        },
+        "E6013": {
+          "precision": 0.9230769230769231,
+          "recall": 0.9230769230769231,
+          "f1-score": 0.9230769230769231,
+          "support": 13.0
+        },
+        "E7018": {
+          "precision": 0.9090909090909091,
+          "recall": 0.7692307692307693,
+          "f1-score": 0.8333333333333334,
+          "support": 13.0
+        },
+        "accuracy": 0.9111111111111111,
+        "macro avg": {
+          "precision": 0.9247086247086247,
+          "recall": 0.9230769230769231,
+          "f1-score": 0.9212454212454213,
+          "support": 45.0
+        },
+        "weighted avg": {
+          "precision": 0.912996632996633,
+          "recall": 0.9111111111111111,
+          "f1-score": 0.908994708994709,
+          "support": 45.0
+        }
+      },
+      "current_type": {
+        "AC": {
+          "precision": 0.7647058823529411,
+          "recall": 1.0,
+          "f1-score": 0.8666666666666667,
+          "support": 13.0
+        },
+        "DC": {
+          "precision": 1.0,
+          "recall": 0.875,
+          "f1-score": 0.9333333333333333,
+          "support": 32.0
+        },
+        "accuracy": 0.9111111111111111,
+        "macro avg": {
+          "precision": 0.8823529411764706,
+          "recall": 0.9375,
+          "f1-score": 0.9,
+          "support": 45.0
+        },
+        "weighted avg": {
+          "precision": 0.9320261437908496,
+          "recall": 0.9111111111111111,
+          "f1-score": 0.914074074074074,
+          "support": 45.0
+        }
+      }
+    },
+    "confusion_matrices": {
+      "plate_thickness": [
+        [
+          11,
+          0,
+          2
+        ],
+        [
+          1,
+          10,
+          2
+        ],
+        [
+          1,
+          7,
+          11
+        ]
+      ],
+      "electrode": [
+        [
+          6,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          13,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          12,
+          1
+        ],
+        [
+          0,
+          2,
+          1,
+          10
+        ]
+      ],
+      "current_type": [
+        [
+          13,
+          0
+        ],
+        [
+          4,
+          28
+        ]
+      ]
+    },
+    "classes": {
+      "plate_thickness": [
+        "Placa_12mm",
+        "Placa_3mm",
+        "Placa_6mm"
+      ],
+      "electrode": [
+        "E6010",
+        "E6011",
+        "E6013",
+        "E7018"
+      ],
+      "current_type": [
+        "AC",
+        "DC"
+      ]
+    },
+    "timestamp": "2026-02-07T01:17:21.212677",
+    "config": {
+      "train_seconds": 50,
+      "test_seconds": 50.0,
+      "overlap_ratio": 0.0,
+      "overlap_seconds": 0.0,
+      "k_folds": 5,
+      "models_dir": "/home/luis/projects/tesis/audio/soldadura/50seg/modelos/k05_overlap_0.0",
+      "train_dir": "/home/luis/projects/tesis/audio/soldadura/50seg",
+      "test_dir": "/home/luis/projects/tesis/audio/soldadura/50seg"
+    },
+    "execution_time": {
+      "seconds": 21.08,
+      "minutes": 0.35,
+      "hours": 0.0059
+    }
+  },
+  {
+    "mode": "blind_evaluation",
+    "id": "50seg_k10_overlap_0.0",
+    "segment_duration": 50.0,
+    "overlap_ratio": 0.0,
+    "overlap_seconds": 0.0,
+    "n_samples": 45,
+    "n_models": 10,
+    "voting_method": "soft",
+    "global_metrics": {
+      "exact_match_accuracy": 0.6888888888888889,
+      "hamming_accuracy": 0.8444444444444444
+    },
+    "accuracy": {
+      "plate_thickness": 0.6888888888888889,
+      "electrode": 0.8888888888888888,
+      "current_type": 0.9555555555555556
+    },
+    "macro_f1": {
+      "plate_thickness": 0.6924603174603176,
+      "electrode": 0.8922727272727273,
+      "current_type": 0.9481566820276498
+    },
+    "classification_reports": {
+      "plate_thickness": {
+        "Placa_12mm": {
+          "precision": 0.7333333333333333,
+          "recall": 0.8461538461538461,
+          "f1-score": 0.7857142857142857,
+          "support": 13.0
+        },
+        "Placa_3mm": {
+          "precision": 0.5882352941176471,
+          "recall": 0.7692307692307693,
+          "f1-score": 0.6666666666666666,
+          "support": 13.0
+        },
+        "Placa_6mm": {
+          "precision": 0.7692307692307693,
+          "recall": 0.5263157894736842,
+          "f1-score": 0.625,
+          "support": 19.0
+        },
+        "accuracy": 0.6888888888888889,
+        "macro avg": {
+          "precision": 0.69693313222725,
+          "recall": 0.7139001349527665,
+          "f1-score": 0.6924603174603176,
+          "support": 45.0
+        },
+        "weighted avg": {
+          "precision": 0.7065728171610525,
+          "recall": 0.6888888888888889,
+          "f1-score": 0.6834656084656084,
+          "support": 45.0
+        }
+      },
+      "electrode": {
+        "E6010": {
+          "precision": 1.0,
+          "recall": 0.8333333333333334,
+          "f1-score": 0.9090909090909091,
+          "support": 6.0
+        },
+        "E6011": {
+          "precision": 0.7647058823529411,
+          "recall": 1.0,
+          "f1-score": 0.8666666666666667,
+          "support": 13.0
+        },
+        "E6013": {
+          "precision": 1.0,
+          "recall": 0.9230769230769231,
+          "f1-score": 0.96,
+          "support": 13.0
+        },
+        "E7018": {
+          "precision": 0.9090909090909091,
+          "recall": 0.7692307692307693,
+          "f1-score": 0.8333333333333334,
+          "support": 13.0
+        },
+        "accuracy": 0.8888888888888888,
+        "macro avg": {
+          "precision": 0.9184491978609626,
+          "recall": 0.8814102564102564,
+          "f1-score": 0.8922727272727273,
+          "support": 45.0
+        },
+        "weighted avg": {
+          "precision": 0.9057635175282234,
+          "recall": 0.8888888888888888,
+          "f1-score": 0.8896565656565657,
+          "support": 45.0
+        }
+      },
+      "current_type": {
+        "AC": {
+          "precision": 0.8666666666666667,
+          "recall": 1.0,
+          "f1-score": 0.9285714285714286,
+          "support": 13.0
+        },
+        "DC": {
+          "precision": 1.0,
+          "recall": 0.9375,
+          "f1-score": 0.967741935483871,
+          "support": 32.0
+        },
+        "accuracy": 0.9555555555555556,
+        "macro avg": {
+          "precision": 0.9333333333333333,
+          "recall": 0.96875,
+          "f1-score": 0.9481566820276498,
+          "support": 45.0
+        },
+        "weighted avg": {
+          "precision": 0.9614814814814815,
+          "recall": 0.9555555555555556,
+          "f1-score": 0.9564260112647209,
+          "support": 45.0
+        }
+      }
+    },
+    "confusion_matrices": {
+      "plate_thickness": [
+        [
+          11,
+          0,
+          2
+        ],
+        [
+          2,
+          10,
+          1
+        ],
+        [
+          2,
+          7,
+          10
+        ]
+      ],
+      "electrode": [
+        [
+          5,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          13,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          12,
+          1
+        ],
+        [
+          0,
+          3,
+          0,
+          10
+        ]
+      ],
+      "current_type": [
+        [
+          13,
+          0
+        ],
+        [
+          2,
+          30
+        ]
+      ]
+    },
+    "classes": {
+      "plate_thickness": [
+        "Placa_12mm",
+        "Placa_3mm",
+        "Placa_6mm"
+      ],
+      "electrode": [
+        "E6010",
+        "E6011",
+        "E6013",
+        "E7018"
+      ],
+      "current_type": [
+        "AC",
+        "DC"
+      ]
+    },
+    "timestamp": "2026-02-07T01:17:48.744878",
+    "config": {
+      "train_seconds": 50,
+      "test_seconds": 50.0,
+      "overlap_ratio": 0.0,
+      "overlap_seconds": 0.0,
+      "k_folds": 10,
+      "models_dir": "/home/luis/projects/tesis/audio/soldadura/50seg/modelos/k10_overlap_0.0",
+      "train_dir": "/home/luis/projects/tesis/audio/soldadura/50seg",
+      "test_dir": "/home/luis/projects/tesis/audio/soldadura/50seg"
+    },
+    "execution_time": {
+      "seconds": 20.24,
+      "minutes": 0.34,
+      "hours": 0.0056
+    }
+  },
+  {
+    "mode": "blind_evaluation",
+    "id": "50seg_k05_overlap_0.25",
+    "segment_duration": 50.0,
+    "overlap_ratio": 0.25,
+    "overlap_seconds": 12.5,
+    "n_samples": 50,
+    "n_models": 5,
+    "voting_method": "soft",
+    "global_metrics": {
+      "exact_match_accuracy": 0.7,
+      "hamming_accuracy": 0.84
+    },
+    "accuracy": {
+      "plate_thickness": 0.74,
+      "electrode": 0.84,
+      "current_type": 0.94
+    },
+    "macro_f1": {
+      "plate_thickness": 0.74640522875817,
+      "electrode": 0.8557799264139643,
+      "current_type": 0.9298737727910238
+    },
+    "classification_reports": {
+      "plate_thickness": {
+        "Placa_12mm": {
+          "precision": 0.7647058823529411,
+          "recall": 1.0,
+          "f1-score": 0.8666666666666667,
+          "support": 13.0
+        },
+        "Placa_3mm": {
+          "precision": 0.631578947368421,
+          "recall": 0.8,
+          "f1-score": 0.7058823529411765,
+          "support": 15.0
+        },
+        "Placa_6mm": {
+          "precision": 0.8571428571428571,
+          "recall": 0.5454545454545454,
+          "f1-score": 0.6666666666666666,
+          "support": 22.0
+        },
+        "accuracy": 0.74,
+        "macro avg": {
+          "precision": 0.7511425622880731,
+          "recall": 0.7818181818181819,
+          "f1-score": 0.74640522875817,
+          "support": 50.0
+        },
+        "weighted avg": {
+          "precision": 0.7654400707651482,
+          "recall": 0.74,
+          "f1-score": 0.7304313725490197,
+          "support": 50.0
+        }
+      },
+      "electrode": {
+        "E6010": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 7.0
+        },
+        "E6011": {
+          "precision": 0.8235294117647058,
+          "recall": 1.0,
+          "f1-score": 0.9032258064516129,
+          "support": 14.0
+        },
+        "E6013": {
+          "precision": 0.75,
+          "recall": 0.9230769230769231,
+          "f1-score": 0.8275862068965517,
+          "support": 13.0
+        },
+        "E7018": {
+          "precision": 0.9,
+          "recall": 0.5625,
+          "f1-score": 0.6923076923076923,
+          "support": 16.0
+        },
+        "accuracy": 0.84,
+        "macro avg": {
+          "precision": 0.8683823529411764,
+          "recall": 0.8713942307692308,
+          "f1-score": 0.8557799264139643,
+          "support": 50.0
+        },
+        "weighted avg": {
+          "precision": 0.8535882352941176,
+          "recall": 0.84,
+          "f1-score": 0.8296141011380166,
+          "support": 50.0
+        }
+      },
+      "current_type": {
+        "AC": {
+          "precision": 0.8235294117647058,
+          "recall": 1.0,
+          "f1-score": 0.9032258064516129,
+          "support": 14.0
+        },
+        "DC": {
+          "precision": 1.0,
+          "recall": 0.9166666666666666,
+          "f1-score": 0.9565217391304348,
+          "support": 36.0
+        },
+        "accuracy": 0.94,
+        "macro avg": {
+          "precision": 0.9117647058823529,
+          "recall": 0.9583333333333333,
+          "f1-score": 0.9298737727910238,
+          "support": 50.0
+        },
+        "weighted avg": {
+          "precision": 0.9505882352941177,
+          "recall": 0.94,
+          "f1-score": 0.9415988779803647,
+          "support": 50.0
+        }
+      }
+    },
+    "confusion_matrices": {
+      "plate_thickness": [
+        [
+          13,
+          0,
+          0
+        ],
+        [
+          1,
+          12,
+          2
+        ],
+        [
+          3,
+          7,
+          12
+        ]
+      ],
+      "electrode": [
+        [
+          7,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          14,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          12,
+          1
+        ],
+        [
+          0,
+          3,
+          4,
+          9
+        ]
+      ],
+      "current_type": [
+        [
+          14,
+          0
+        ],
+        [
+          3,
+          33
+        ]
+      ]
+    },
+    "classes": {
+      "plate_thickness": [
+        "Placa_12mm",
+        "Placa_3mm",
+        "Placa_6mm"
+      ],
+      "electrode": [
+        "E6010",
+        "E6011",
+        "E6013",
+        "E7018"
+      ],
+      "current_type": [
+        "AC",
+        "DC"
+      ]
+    },
+    "timestamp": "2026-02-07T01:18:18.352740",
+    "config": {
+      "train_seconds": 50,
+      "test_seconds": 50.0,
+      "overlap_ratio": 0.25,
+      "overlap_seconds": 12.5,
+      "k_folds": 5,
+      "models_dir": "/home/luis/projects/tesis/audio/soldadura/50seg/modelos/k05_overlap_0.25",
+      "train_dir": "/home/luis/projects/tesis/audio/soldadura/50seg",
+      "test_dir": "/home/luis/projects/tesis/audio/soldadura/50seg"
+    },
+    "execution_time": {
+      "seconds": 22.74,
+      "minutes": 0.38,
+      "hours": 0.0063
+    }
+  },
+  {
+    "mode": "blind_evaluation",
+    "id": "50seg_k10_overlap_0.25",
+    "segment_duration": 50.0,
+    "overlap_ratio": 0.25,
+    "overlap_seconds": 12.5,
+    "n_samples": 50,
+    "n_models": 10,
+    "voting_method": "soft",
+    "global_metrics": {
+      "exact_match_accuracy": 0.7,
+      "hamming_accuracy": 0.8533333333333334
+    },
+    "accuracy": {
+      "plate_thickness": 0.72,
+      "electrode": 0.9,
+      "current_type": 0.94
+    },
+    "macro_f1": {
+      "plate_thickness": 0.7273724028287923,
+      "electrode": 0.903584229390681,
+      "current_type": 0.9298737727910238
+    },
+    "classification_reports": {
+      "plate_thickness": {
+        "Placa_12mm": {
+          "precision": 0.75,
+          "recall": 0.9230769230769231,
+          "f1-score": 0.8275862068965517,
+          "support": 13.0
+        },
+        "Placa_3mm": {
+          "precision": 0.631578947368421,
+          "recall": 0.8,
+          "f1-score": 0.7058823529411765,
+          "support": 15.0
+        },
+        "Placa_6mm": {
+          "precision": 0.8,
+          "recall": 0.5454545454545454,
+          "f1-score": 0.6486486486486487,
+          "support": 22.0
+        },
+        "accuracy": 0.72,
+        "macro avg": {
+          "precision": 0.7271929824561404,
+          "recall": 0.7561771561771562,
+          "f1-score": 0.7273724028287923,
+          "support": 50.0
+        },
+        "weighted avg": {
+          "precision": 0.7364736842105263,
+          "recall": 0.72,
+          "f1-score": 0.7123425250808617,
+          "support": 50.0
+        }
+      },
+      "electrode": {
+        "E6010": {
+          "precision": 0.875,
+          "recall": 1.0,
+          "f1-score": 0.9333333333333333,
+          "support": 7.0
+        },
+        "E6011": {
+          "precision": 0.8235294117647058,
+          "recall": 1.0,
+          "f1-score": 0.9032258064516129,
+          "support": 14.0
+        },
+        "E6013": {
+          "precision": 0.9285714285714286,
+          "recall": 1.0,
+          "f1-score": 0.9629629629629629,
+          "support": 13.0
+        },
+        "E7018": {
+          "precision": 1.0,
+          "recall": 0.6875,
+          "f1-score": 0.8148148148148148,
+          "support": 16.0
+        },
+        "accuracy": 0.9,
+        "macro avg": {
+          "precision": 0.9067752100840336,
+          "recall": 0.921875,
+          "f1-score": 0.903584229390681,
+          "support": 50.0
+        },
+        "weighted avg": {
+          "precision": 0.9145168067226891,
+          "recall": 0.9,
+          "f1-score": 0.8946810035842294,
+          "support": 50.0
+        }
+      },
+      "current_type": {
+        "AC": {
+          "precision": 0.8235294117647058,
+          "recall": 1.0,
+          "f1-score": 0.9032258064516129,
+          "support": 14.0
+        },
+        "DC": {
+          "precision": 1.0,
+          "recall": 0.9166666666666666,
+          "f1-score": 0.9565217391304348,
+          "support": 36.0
+        },
+        "accuracy": 0.94,
+        "macro avg": {
+          "precision": 0.9117647058823529,
+          "recall": 0.9583333333333333,
+          "f1-score": 0.9298737727910238,
+          "support": 50.0
+        },
+        "weighted avg": {
+          "precision": 0.9505882352941177,
+          "recall": 0.94,
+          "f1-score": 0.9415988779803647,
+          "support": 50.0
+        }
+      }
+    },
+    "confusion_matrices": {
+      "plate_thickness": [
+        [
+          12,
+          0,
+          1
+        ],
+        [
+          1,
+          12,
+          2
+        ],
+        [
+          3,
+          7,
+          12
+        ]
+      ],
+      "electrode": [
+        [
+          7,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          14,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          13,
+          0
+        ],
+        [
+          1,
+          3,
+          1,
+          11
+        ]
+      ],
+      "current_type": [
+        [
+          14,
+          0
+        ],
+        [
+          3,
+          33
+        ]
+      ]
+    },
+    "classes": {
+      "plate_thickness": [
+        "Placa_12mm",
+        "Placa_3mm",
+        "Placa_6mm"
+      ],
+      "electrode": [
+        "E6010",
+        "E6011",
+        "E6013",
+        "E7018"
+      ],
+      "current_type": [
+        "AC",
+        "DC"
+      ]
+    },
+    "timestamp": "2026-02-07T01:18:49.194555",
+    "config": {
+      "train_seconds": 50,
+      "test_seconds": 50.0,
+      "overlap_ratio": 0.25,
+      "overlap_seconds": 12.5,
+      "k_folds": 10,
+      "models_dir": "/home/luis/projects/tesis/audio/soldadura/50seg/modelos/k10_overlap_0.25",
+      "train_dir": "/home/luis/projects/tesis/audio/soldadura/50seg",
+      "test_dir": "/home/luis/projects/tesis/audio/soldadura/50seg"
+    },
+    "execution_time": {
+      "seconds": 23.7,
+      "minutes": 0.4,
+      "hours": 0.0066
+    }
+  },
+  {
+    "mode": "blind_evaluation",
+    "id": "50seg_k05_overlap_0.5",
+    "segment_duration": 50.0,
+    "overlap_ratio": 0.5,
+    "overlap_seconds": 25.0,
+    "n_samples": 59,
+    "n_models": 5,
+    "voting_method": "soft",
+    "global_metrics": {
+      "exact_match_accuracy": 0.6271186440677966,
+      "hamming_accuracy": 0.8192090395480226
+    },
+    "accuracy": {
+      "plate_thickness": 0.6440677966101694,
+      "electrode": 0.847457627118644,
+      "current_type": 0.9661016949152542
+    },
+    "macro_f1": {
+      "plate_thickness": 0.6482873851294904,
+      "electrode": 0.8584547681321876,
+      "current_type": 0.9611842105263158
+    },
+    "classification_reports": {
+      "plate_thickness": {
+        "Placa_12mm": {
+          "precision": 0.6818181818181818,
+          "recall": 0.9375,
+          "f1-score": 0.7894736842105263,
+          "support": 16.0
+        },
+        "Placa_3mm": {
+          "precision": 0.5217391304347826,
+          "recall": 0.8,
+          "f1-score": 0.631578947368421,
+          "support": 15.0
+        },
+        "Placa_6mm": {
+          "precision": 0.7857142857142857,
+          "recall": 0.39285714285714285,
+          "f1-score": 0.5238095238095238,
+          "support": 28.0
+        },
+        "accuracy": 0.6440677966101694,
+        "macro avg": {
+          "precision": 0.66309053265575,
+          "recall": 0.7101190476190476,
+          "f1-score": 0.6482873851294904,
+          "support": 59.0
+        },
+        "weighted avg": {
+          "precision": 0.6904267434849601,
+          "recall": 0.6440677966101694,
+          "f1-score": 0.6232530478739221,
+          "support": 59.0
+        }
+      },
+      "electrode": {
+        "E6010": {
+          "precision": 0.875,
+          "recall": 1.0,
+          "f1-score": 0.9333333333333333,
+          "support": 7.0
+        },
+        "E6011": {
+          "precision": 0.85,
+          "recall": 1.0,
+          "f1-score": 0.918918918918919,
+          "support": 17.0
+        },
+        "E6013": {
+          "precision": 0.7647058823529411,
+          "recall": 0.9285714285714286,
+          "f1-score": 0.8387096774193549,
+          "support": 14.0
+        },
+        "E7018": {
+          "precision": 0.9285714285714286,
+          "recall": 0.6190476190476191,
+          "f1-score": 0.7428571428571429,
+          "support": 21.0
+        },
+        "accuracy": 0.847457627118644,
+        "macro avg": {
+          "precision": 0.8545693277310924,
+          "recall": 0.886904761904762,
+          "f1-score": 0.8584547681321876,
+          "support": 59.0
+        },
+        "weighted avg": {
+          "precision": 0.8606929212362912,
+          "recall": 0.847457627118644,
+          "f1-score": 0.8389303464207784,
+          "support": 59.0
+        }
+      },
+      "current_type": {
+        "AC": {
+          "precision": 0.9,
+          "recall": 1.0,
+          "f1-score": 0.9473684210526315,
+          "support": 18.0
+        },
+        "DC": {
+          "precision": 1.0,
+          "recall": 0.9512195121951219,
+          "f1-score": 0.975,
+          "support": 41.0
+        },
+        "accuracy": 0.9661016949152542,
+        "macro avg": {
+          "precision": 0.95,
+          "recall": 0.975609756097561,
+          "f1-score": 0.9611842105263158,
+          "support": 59.0
+        },
+        "weighted avg": {
+          "precision": 0.9694915254237289,
+          "recall": 0.9661016949152542,
+          "f1-score": 0.9665700267618197,
+          "support": 59.0
+        }
+      }
+    },
+    "confusion_matrices": {
+      "plate_thickness": [
+        [
+          15,
+          0,
+          1
+        ],
+        [
+          1,
+          12,
+          2
+        ],
+        [
+          6,
+          11,
+          11
+        ]
+      ],
+      "electrode": [
+        [
+          7,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          17,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          13,
+          1
+        ],
+        [
+          1,
+          3,
+          4,
+          13
+        ]
+      ],
+      "current_type": [
+        [
+          18,
+          0
+        ],
+        [
+          2,
+          39
+        ]
+      ]
+    },
+    "classes": {
+      "plate_thickness": [
+        "Placa_12mm",
+        "Placa_3mm",
+        "Placa_6mm"
+      ],
+      "electrode": [
+        "E6010",
+        "E6011",
+        "E6013",
+        "E7018"
+      ],
+      "current_type": [
+        "AC",
+        "DC"
+      ]
+    },
+    "timestamp": "2026-02-07T01:19:21.458295",
+    "config": {
+      "train_seconds": 50,
+      "test_seconds": 50.0,
+      "overlap_ratio": 0.5,
+      "overlap_seconds": 25.0,
+      "k_folds": 5,
+      "models_dir": "/home/luis/projects/tesis/audio/soldadura/50seg/modelos/k05_overlap_0.5",
+      "train_dir": "/home/luis/projects/tesis/audio/soldadura/50seg",
+      "test_dir": "/home/luis/projects/tesis/audio/soldadura/50seg"
+    },
+    "execution_time": {
+      "seconds": 25.33,
+      "minutes": 0.42,
+      "hours": 0.007
+    }
+  },
+  {
+    "mode": "blind_evaluation",
+    "id": "50seg_k10_overlap_0.5",
+    "segment_duration": 50.0,
+    "overlap_ratio": 0.5,
+    "overlap_seconds": 25.0,
+    "n_samples": 59,
+    "n_models": 10,
+    "voting_method": "soft",
+    "global_metrics": {
+      "exact_match_accuracy": 0.6271186440677966,
+      "hamming_accuracy": 0.824858757062147
+    },
+    "accuracy": {
+      "plate_thickness": 0.6271186440677966,
+      "electrode": 0.8813559322033898,
+      "current_type": 0.9661016949152542
+    },
+    "macro_f1": {
+      "plate_thickness": 0.6333212037006407,
+      "electrode": 0.8984912331686525,
+      "current_type": 0.9611842105263158
+    },
+    "classification_reports": {
+      "plate_thickness": {
+        "Placa_12mm": {
+          "precision": 0.6666666666666666,
+          "recall": 0.875,
+          "f1-score": 0.7567567567567568,
+          "support": 16.0
+        },
+        "Placa_3mm": {
+          "precision": 0.5217391304347826,
+          "recall": 0.8,
+          "f1-score": 0.631578947368421,
+          "support": 15.0
+        },
+        "Placa_6mm": {
+          "precision": 0.7333333333333333,
+          "recall": 0.39285714285714285,
+          "f1-score": 0.5116279069767442,
+          "support": 28.0
+        },
+        "accuracy": 0.6271186440677966,
+        "macro avg": {
+          "precision": 0.6405797101449275,
+          "recall": 0.6892857142857144,
+          "f1-score": 0.6333212037006407,
+          "support": 59.0
+        },
+        "weighted avg": {
+          "precision": 0.6614591009579955,
+          "recall": 0.6271186440677966,
+          "f1-score": 0.6085995544742926,
+          "support": 59.0
+        }
+      },
+      "electrode": {
+        "E6010": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 7.0
+        },
+        "E6011": {
+          "precision": 0.8947368421052632,
+          "recall": 1.0,
+          "f1-score": 0.9444444444444444,
+          "support": 17.0
+        },
+        "E6013": {
+          "precision": 0.7647058823529411,
+          "recall": 0.9285714285714286,
+          "f1-score": 0.8387096774193549,
+          "support": 14.0
+        },
+        "E7018": {
+          "precision": 0.9375,
+          "recall": 0.7142857142857143,
+          "f1-score": 0.8108108108108109,
+          "support": 21.0
+        },
+        "accuracy": 0.8813559322033898,
+        "macro avg": {
+          "precision": 0.8992356811145511,
+          "recall": 0.9107142857142858,
+          "f1-score": 0.8984912331686525,
+          "support": 59.0
+        },
+        "weighted avg": {
+          "precision": 0.8915916723513669,
+          "recall": 0.8813559322033898,
+          "f1-score": 0.8783816621432805,
+          "support": 59.0
+        }
+      },
+      "current_type": {
+        "AC": {
+          "precision": 0.9,
+          "recall": 1.0,
+          "f1-score": 0.9473684210526315,
+          "support": 18.0
+        },
+        "DC": {
+          "precision": 1.0,
+          "recall": 0.9512195121951219,
+          "f1-score": 0.975,
+          "support": 41.0
+        },
+        "accuracy": 0.9661016949152542,
+        "macro avg": {
+          "precision": 0.95,
+          "recall": 0.975609756097561,
+          "f1-score": 0.9611842105263158,
+          "support": 59.0
+        },
+        "weighted avg": {
+          "precision": 0.9694915254237289,
+          "recall": 0.9661016949152542,
+          "f1-score": 0.9665700267618197,
+          "support": 59.0
+        }
+      }
+    },
+    "confusion_matrices": {
+      "plate_thickness": [
+        [
+          14,
+          0,
+          2
+        ],
+        [
+          1,
+          12,
+          2
+        ],
+        [
+          6,
+          11,
+          11
+        ]
+      ],
+      "electrode": [
+        [
+          7,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          17,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          13,
+          1
+        ],
+        [
+          0,
+          2,
+          4,
+          15
+        ]
+      ],
+      "current_type": [
+        [
+          18,
+          0
+        ],
+        [
+          2,
+          39
+        ]
+      ]
+    },
+    "classes": {
+      "plate_thickness": [
+        "Placa_12mm",
+        "Placa_3mm",
+        "Placa_6mm"
+      ],
+      "electrode": [
+        "E6010",
+        "E6011",
+        "E6013",
+        "E7018"
+      ],
+      "current_type": [
+        "AC",
+        "DC"
+      ]
+    },
+    "timestamp": "2026-02-07T01:19:56.047152",
+    "config": {
+      "train_seconds": 50,
+      "test_seconds": 50.0,
+      "overlap_ratio": 0.5,
+      "overlap_seconds": 25.0,
+      "k_folds": 10,
+      "models_dir": "/home/luis/projects/tesis/audio/soldadura/50seg/modelos/k10_overlap_0.5",
+      "train_dir": "/home/luis/projects/tesis/audio/soldadura/50seg",
+      "test_dir": "/home/luis/projects/tesis/audio/soldadura/50seg"
+    },
+    "execution_time": {
+      "seconds": 27.41,
+      "minutes": 0.46,
+      "hours": 0.0076
+    }
+  },
+  {
+    "mode": "blind_evaluation",
+    "id": "50seg_k05_overlap_0.75",
+    "segment_duration": 50.0,
+    "overlap_ratio": 0.75,
+    "overlap_seconds": 37.5,
+    "n_samples": 89,
+    "n_models": 5,
+    "voting_method": "soft",
+    "global_metrics": {
+      "exact_match_accuracy": 0.5955056179775281,
+      "hamming_accuracy": 0.801498127340824
+    },
+    "accuracy": {
+      "plate_thickness": 0.6179775280898876,
+      "electrode": 0.8089887640449438,
+      "current_type": 0.9775280898876404
+    },
+    "macro_f1": {
+      "plate_thickness": 0.62870900788709,
+      "electrode": 0.8392925996309455,
+      "current_type": 0.974858757062147
+    },
+    "classification_reports": {
+      "plate_thickness": {
+        "Placa_12mm": {
+          "precision": 0.6206896551724138,
+          "recall": 0.8571428571428571,
+          "f1-score": 0.72,
+          "support": 21.0
+        },
+        "Placa_3mm": {
+          "precision": 0.4857142857142857,
+          "recall": 0.85,
+          "f1-score": 0.6181818181818182,
+          "support": 20.0
+        },
+        "Placa_6mm": {
+          "precision": 0.8,
+          "recall": 0.4166666666666667,
+          "f1-score": 0.547945205479452,
+          "support": 48.0
+        },
+        "accuracy": 0.6179775280898876,
+        "macro avg": {
+          "precision": 0.6354679802955665,
+          "recall": 0.707936507936508,
+          "f1-score": 0.62870900788709,
+          "support": 89.0
+        },
+        "weighted avg": {
+          "precision": 0.6870648143023192,
+          "recall": 0.6179775280898876,
+          "f1-score": 0.6043259126589895,
+          "support": 89.0
+        }
+      },
+      "electrode": {
+        "E6010": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 10.0
+        },
+        "E6011": {
+          "precision": 0.9259259259259259,
+          "recall": 1.0,
+          "f1-score": 0.9615384615384616,
+          "support": 25.0
+        },
+        "E6013": {
+          "precision": 0.5483870967741935,
+          "recall": 0.9444444444444444,
+          "f1-score": 0.6938775510204082,
+          "support": 18.0
+        },
+        "E7018": {
+          "precision": 0.9523809523809523,
+          "recall": 0.5555555555555556,
+          "f1-score": 0.7017543859649122,
+          "support": 36.0
+        },
+        "accuracy": 0.8089887640449438,
+        "macro avg": {
+          "precision": 0.856673493770268,
+          "recall": 0.875,
+          "f1-score": 0.8392925996309455,
+          "support": 89.0
+        },
+        "weighted avg": {
+          "precision": 0.8685935974808755,
+          "recall": 0.8089887640449438,
+          "f1-score": 0.8066451163097274,
+          "support": 89.0
+        }
+      },
+      "current_type": {
+        "AC": {
+          "precision": 0.9354838709677419,
+          "recall": 1.0,
+          "f1-score": 0.9666666666666667,
+          "support": 29.0
+        },
+        "DC": {
+          "precision": 1.0,
+          "recall": 0.9666666666666667,
+          "f1-score": 0.9830508474576272,
+          "support": 60.0
+        },
+        "accuracy": 0.9775280898876404,
+        "macro avg": {
+          "precision": 0.967741935483871,
+          "recall": 0.9833333333333334,
+          "f1-score": 0.974858757062147,
+          "support": 89.0
+        },
+        "weighted avg": {
+          "precision": 0.9789778905400507,
+          "recall": 0.9775280898876404,
+          "f1-score": 0.9777121818066401,
+          "support": 89.0
+        }
+      }
+    },
+    "confusion_matrices": {
+      "plate_thickness": [
+        [
+          18,
+          0,
+          3
+        ],
+        [
+          1,
+          17,
+          2
+        ],
+        [
+          10,
+          18,
+          20
+        ]
+      ],
+      "electrode": [
+        [
+          10,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          25,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          17,
+          1
+        ],
+        [
+          0,
+          2,
+          14,
+          20
+        ]
+      ],
+      "current_type": [
+        [
+          29,
+          0
+        ],
+        [
+          2,
+          58
+        ]
+      ]
+    },
+    "classes": {
+      "plate_thickness": [
+        "Placa_12mm",
+        "Placa_3mm",
+        "Placa_6mm"
+      ],
+      "electrode": [
+        "E6010",
+        "E6011",
+        "E6013",
+        "E7018"
+      ],
+      "current_type": [
+        "AC",
+        "DC"
+      ]
+    },
+    "timestamp": "2026-02-07T01:20:42.770723",
+    "config": {
+      "train_seconds": 50,
+      "test_seconds": 50.0,
+      "overlap_ratio": 0.75,
+      "overlap_seconds": 37.5,
+      "k_folds": 5,
+      "models_dir": "/home/luis/projects/tesis/audio/soldadura/50seg/modelos/k05_overlap_0.75",
+      "train_dir": "/home/luis/projects/tesis/audio/soldadura/50seg",
+      "test_dir": "/home/luis/projects/tesis/audio/soldadura/50seg"
+    },
+    "execution_time": {
+      "seconds": 39.64,
+      "minutes": 0.66,
+      "hours": 0.011
+    }
+  },
+  {
+    "mode": "blind_evaluation",
+    "id": "50seg_k10_overlap_0.75",
+    "segment_duration": 50.0,
+    "overlap_ratio": 0.75,
+    "overlap_seconds": 37.5,
+    "n_samples": 89,
+    "n_models": 10,
+    "voting_method": "soft",
+    "global_metrics": {
+      "exact_match_accuracy": 0.550561797752809,
+      "hamming_accuracy": 0.7827715355805243
+    },
+    "accuracy": {
+      "plate_thickness": 0.5730337078651685,
+      "electrode": 0.8202247191011236,
+      "current_type": 0.9550561797752809
+    },
+    "macro_f1": {
+      "plate_thickness": 0.5851214891689317,
+      "electrode": 0.8485024314765695,
+      "current_type": 0.9505005561735261
+    },
+    "classification_reports": {
+      "plate_thickness": {
+        "Placa_12mm": {
+          "precision": 0.5862068965517241,
+          "recall": 0.8095238095238095,
+          "f1-score": 0.68,
+          "support": 21.0
+        },
+        "Placa_3mm": {
+          "precision": 0.4594594594594595,
+          "recall": 0.85,
+          "f1-score": 0.5964912280701754,
+          "support": 20.0
+        },
+        "Placa_6mm": {
+          "precision": 0.7391304347826086,
+          "recall": 0.3541666666666667,
+          "f1-score": 0.4788732394366197,
+          "support": 48.0
+        },
+        "accuracy": 0.5730337078651685,
+        "macro avg": {
+          "precision": 0.5949322635979307,
+          "recall": 0.6712301587301587,
+          "f1-score": 0.5851214891689317,
+          "support": 89.0
+        },
+        "weighted avg": {
+          "precision": 0.640199942543153,
+          "recall": 0.5730337078651685,
+          "f1-score": 0.5527611242063062,
+          "support": 89.0
+        }
+      },
+      "electrode": {
+        "E6010": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 10.0
+        },
+        "E6011": {
+          "precision": 0.9259259259259259,
+          "recall": 1.0,
+          "f1-score": 0.9615384615384616,
+          "support": 25.0
+        },
+        "E6013": {
+          "precision": 0.5666666666666667,
+          "recall": 0.9444444444444444,
+          "f1-score": 0.7083333333333334,
+          "support": 18.0
+        },
+        "E7018": {
+          "precision": 0.9545454545454546,
+          "recall": 0.5833333333333334,
+          "f1-score": 0.7241379310344828,
+          "support": 36.0
+        },
+        "accuracy": 0.8202247191011236,
+        "macro avg": {
+          "precision": 0.8617845117845119,
+          "recall": 0.8819444444444445,
+          "f1-score": 0.8485024314765695,
+          "support": 89.0
+        },
+        "weighted avg": {
+          "precision": 0.8731661181099384,
+          "recall": 0.8202247191011236,
+          "f1-score": 0.8186227759067743,
+          "support": 89.0
+        }
+      },
+      "current_type": {
+        "AC": {
+          "precision": 0.8787878787878788,
+          "recall": 1.0,
+          "f1-score": 0.9354838709677419,
+          "support": 29.0
+        },
+        "DC": {
+          "precision": 1.0,
+          "recall": 0.9333333333333333,
+          "f1-score": 0.9655172413793104,
+          "support": 60.0
+        },
+        "accuracy": 0.9550561797752809,
+        "macro avg": {
+          "precision": 0.9393939393939394,
+          "recall": 0.9666666666666667,
+          "f1-score": 0.9505005561735261,
+          "support": 89.0
+        },
+        "weighted avg": {
+          "precision": 0.9605039155600953,
+          "recall": 0.9550561797752809,
+          "f1-score": 0.955731086975541,
+          "support": 89.0
+        }
+      }
+    },
+    "confusion_matrices": {
+      "plate_thickness": [
+        [
+          17,
+          0,
+          4
+        ],
+        [
+          1,
+          17,
+          2
+        ],
+        [
+          11,
+          20,
+          17
+        ]
+      ],
+      "electrode": [
+        [
+          10,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          25,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          17,
+          1
+        ],
+        [
+          0,
+          2,
+          13,
+          21
+        ]
+      ],
+      "current_type": [
+        [
+          29,
+          0
+        ],
+        [
+          4,
+          56
+        ]
+      ]
+    },
+    "classes": {
+      "plate_thickness": [
+        "Placa_12mm",
+        "Placa_3mm",
+        "Placa_6mm"
+      ],
+      "electrode": [
+        "E6010",
+        "E6011",
+        "E6013",
+        "E7018"
+      ],
+      "current_type": [
+        "AC",
+        "DC"
+      ]
+    },
+    "timestamp": "2026-02-07T01:21:30.848149",
+    "config": {
+      "train_seconds": 50,
+      "test_seconds": 50.0,
+      "overlap_ratio": 0.75,
+      "overlap_seconds": 37.5,
+      "k_folds": 10,
+      "models_dir": "/home/luis/projects/tesis/audio/soldadura/50seg/modelos/k10_overlap_0.75",
+      "train_dir": "/home/luis/projects/tesis/audio/soldadura/50seg",
+      "test_dir": "/home/luis/projects/tesis/audio/soldadura/50seg"
+    },
+    "execution_time": {
+      "seconds": 39.99,
+      "minutes": 0.67,
+      "hours": 0.0111
+    }
+  }
+]

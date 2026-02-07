@@ -15,7 +15,7 @@ from pathlib import Path
 
 # Directorios
 ROOT_DIR = Path(__file__).parent.parent
-DURACIONES = ["1seg", "2seg", "5seg", "10seg", "20seg", "30seg", "50seg"]
+DURACIONES = ["01seg", "02seg", "05seg", "10seg", "20seg", "30seg", "50seg"]
 
 
 def load_stats_from_duration(duration: str) -> dict | None:

@@ -683,8 +683,8 @@ if __name__ == "__main__":
     DURATION_DIR = ROOT_DIR / f"{args.duration}seg"
     DURATION_DIR.mkdir(exist_ok=True)
 
-    # Crear directorio de modelos: models/k{N}_overlap_{ratio}/
-    MODELS_BASE_DIR = DURATION_DIR / "models"
+    # Crear directorio de modelos: modelos/k{N}_overlap_{ratio}/
+    MODELS_BASE_DIR = DURATION_DIR / "modelos"
     MODELS_BASE_DIR.mkdir(exist_ok=True)
     MODELS_DIR = MODELS_BASE_DIR / f"k{N_FOLDS:02d}_overlap_{OVERLAP_RATIO}"
     MODELS_DIR.mkdir(exist_ok=True)
@@ -1158,7 +1158,7 @@ if __name__ == "__main__":
     }
 
     # Cargar historial existente o crear nuevo
-    results_path = DURATION_DIR / "results.json"
+    results_path = DURATION_DIR / "resultados.json"
     if results_path.exists():
         with open(results_path, "r") as f:
             history = json.load(f)

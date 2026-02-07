@@ -102,13 +102,13 @@ for DUR in "${DURATIONS[@]}"; do
                 continue
             fi
 
-            MODEL_DIR="${DUR}seg/models/k$(printf '%02d' $K)_overlap_${OV}"
+            MODEL_DIR="$(printf '%02d' $DUR)seg/modelos/k$(printf '%02d' $K)_overlap_${OV}"
             TOTAL=$((TOTAL + 1))
 
             if [[ -d "$MODEL_DIR" ]] && ls "$MODEL_DIR"/model_fold_*.pth &>/dev/null; then
                 NUM_MODELS=$(ls "$MODEL_DIR"/model_fold_*.pth 2>/dev/null | wc -l)
                 if [[ "$NUM_MODELS" -ge "$K" ]]; then
-                    echo "[SKIP] ${DUR}seg K=$K overlap=$OV ($NUM_MODELS modelos encontrados)"
+                    echo "[SKIP] $(printf '%02d' $DUR)seg K=$K overlap=$OV ($NUM_MODELS modelos encontrados)"
                     SKIPPED=$((SKIPPED + 1))
                     continue
                 fi
@@ -120,7 +120,7 @@ for DUR in "${DURATIONS[@]}"; do
         # Generar splits si hay al menos un modelo faltante
         if $NEEDS_SPLITS; then
             echo ""
-            echo "--- Generando splits: ${DUR}seg overlap=$OV ---"
+            echo "--- Generando splits: $(printf '%02d' $DUR)seg overlap=$OV ---"
             if $DRY_RUN; then
                 echo "[DRY RUN] python generar_splits.py --duration $DUR --overlap $OV"
             else
@@ -135,7 +135,7 @@ for DUR in "${DURATIONS[@]}"; do
                 continue
             fi
 
-            MODEL_DIR="${DUR}seg/models/k$(printf '%02d' $K)_overlap_${OV}"
+            MODEL_DIR="$(printf '%02d' $DUR)seg/modelos/k$(printf '%02d' $K)_overlap_${OV}"
 
             # Verificar si ya existe un entrenamiento completo
             if [[ -d "$MODEL_DIR" ]] && ls "$MODEL_DIR"/model_fold_*.pth &>/dev/null; then
@@ -146,7 +146,7 @@ for DUR in "${DURATIONS[@]}"; do
             fi
 
             echo ""
-            echo ">>> ENTRENANDO: ${DUR}seg K=$K overlap=$OV"
+            echo ">>> ENTRENANDO: $(printf '%02d' $DUR)seg K=$K overlap=$OV"
             echo "    Destino: $MODEL_DIR"
 
             if $DRY_RUN; then
