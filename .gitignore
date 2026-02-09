@@ -50,7 +50,11 @@ videos-soldadura/
 *.joblib
 *.pth
 *.onnx
+*.onnx.data
 models/
+
+# VGGish pre-trained model (275MB+)
+vggish/
 
 # Datos de audio (muy pesados - no versionar)
 *.wav

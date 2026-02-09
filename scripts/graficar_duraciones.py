@@ -238,7 +238,9 @@ def plot_metrics_vs_duration(
         filename = f"metricas_vs_duracion{suffix}_{metric}.png"
         duration_dirs = metrics.get("duration_dirs", [])
         if not duration_dirs:
-            output_path = ROOT_DIR / filename
+            img_dir = ROOT_DIR / "img"
+            img_dir.mkdir(exist_ok=True)
+            output_path = img_dir / filename
             plt.savefig(output_path, dpi=150, bbox_inches="tight")
             print(f"Gráfica guardada en: {output_path}")
         else:

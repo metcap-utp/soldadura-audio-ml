@@ -472,7 +472,8 @@ def plot_overlap_all_durations(k_folds: int, metric: str, save: bool, lang: str 
     plt.tight_layout()
 
     if save:
-        out_dir = ROOT_DIR / "scripts"
+        out_dir = ROOT_DIR / "scripts" / "img"
+        out_dir.mkdir(exist_ok=True)
         out_path = out_dir / f"overlap_all_durations_{metric_suffix}_k{k_folds:02d}.png"
         plt.savefig(out_path, dpi=150, bbox_inches="tight")
         print(f"Guardado: {out_path}")
@@ -581,7 +582,8 @@ def plot_heatmap(k_folds: int, save: bool, lang: str = "es"):
     plt.tight_layout(rect=[0, 0, 1, 0.96])
 
     if save:
-        out_dir = ROOT_DIR / "scripts"
+        out_dir = ROOT_DIR / "scripts" / "img"
+        out_dir.mkdir(exist_ok=True)
         out_path = out_dir / f"heatmap_overlap_k{k_folds:02d}.png"
         plt.savefig(out_path, dpi=150, bbox_inches="tight")
         print(f"Guardado: {out_path}")
@@ -651,7 +653,8 @@ def plot_segments_vs_overlap(k_folds: int, save: bool, lang: str = "es"):
     plt.tight_layout()
 
     if save:
-        out_dir = ROOT_DIR / "scripts"
+        out_dir = ROOT_DIR / "scripts" / "img"
+        out_dir.mkdir(exist_ok=True)
         out_path = out_dir / "segments_vs_overlap.png"
         plt.savefig(out_path, dpi=150, bbox_inches="tight")
         print(f"Guardado: {out_path}")
