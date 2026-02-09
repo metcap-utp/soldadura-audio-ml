@@ -20,29 +20,33 @@
 \begin{tikzpicture}
 \tikzstyle{connection}=[ultra thick,every node/.style={sloped,allow upside down},draw=\edgecolor,opacity=0.7]
 \tikzstyle{copyconnection}=[ultra thick,every node/.style={sloped,allow upside down},draw={rgb:blue,4;red,1;green,1;black,3},opacity=0.7]
-
-% VGGish - Output: (B, N, 128) donde N = número de frames (~1 por segundo)
-\pic[shift={(0,0,0)}] at (0,0,0) 
+\pic[shift={(0,0,0)}] at (0,0,0)
     {Box={
         name=vggish,
-        caption=VGGish,
-        xlabel={{128, }},
-        zlabel=N,
+        caption={\parbox{2.4cm}{\centering\small\textbf{VGGish}\\\footnotesize 1$\times$1$\times$128}},
         fill=\ConvColor,
         height=35,
         width=3,
         depth=35
         }
     };
-\node[below=0.5cm of vggish-south, anchor=north] {\footnotesize$(B, N, 128)$};
-
-% Conv1D Block 1 - Output: (B, 256, N)
 \pic[shift={(2.5,0,0)}] at (vggish-east) 
+    {Box={
+        name=bn_input,
+        caption={\parbox{2.0cm}{\centering\small\textbf{BatchNorm}\\\footnotesize 128}},
+        fill=\FcColor,
+        height=28,
+        width=2.2,
+        depth=28
+        }
+    };
+
+\draw [connection]  (vggish-east)    -- node {\midarrow} (bn_input-west);
+
+\pic[shift={(2.5,0,0)}] at (bn_input-east) 
     {RightBandedBox={
         name=conv1,
-        caption=Conv1D,
-        xlabel={{256, }},
-        zlabel=k=5,
+        caption={\parbox{2.8cm}{\centering\small\textbf{Conv1D}\\\footnotesize 256$\times$128$\times$5\\\footnotesize BN + ReLU}},
         fill=\ConvColor,
         bandfill=\ConvReluColor,
         height=30,
@@ -50,17 +54,13 @@
         depth=30
         }
     };
-\node[below=0.5cm of conv1-south, anchor=north] {\footnotesize$(B, 256, N)$};
 
-\draw [connection]  (vggish-east)    -- node {\midarrow} (conv1-west);
+\draw [connection]  (bn_input-east)    -- node {\midarrow} (conv1-west);
 
-% Conv1D Block 2 - Output: (B, 256, N)
-\pic[shift={(2.5,0,0)}] at (conv1-east) 
+\pic[shift={(2.8,0,0)}] at (conv1-east) 
     {RightBandedBox={
         name=conv2,
-        caption=Conv1D,
-        xlabel={{256, }},
-        zlabel=k=3,
+        caption={\parbox{2.8cm}{\centering\small\textbf{Conv1D}\\\footnotesize 256$\times$256$\times$3\\\footnotesize BN + ReLU}},
         fill=\ConvColor,
         bandfill=\ConvReluColor,
         height=28,
@@ -68,17 +68,13 @@
         depth=28
         }
     };
-\node[below=0.5cm of conv2-south, anchor=north] {\footnotesize$(B, 256, N)$};
 
 \draw [connection]  (conv1-east)    -- node {\midarrow} (conv2-west);
 
-% Conv1D Block 3 - Output: (B, 512, N)
-\pic[shift={(2.5,0,0)}] at (conv2-east) 
+\pic[shift={(2.8,0,0)}] at (conv2-east) 
     {RightBandedBox={
         name=conv3,
-        caption=Conv1D,
-        xlabel={{512, }},
-        zlabel=k=3,
+        caption={\parbox{2.8cm}{\centering\small\textbf{Conv1D}\\\footnotesize 512$\times$256$\times$3\\\footnotesize BN + ReLU}},
         fill=\ConvColor,
         bandfill=\ConvReluColor,
         height=26,
@@ -86,16 +82,13 @@
         depth=26
         }
     };
-\node[below=0.5cm of conv3-south, anchor=north] {\footnotesize$(B, 512, N)$};
 
 \draw [connection]  (conv2-east)    -- node {\midarrow} (conv3-west);
 
-% Stats Pooling - Output: (B, 1024) = concat(mean, std)
-\pic[shift={ (2.5,0,0) }] at (conv3-east) 
+\pic[shift={ (2.8,0,0) }] at (conv3-east) 
     {Box={
         name=stats,
-        caption=Stats Pool,
-        zlabel=1024,
+        caption={\parbox{2.4cm}{\centering\small\textbf{Stats Pool}\\\footnotesize mean + std\\\footnotesize 1$\times$1024}},
         fill=\PoolColor,
         opacity=0.8,
         height=22,
@@ -103,72 +96,57 @@
         depth=3
         }
     };
-\node[below=0.5cm of stats-south, anchor=north] {\footnotesize$(B, 1024)$};
 
 \draw [connection]  (conv3-east)    -- node {\midarrow} (stats-west);
 
-% FC Shared - Output: (B, 256)
-\pic[shift={(2.5,0,0)}] at (stats-east) 
+\pic[shift={(2.8,0,0)}] at (stats-east) 
     {Box={
         name=fc_shared,
-        caption=FC,
-        zlabel=256,
+        caption={\parbox{2.4cm}{\centering\small\textbf{FC + ReLU}\\\footnotesize 1024$\times$256}},
         fill=\FcColor,
         height=18,
-        width=2,
+        width=2.8,
         depth=3
         }
     };
-\node[below=0.5cm of fc_shared-south, anchor=north] {\footnotesize$(B, 256)$};
 
 \draw [connection]  (stats-east)    -- node {\midarrow} (fc_shared-west);
 
-% Head 1 - Placa (3 clases: 3mm, 6mm, 12mm)
-\pic[shift={(3.5,3.5,0)}] at (fc_shared-east) 
+\pic[shift={(4.0,4.5,0)}] at (fc_shared-east) 
     {Box={
-        name=head_placa,
-        zlabel=3,
+        name=head_espesor,
+        caption={\parbox{2.4cm}{\centering\small\textbf{Espesor}\\\footnotesize 256$\times$3}},
         fill=\SoftmaxColor,
         opacity=0.9,
         height=10,
-        width=1.5,
+        width=2.8,
         depth=10
         }
     };
-\node[right=0.5cm of head_placa-east, anchor=west] {\textbf{Placa}};
 
-% Head 2 - Electrodo (4 clases: E6010, E6011, E6013, E7018)
-\pic[shift={(3.5,0,0)}] at (fc_shared-east) 
+\pic[shift={(4.0,0,0)}] at (fc_shared-east) 
     {Box={
         name=head_electrodo,
-        zlabel=4,
+        caption={\parbox{2.4cm}{\centering\small\textbf{Electrodo}\\\footnotesize 256$\times$4}},
         fill=\SoftmaxColor,
         opacity=0.9,
         height=12,
-        width=1.5,
+        width=2.8,
         depth=12
         }
     };
-\node[right=0.5cm of head_electrodo-east, anchor=west] {\textbf{Electrodo}};
 
-% Head 3 - Corriente (2 clases: AC, DC)
-\pic[shift={(3.5,-3.5,0)}] at (fc_shared-east) 
+\pic[shift={(4.0,-4.5,0)}] at (fc_shared-east) 
     {Box={
         name=head_corriente,
-        zlabel=2,
+        caption={\parbox{2.4cm}{\centering\small\textbf{Corriente}\\\footnotesize 256$\times$2}},
         fill=\SoftmaxColor,
         opacity=0.9,
         height=8,
-        width=1.5,
+        width=2.8,
         depth=8
         }
     };
-\node[right=0.5cm of head_corriente-east, anchor=west] {\textbf{Corriente}};
-
-% Conexiones a los heads
-\draw [connection]  (fc_shared-east) -- node {\midarrow} (head_placa-west);
-\draw [connection]  (fc_shared-east) -- node {\midarrow} (head_electrodo-west);
-\draw [connection]  (fc_shared-east) -- node {\midarrow} (head_corriente-west);
-
+\draw [connection]  (fc_shared-east) -- node {\midarrow} (head_espesor-west);\draw [connection]  (fc_shared-east) -- node {\midarrow} (head_electrodo-west);\draw [connection]  (fc_shared-east) -- node {\midarrow} (head_corriente-west);
 \end{tikzpicture}
 \end{document}

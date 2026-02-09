@@ -1,0 +1,77 @@
+{
+  "timestamp": "2025-12-25T00:55:29.366484",
+  "config": {
+    "n_folds": 5,
+    "random_seed": 42,
+    "voting_method": "soft",
+    "batch_size": 32,
+    "epochs": 100
+  },
+  "fold_results": [
+    {
+      "acc_plate": 0.7824601366742597,
+      "acc_electrode": 0.8405466970387244,
+      "acc_current": 0.9476082004555809,
+      "f1_plate": 0.782238699843149,
+      "f1_electrode": 0.8414629512176045,
+      "f1_current": 0.9478160809486198
+    },
+    {
+      "acc_plate": 0.7300683371298405,
+      "acc_electrode": 0.7927107061503417,
+      "acc_current": 0.9430523917995444,
+      "f1_plate": 0.7299638733407848,
+      "f1_electrode": 0.7921955787951366,
+      "f1_current": 0.9431620960664241
+    },
+    {
+      "acc_plate": 0.7710706150341685,
+      "acc_electrode": 0.816628701594533,
+      "acc_current": 0.9635535307517085,
+      "f1_plate": 0.7739779500922801,
+      "f1_electrode": 0.8170190256432304,
+      "f1_current": 0.9636133702927272
+    },
+    {
+      "acc_plate": 0.7673888255416191,
+      "acc_electrode": 0.8015963511972634,
+      "acc_current": 0.9566704675028507,
+      "f1_plate": 0.7699092725234887,
+      "f1_electrode": 0.801597718089986,
+      "f1_current": 0.9567100192576767
+    },
+    {
+      "acc_plate": 0.7103762827822121,
+      "acc_electrode": 0.7354618015963512,
+      "acc_current": 0.936145952109464,
+      "f1_plate": 0.7090962011879932,
+      "f1_electrode": 0.740879082165552,
+      "f1_current": 0.9362879639856898
+    }
+  ],
+  "ensemble_results": {
+    "plate": {
+      "accuracy": 0.9209,
+      "f1": 0.9211,
+      "precision": 0.9214,
+      "recall": 0.9209
+    },
+    "electrode": {
+      "accuracy": 0.9287,
+      "f1": 0.9287,
+      "precision": 0.9293,
+      "recall": 0.9287
+    },
+    "current": {
+      "accuracy": 0.9838,
+      "f1": 0.9839,
+      "precision": 0.9841,
+      "recall": 0.9838
+    }
+  },
+  "improvement_vs_individual": {
+    "plate": 0.1686,
+    "electrode": 0.1313,
+    "current": 0.0344
+  }
+}
