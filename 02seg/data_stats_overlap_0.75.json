@@ -1,0 +1,209 @@
+{
+  "timestamp": "2026-02-07T00:10:10.480821",
+  "segment_duration": 2.0,
+  "overlap_ratio": 0.75,
+  "overlap_seconds": 1.5,
+  "random_seed": 42,
+  "config": {
+    "blind_fraction": 0.1,
+    "test_fraction": 0.18,
+    "val_fraction": 0.0
+  },
+  "totals": {
+    "sessions": 373,
+    "segments": 42424
+  },
+  "sessions_by_label": {
+    "Plate Thickness": {
+      "Placa_3mm": 127,
+      "Placa_6mm": 126,
+      "Placa_12mm": 120
+    },
+    "Electrode": {
+      "E6011": 132,
+      "E6013": 120,
+      "E7018": 64,
+      "E6010": 57
+    },
+    "Type of Current": {
+      "DC": 250,
+      "AC": 123
+    }
+  },
+  "segments_by_label": {
+    "Plate Thickness": {
+      "Placa_3mm": 14249,
+      "Placa_6mm": 14143,
+      "Placa_12mm": 14032
+    },
+    "Electrode": {
+      "E6011": 16466,
+      "E6013": 12477,
+      "E7018": 7079,
+      "E6010": 6402
+    },
+    "Type of Current": {
+      "DC": 25547,
+      "AC": 16877
+    }
+  },
+  "splits": {
+    "blind": {
+      "sessions": 38,
+      "segments": 4912,
+      "sessions_by_label": {
+        "Plate Thickness": {
+          "Placa_6mm": 13,
+          "Placa_3mm": 13,
+          "Placa_12mm": 12
+        },
+        "Electrode": {
+          "E6011": 13,
+          "E6013": 12,
+          "E7018": 7,
+          "E6010": 6
+        },
+        "Type of Current": {
+          "DC": 26,
+          "AC": 12
+        }
+      },
+      "segments_by_label": {
+        "Plate Thickness": {
+          "Placa_6mm": 2200,
+          "Placa_12mm": 1425,
+          "Placa_3mm": 1287
+        },
+        "Electrode": {
+          "E6011": 1598,
+          "E7018": 1442,
+          "E6013": 1261,
+          "E6010": 611
+        },
+        "Type of Current": {
+          "DC": 3208,
+          "AC": 1704
+        }
+      }
+    },
+    "test": {
+      "sessions": 68,
+      "segments": 7870,
+      "sessions_by_label": {
+        "Plate Thickness": {
+          "Placa_12mm": 24,
+          "Placa_6mm": 23,
+          "Placa_3mm": 21
+        },
+        "Electrode": {
+          "E6011": 25,
+          "E6013": 21,
+          "E6010": 11,
+          "E7018": 11
+        },
+        "Type of Current": {
+          "DC": 45,
+          "AC": 23
+        }
+      },
+      "segments_by_label": {
+        "Plate Thickness": {
+          "Placa_12mm": 2791,
+          "Placa_3mm": 2614,
+          "Placa_6mm": 2465
+        },
+        "Electrode": {
+          "E6011": 3245,
+          "E6013": 2234,
+          "E6010": 1240,
+          "E7018": 1151
+        },
+        "Type of Current": {
+          "DC": 4631,
+          "AC": 3239
+        }
+      }
+    },
+    "train": {
+      "sessions": 267,
+      "segments": 29642,
+      "sessions_by_label": {
+        "Plate Thickness": {
+          "Placa_3mm": 93,
+          "Placa_6mm": 90,
+          "Placa_12mm": 84
+        },
+        "Electrode": {
+          "E6011": 94,
+          "E6013": 87,
+          "E7018": 46,
+          "E6010": 40
+        },
+        "Type of Current": {
+          "DC": 179,
+          "AC": 88
+        }
+      },
+      "segments_by_label": {
+        "Plate Thickness": {
+          "Placa_3mm": 10348,
+          "Placa_12mm": 9816,
+          "Placa_6mm": 9478
+        },
+        "Electrode": {
+          "E6011": 11623,
+          "E6013": 8982,
+          "E6010": 4551,
+          "E7018": 4486
+        },
+        "Type of Current": {
+          "DC": 17708,
+          "AC": 11934
+        }
+      }
+    }
+  },
+  "class_balance": {
+    "Plate Thickness": {
+      "min_class": "Placa_12mm",
+      "min_count": 14032,
+      "max_class": "Placa_3mm",
+      "max_count": 14249,
+      "imbalance_ratio": 1.02
+    },
+    "Electrode": {
+      "min_class": "E6010",
+      "min_count": 6402,
+      "max_class": "E6011",
+      "max_count": 16466,
+      "imbalance_ratio": 2.57
+    },
+    "Type of Current": {
+      "min_class": "AC",
+      "min_count": 16877,
+      "max_class": "DC",
+      "max_count": 25547,
+      "imbalance_ratio": 1.51
+    }
+  },
+  "segments_per_session": {
+    "min": 7,
+    "max": 786,
+    "mean": 113.74,
+    "median": 107.0,
+    "std": 50.01
+  },
+  "audio_stats": {
+    "total_files": 373,
+    "total_duration_seconds": 21865.66,
+    "total_duration_minutes": 364.43,
+    "mean_duration_seconds": 58.62,
+    "min_duration_seconds": 5.01,
+    "max_duration_seconds": 394.71,
+    "std_duration_seconds": 24.98
+  },
+  "execution_time": {
+    "seconds": 1.37,
+    "minutes": 0.02
+  }
+}

@@ -1,0 +1,2053 @@
+[
+  {
+    "timestamp": "2026-01-16T17:38:32.770294",
+    "config": {
+      "n_folds": 5,
+      "random_seed": 42,
+      "voting_method": "soft",
+      "batch_size": 32,
+      "epochs": 100
+    },
+    "fold_results": [
+      {
+        "acc_plate": 0.8141025641025641,
+        "acc_electrode": 0.9230769230769231,
+        "acc_current": 0.9807692307692307,
+        "f1_plate": 0.8153688639866788,
+        "f1_electrode": 0.9236644144091025,
+        "f1_current": 0.9808678500986193
+      },
+      {
+        "acc_plate": 0.8461538461538461,
+        "acc_electrode": 0.8653846153846154,
+        "acc_current": 0.967948717948718,
+        "f1_plate": 0.8474572879084158,
+        "f1_electrode": 0.865324664911907,
+        "f1_current": 0.9679260593303926
+      },
+      {
+        "acc_plate": 0.8589743589743589,
+        "acc_electrode": 0.8782051282051282,
+        "acc_current": 0.9807692307692307,
+        "f1_plate": 0.8590340818601688,
+        "f1_electrode": 0.8781205645165903,
+        "f1_current": 0.9808352151089474
+      },
+      {
+        "acc_plate": 0.8397435897435898,
+        "acc_electrode": 0.8846153846153846,
+        "acc_current": 0.9743589743589743,
+        "f1_plate": 0.839775278864262,
+        "f1_electrode": 0.8856042984424948,
+        "f1_current": 0.9744391025641025
+      },
+      {
+        "acc_plate": 0.8012820512820513,
+        "acc_electrode": 0.8717948717948718,
+        "acc_current": 0.9935897435897436,
+        "f1_plate": 0.8021487553327176,
+        "f1_electrode": 0.8765164530196907,
+        "f1_current": 0.9936013445834678
+      }
+    ],
+    "results": {
+      "plate": {
+        "accuracy": 0.9974,
+        "f1": 0.9974,
+        "precision": 0.9975,
+        "recall": 0.9974
+      },
+      "electrode": {
+        "accuracy": 0.9859,
+        "f1": 0.9859,
+        "precision": 0.9865,
+        "recall": 0.9859
+      },
+      "current": {
+        "accuracy": 0.9974,
+        "f1": 0.9974,
+        "precision": 0.9975,
+        "recall": 0.9974
+      }
+    },
+    "improvement_vs_individual": {
+      "plate": 0.1654,
+      "electrode": 0.1013,
+      "current": 0.0179
+    }
+  },
+  {
+    "timestamp": "2026-01-21T22:27:05.923921",
+    "config": {
+      "n_folds": 5,
+      "random_seed": 42,
+      "voting_method": "soft",
+      "batch_size": 32,
+      "epochs": 100
+    },
+    "fold_results": [
+      {
+        "acc_plate": 0.9197530864197531,
+        "acc_electrode": 0.9567901234567902,
+        "acc_current": 0.9876543209876543,
+        "f1_plate": 0.9198045999215589,
+        "f1_electrode": 0.9572898060777119,
+        "f1_current": 0.9876391192896247
+      },
+      {
+        "acc_plate": 0.9146341463414634,
+        "acc_electrode": 0.9573170731707317,
+        "acc_current": 1.0,
+        "f1_plate": 0.9166070205728938,
+        "f1_electrode": 0.9574722546260126,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9470198675496688,
+        "acc_electrode": 0.9668874172185431,
+        "acc_current": 1.0,
+        "f1_plate": 0.9474558325894247,
+        "f1_electrode": 0.9672584265494278,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9520958083832335,
+        "acc_electrode": 0.9580838323353293,
+        "acc_current": 0.9700598802395209,
+        "f1_plate": 0.9515020805845934,
+        "f1_electrode": 0.958925128576609,
+        "f1_current": 0.970202908041265
+      },
+      {
+        "acc_plate": 0.937888198757764,
+        "acc_electrode": 0.9813664596273292,
+        "acc_current": 0.9937888198757764,
+        "f1_plate": 0.938014115096272,
+        "f1_electrode": 0.9810150217008194,
+        "f1_current": 0.9937864143995655
+      }
+    ],
+    "results": {
+      "plate": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "electrode": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "current": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      }
+    },
+    "improvement_vs_individual": {
+      "plate": 0.0657,
+      "electrode": 0.0359,
+      "current": 0.0097
+    }
+  },
+  {
+    "id": "30seg_10fold_20260201_141225",
+    "timestamp": "2026-02-01T14:12:25.808722",
+    "execution_time": {
+      "seconds": 311.74,
+      "minutes": 5.2,
+      "hours": 0.0866
+    },
+    "config": {
+      "segment_duration": 30.0,
+      "overlap_seconds": 0.0,
+      "n_folds": 10,
+      "models_dir": "k10_overlap_0.0",
+      "random_seed": 42,
+      "voting_method": "soft",
+      "batch_size": 32,
+      "epochs": 100,
+      "learning_rate": 0.001,
+      "weight_decay": 0.0001,
+      "label_smoothing": 0.1,
+      "early_stop_patience": 15
+    },
+    "data": {
+      "total_segments": 805,
+      "unique_sessions": 335,
+      "classes": {
+        "plate": [
+          "Placa_12mm",
+          "Placa_3mm",
+          "Placa_6mm"
+        ],
+        "electrode": [
+          "E6010",
+          "E6011",
+          "E6013",
+          "E7018"
+        ],
+        "current": [
+          "AC",
+          "DC"
+        ]
+      }
+    },
+    "fold_results": [
+      {
+        "acc_plate": 0.8333333333333334,
+        "acc_electrode": 0.9230769230769231,
+        "acc_current": 1.0,
+        "f1_plate": 0.8325868996698613,
+        "f1_electrode": 0.9225885225885226,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.8229166666666666,
+        "acc_electrode": 0.8645833333333334,
+        "acc_current": 0.9166666666666666,
+        "f1_plate": 0.8250200525297643,
+        "f1_electrode": 0.8654357970678005,
+        "f1_current": 0.918346312414109
+      },
+      {
+        "acc_plate": 0.8072289156626506,
+        "acc_electrode": 0.927710843373494,
+        "acc_current": 0.963855421686747,
+        "f1_plate": 0.7989479352496639,
+        "f1_electrode": 0.9265655080493381,
+        "f1_current": 0.9638869202299393
+      },
+      {
+        "acc_plate": 0.9487179487179487,
+        "acc_electrode": 0.9615384615384616,
+        "acc_current": 0.9743589743589743,
+        "f1_plate": 0.9485529122891759,
+        "f1_electrode": 0.9631321225071224,
+        "f1_current": 0.9744809085841695
+      },
+      {
+        "acc_plate": 0.8333333333333334,
+        "acc_electrode": 0.8939393939393939,
+        "acc_current": 0.9393939393939394,
+        "f1_plate": 0.8346644741993579,
+        "f1_electrode": 0.8933522214010019,
+        "f1_current": 0.9400826446280992
+      },
+      {
+        "acc_plate": 0.8076923076923077,
+        "acc_electrode": 0.8589743589743589,
+        "acc_current": 0.9487179487179487,
+        "f1_plate": 0.8127838087711732,
+        "f1_electrode": 0.8592753455039508,
+        "f1_current": 0.9487179487179487
+      },
+      {
+        "acc_plate": 0.8470588235294118,
+        "acc_electrode": 0.9411764705882353,
+        "acc_current": 1.0,
+        "f1_plate": 0.853842627960275,
+        "f1_electrode": 0.9408223149399619,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.8588235294117647,
+        "acc_electrode": 0.9411764705882353,
+        "acc_current": 0.9882352941176471,
+        "f1_plate": 0.8573436661179074,
+        "f1_electrode": 0.9414399973537062,
+        "f1_current": 0.9882287663296696
+      },
+      {
+        "acc_plate": 0.8904109589041096,
+        "acc_electrode": 0.9863013698630136,
+        "acc_current": 1.0,
+        "f1_plate": 0.8906785313587976,
+        "f1_electrode": 0.9863166188019418,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.891566265060241,
+        "acc_electrode": 0.9518072289156626,
+        "acc_current": 1.0,
+        "f1_plate": 0.8910918075317609,
+        "f1_electrode": 0.9522566641254158,
+        "f1_current": 1.0
+      }
+    ],
+    "ensemble_results": {
+      "plate": {
+        "accuracy": 0.9627,
+        "f1": 0.9629,
+        "precision": 0.9658,
+        "recall": 0.9627
+      },
+      "electrode": {
+        "accuracy": 0.9714,
+        "f1": 0.9715,
+        "precision": 0.9728,
+        "recall": 0.9714
+      },
+      "current": {
+        "accuracy": 0.9888,
+        "f1": 0.9888,
+        "precision": 0.9891,
+        "recall": 0.9888
+      }
+    },
+    "individual_avg": {
+      "plate": 0.8541,
+      "electrode": 0.925,
+      "current": 0.9731
+    },
+    "improvement_vs_individual": {
+      "plate": 0.1086,
+      "electrode": 0.0464,
+      "current": 0.0157
+    }
+  },
+  {
+    "id": "30seg_10fold_20260205_155107",
+    "timestamp": "2026-02-05T15:51:07.725663",
+    "execution_time": {
+      "seconds": 647.4,
+      "minutes": 10.79,
+      "hours": 0.1798
+    },
+    "training_time": {
+      "seconds": 643.41,
+      "minutes": 10.72
+    },
+    "vggish_extraction": {
+      "from_cache": true,
+      "extraction_time_seconds": null,
+      "extraction_time_minutes": null
+    },
+    "config": {
+      "segment_duration": 30.0,
+      "overlap_seconds": 0.0,
+      "n_folds": 10,
+      "models_dir": "k10_overlap_0.0",
+      "random_seed": 42,
+      "voting_method": "soft",
+      "batch_size": 32,
+      "epochs": 100,
+      "learning_rate": 0.001,
+      "weight_decay": 0.0001,
+      "label_smoothing": 0.1,
+      "early_stop_patience": 15
+    },
+    "data": {
+      "total_segments": 805,
+      "unique_sessions": 335,
+      "classes": {
+        "plate": [
+          "Placa_12mm",
+          "Placa_3mm",
+          "Placa_6mm"
+        ],
+        "electrode": [
+          "E6010",
+          "E6011",
+          "E6013",
+          "E7018"
+        ],
+        "current": [
+          "AC",
+          "DC"
+        ]
+      }
+    },
+    "fold_results": [
+      {
+        "acc_plate": 0.8333333333333334,
+        "acc_electrode": 0.9102564102564102,
+        "acc_current": 0.9871794871794872,
+        "f1_plate": 0.8346967846967848,
+        "f1_electrode": 0.9086091926649201,
+        "f1_current": 0.987177379582443
+      },
+      {
+        "acc_plate": 0.8333333333333334,
+        "acc_electrode": 0.8958333333333334,
+        "acc_current": 0.9166666666666666,
+        "f1_plate": 0.8298882914178306,
+        "f1_electrode": 0.8954628937042578,
+        "f1_current": 0.918346312414109
+      },
+      {
+        "acc_plate": 0.8313253012048193,
+        "acc_electrode": 0.891566265060241,
+        "acc_current": 0.963855421686747,
+        "f1_plate": 0.8249543018532017,
+        "f1_electrode": 0.8922810953372221,
+        "f1_current": 0.9638869202299393
+      },
+      {
+        "acc_plate": 0.9487179487179487,
+        "acc_electrode": 0.9743589743589743,
+        "acc_current": 0.9871794871794872,
+        "f1_plate": 0.9487179487179487,
+        "f1_electrode": 0.9751040981810214,
+        "f1_current": 0.987212309792955
+      },
+      {
+        "acc_plate": 0.9090909090909091,
+        "acc_electrode": 0.9090909090909091,
+        "acc_current": 0.9393939393939394,
+        "f1_plate": 0.9084533276022638,
+        "f1_electrode": 0.910410293053515,
+        "f1_current": 0.9400826446280992
+      },
+      {
+        "acc_plate": 0.8461538461538461,
+        "acc_electrode": 0.8333333333333334,
+        "acc_current": 0.9487179487179487,
+        "f1_plate": 0.8508969662815817,
+        "f1_electrode": 0.8327911173439628,
+        "f1_current": 0.9490384615384616
+      },
+      {
+        "acc_plate": 0.8705882352941177,
+        "acc_electrode": 0.9176470588235294,
+        "acc_current": 0.9882352941176471,
+        "f1_plate": 0.8740835809071102,
+        "f1_electrode": 0.9175133689839572,
+        "f1_current": 0.9882451130403477
+      },
+      {
+        "acc_plate": 0.8588235294117647,
+        "acc_electrode": 0.9294117647058824,
+        "acc_current": 0.9882352941176471,
+        "f1_plate": 0.8573436661179074,
+        "f1_electrode": 0.9302921168467386,
+        "f1_current": 0.9882287663296696
+      },
+      {
+        "acc_plate": 0.863013698630137,
+        "acc_electrode": 0.958904109589041,
+        "acc_current": 1.0,
+        "f1_plate": 0.8633660923240634,
+        "f1_electrode": 0.959069777073691,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.8554216867469879,
+        "acc_electrode": 0.963855421686747,
+        "acc_current": 0.9879518072289156,
+        "f1_plate": 0.8545145541735676,
+        "f1_electrode": 0.9637605273414332,
+        "f1_current": 0.9879483073907831
+      }
+    ],
+    "ensemble_results": {
+      "plate": {
+        "accuracy": 0.9652,
+        "f1": 0.9655,
+        "precision": 0.9683,
+        "recall": 0.9652
+      },
+      "electrode": {
+        "accuracy": 0.9739,
+        "f1": 0.974,
+        "precision": 0.9752,
+        "recall": 0.9739
+      },
+      "current": {
+        "accuracy": 0.9888,
+        "f1": 0.9888,
+        "precision": 0.9891,
+        "recall": 0.9888
+      }
+    },
+    "individual_avg": {
+      "plate": 0.865,
+      "electrode": 0.9184,
+      "current": 0.9707
+    },
+    "improvement_vs_individual": {
+      "plate": 0.1002,
+      "electrode": 0.0555,
+      "current": 0.0181
+    }
+  },
+  {
+    "id": "30seg_10fold_20260205_155122",
+    "timestamp": "2026-02-05T15:51:22.401422",
+    "execution_time": {
+      "seconds": 684.39,
+      "minutes": 11.41,
+      "hours": 0.1901
+    },
+    "training_time": {
+      "seconds": 683.62,
+      "minutes": 11.39
+    },
+    "vggish_extraction": {
+      "from_cache": true,
+      "extraction_time_seconds": null,
+      "extraction_time_minutes": null
+    },
+    "config": {
+      "segment_duration": 30.0,
+      "overlap_seconds": 0.0,
+      "n_folds": 10,
+      "models_dir": "k10_overlap_0.0",
+      "random_seed": 42,
+      "voting_method": "soft",
+      "batch_size": 32,
+      "epochs": 100,
+      "learning_rate": 0.001,
+      "weight_decay": 0.0001,
+      "label_smoothing": 0.1,
+      "early_stop_patience": 15
+    },
+    "data": {
+      "total_segments": 805,
+      "unique_sessions": 335,
+      "classes": {
+        "plate": [
+          "Placa_12mm",
+          "Placa_3mm",
+          "Placa_6mm"
+        ],
+        "electrode": [
+          "E6010",
+          "E6011",
+          "E6013",
+          "E7018"
+        ],
+        "current": [
+          "AC",
+          "DC"
+        ]
+      }
+    },
+    "fold_results": [
+      {
+        "acc_plate": 0.8205128205128205,
+        "acc_electrode": 0.9102564102564102,
+        "acc_current": 1.0,
+        "f1_plate": 0.8232773074878338,
+        "f1_electrode": 0.9089682247576985,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.8229166666666666,
+        "acc_electrode": 0.8645833333333334,
+        "acc_current": 0.9166666666666666,
+        "f1_plate": 0.8237489745693192,
+        "f1_electrode": 0.8643889368663463,
+        "f1_current": 0.918346312414109
+      },
+      {
+        "acc_plate": 0.8192771084337349,
+        "acc_electrode": 0.891566265060241,
+        "acc_current": 0.963855421686747,
+        "f1_plate": 0.810486059415942,
+        "f1_electrode": 0.8922810953372221,
+        "f1_current": 0.9638869202299393
+      },
+      {
+        "acc_plate": 0.9358974358974359,
+        "acc_electrode": 0.9615384615384616,
+        "acc_current": 0.9871794871794872,
+        "f1_plate": 0.9359723540579022,
+        "f1_electrode": 0.9631321225071224,
+        "f1_current": 0.987212309792955
+      },
+      {
+        "acc_plate": 0.9090909090909091,
+        "acc_electrode": 0.8939393939393939,
+        "acc_current": 0.9393939393939394,
+        "f1_plate": 0.9084533276022638,
+        "f1_electrode": 0.8936352716840522,
+        "f1_current": 0.9400826446280992
+      },
+      {
+        "acc_plate": 0.8461538461538461,
+        "acc_electrode": 0.8461538461538461,
+        "acc_current": 0.9230769230769231,
+        "f1_plate": 0.8440354966670757,
+        "f1_electrode": 0.8482794982794982,
+        "f1_current": 0.9235576923076922
+      },
+      {
+        "acc_plate": 0.8823529411764706,
+        "acc_electrode": 0.9294117647058824,
+        "acc_current": 0.9882352941176471,
+        "f1_plate": 0.8869178055060408,
+        "f1_electrode": 0.9291535755626043,
+        "f1_current": 0.9882451130403477
+      },
+      {
+        "acc_plate": 0.8823529411764706,
+        "acc_electrode": 0.9294117647058824,
+        "acc_current": 0.9882352941176471,
+        "f1_plate": 0.8814103887168903,
+        "f1_electrode": 0.9302921168467386,
+        "f1_current": 0.9882287663296696
+      },
+      {
+        "acc_plate": 0.863013698630137,
+        "acc_electrode": 0.9726027397260274,
+        "acc_current": 1.0,
+        "f1_plate": 0.8633660923240634,
+        "f1_electrode": 0.9726433282597665,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9036144578313253,
+        "acc_electrode": 0.9759036144578314,
+        "acc_current": 0.9879518072289156,
+        "f1_plate": 0.9031453958213276,
+        "f1_electrode": 0.9759036144578314,
+        "f1_current": 0.9879483073907831
+      }
+    ],
+    "ensemble_results": {
+      "plate": {
+        "accuracy": 0.9652,
+        "f1": 0.9655,
+        "precision": 0.9683,
+        "recall": 0.9652
+      },
+      "electrode": {
+        "accuracy": 0.9739,
+        "f1": 0.974,
+        "precision": 0.9752,
+        "recall": 0.9739
+      },
+      "current": {
+        "accuracy": 0.9888,
+        "f1": 0.9888,
+        "precision": 0.9891,
+        "recall": 0.9888
+      }
+    },
+    "individual_avg": {
+      "plate": 0.8685,
+      "electrode": 0.9175,
+      "current": 0.9695
+    },
+    "improvement_vs_individual": {
+      "plate": 0.0967,
+      "electrode": 0.0564,
+      "current": 0.0194
+    }
+  },
+  {
+    "id": "30seg_5fold_overlap_0.0_20260206_221022",
+    "timestamp": "2026-02-06T22:10:22.156063",
+    "execution_time": {
+      "seconds": 152.69,
+      "minutes": 2.54,
+      "hours": 0.0424
+    },
+    "training_time": {
+      "seconds": 39.13,
+      "minutes": 0.65
+    },
+    "vggish_extraction": {
+      "from_cache": false,
+      "extraction_time_seconds": 113.22,
+      "extraction_time_minutes": 1.89
+    },
+    "config": {
+      "segment_duration": 30.0,
+      "overlap_ratio": 0.0,
+      "overlap_seconds": 0.0,
+      "n_folds": 5,
+      "models_dir": "k05_overlap_0.0",
+      "random_seed": 42,
+      "voting_method": "soft",
+      "batch_size": 32,
+      "epochs": 100,
+      "learning_rate": 0.001,
+      "weight_decay": 0.0001,
+      "label_smoothing": 0.1,
+      "early_stop_patience": 15,
+      "swa_start": 5,
+      "swa_lr": 0.0001
+    },
+    "system_info": {
+      "python_version": "3.10.12",
+      "torch_version": "2.9.1+cu128",
+      "numpy_version": "2.2.6",
+      "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+      "device": "cuda",
+      "tensorflow_version": "2.20.0",
+      "gpu_name": "NVIDIA GeForce RTX 3060 Laptop GPU",
+      "gpu_memory_gb": 6.44
+    },
+    "model_parameters": {
+      "total": 1021449,
+      "trainable": 1021449
+    },
+    "data": {
+      "total_segments": 481,
+      "unique_sessions": 335,
+      "segments_per_class": {
+        "plate": {
+          "Placa_3mm": 166,
+          "Placa_12mm": 160,
+          "Placa_6mm": 155
+        },
+        "electrode": {
+          "E6011": 198,
+          "E6013": 143,
+          "E6010": 75,
+          "E7018": 65
+        },
+        "current": {
+          "DC": 272,
+          "AC": 209
+        }
+      },
+      "classes": {
+        "plate": [
+          "Placa_12mm",
+          "Placa_3mm",
+          "Placa_6mm"
+        ],
+        "electrode": [
+          "E6010",
+          "E6011",
+          "E6013",
+          "E7018"
+        ],
+        "current": [
+          "AC",
+          "DC"
+        ]
+      }
+    },
+    "fold_results": [
+      {
+        "acc_plate": 0.9223300970873787,
+        "acc_electrode": 0.970873786407767,
+        "acc_current": 1.0,
+        "f1_plate": 0.9230854861922823,
+        "f1_electrode": 0.9706656907698822,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9052631578947369,
+        "acc_electrode": 0.9473684210526315,
+        "acc_current": 0.9894736842105263,
+        "f1_plate": 0.9055080192080097,
+        "f1_electrode": 0.947321564781519,
+        "f1_current": 0.9894736842105263
+      },
+      {
+        "acc_plate": 0.9411764705882353,
+        "acc_electrode": 0.9529411764705882,
+        "acc_current": 1.0,
+        "f1_plate": 0.9412370093835133,
+        "f1_electrode": 0.9540725715573586,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.8118811881188119,
+        "acc_electrode": 0.9702970297029703,
+        "acc_current": 0.9900990099009901,
+        "f1_plate": 0.8115897304016115,
+        "f1_electrode": 0.9702777895356579,
+        "f1_current": 0.9901170536209234
+      },
+      {
+        "acc_plate": 0.9175257731958762,
+        "acc_electrode": 0.979381443298969,
+        "acc_current": 1.0,
+        "f1_plate": 0.9185198821796758,
+        "f1_electrode": 0.9793050470920251,
+        "f1_current": 1.0
+      }
+    ],
+    "fold_best_epochs": [
+      38,
+      77,
+      57,
+      15,
+      33
+    ],
+    "fold_training_times_seconds": [
+      8.21,
+      11.57,
+      8.96,
+      3.8,
+      6.54
+    ],
+    "ensemble_results": {
+      "plate": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "electrode": {
+        "accuracy": 0.9979,
+        "f1": 0.9979,
+        "precision": 0.9979,
+        "recall": 0.9979
+      },
+      "current": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      }
+    },
+    "individual_avg": {
+      "plate": 0.8996,
+      "electrode": 0.9642,
+      "current": 0.9959
+    },
+    "improvement_vs_individual": {
+      "plate": 0.1004,
+      "electrode": 0.0337,
+      "current": 0.0041
+    }
+  },
+  {
+    "id": "30seg_10fold_overlap_0.0_20260206_221143",
+    "timestamp": "2026-02-06T22:11:43.346789",
+    "execution_time": {
+      "seconds": 74.94,
+      "minutes": 1.25,
+      "hours": 0.0208
+    },
+    "training_time": {
+      "seconds": 74.47,
+      "minutes": 1.24
+    },
+    "vggish_extraction": {
+      "from_cache": true,
+      "extraction_time_seconds": null,
+      "extraction_time_minutes": null
+    },
+    "config": {
+      "segment_duration": 30.0,
+      "overlap_ratio": 0.0,
+      "overlap_seconds": 0.0,
+      "n_folds": 10,
+      "models_dir": "k10_overlap_0.0",
+      "random_seed": 42,
+      "voting_method": "soft",
+      "batch_size": 32,
+      "epochs": 100,
+      "learning_rate": 0.001,
+      "weight_decay": 0.0001,
+      "label_smoothing": 0.1,
+      "early_stop_patience": 15,
+      "swa_start": 5,
+      "swa_lr": 0.0001
+    },
+    "system_info": {
+      "python_version": "3.10.12",
+      "torch_version": "2.9.1+cu128",
+      "numpy_version": "2.2.6",
+      "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+      "device": "cuda",
+      "tensorflow_version": "2.20.0",
+      "gpu_name": "NVIDIA GeForce RTX 3060 Laptop GPU",
+      "gpu_memory_gb": 6.44
+    },
+    "model_parameters": {
+      "total": 1021449,
+      "trainable": 1021449
+    },
+    "data": {
+      "total_segments": 481,
+      "unique_sessions": 335,
+      "segments_per_class": {
+        "plate": {
+          "Placa_3mm": 166,
+          "Placa_12mm": 160,
+          "Placa_6mm": 155
+        },
+        "electrode": {
+          "E6011": 198,
+          "E6013": 143,
+          "E6010": 75,
+          "E7018": 65
+        },
+        "current": {
+          "DC": 272,
+          "AC": 209
+        }
+      },
+      "classes": {
+        "plate": [
+          "Placa_12mm",
+          "Placa_3mm",
+          "Placa_6mm"
+        ],
+        "electrode": [
+          "E6010",
+          "E6011",
+          "E6013",
+          "E7018"
+        ],
+        "current": [
+          "AC",
+          "DC"
+        ]
+      }
+    },
+    "fold_results": [
+      {
+        "acc_plate": 0.9056603773584906,
+        "acc_electrode": 0.9811320754716981,
+        "acc_current": 1.0,
+        "f1_plate": 0.9067984426474992,
+        "f1_electrode": 0.9813512151294019,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9361702127659575,
+        "acc_electrode": 0.9787234042553191,
+        "acc_current": 1.0,
+        "f1_plate": 0.9367228516164686,
+        "f1_electrode": 0.979128672745694,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9166666666666666,
+        "acc_electrode": 0.9791666666666666,
+        "acc_current": 0.9791666666666666,
+        "f1_plate": 0.9151177675371224,
+        "f1_electrode": 0.9796176046176046,
+        "f1_current": 0.979231337767923
+      },
+      {
+        "acc_plate": 0.9361702127659575,
+        "acc_electrode": 0.9574468085106383,
+        "acc_current": 0.9787234042553191,
+        "f1_plate": 0.9363851278744896,
+        "f1_electrode": 0.9584438549955792,
+        "f1_current": 0.9786845960551463
+      },
+      {
+        "acc_plate": 0.851063829787234,
+        "acc_electrode": 0.9361702127659575,
+        "acc_current": 1.0,
+        "f1_plate": 0.8501664139962013,
+        "f1_electrode": 0.936455630513752,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9787234042553191,
+        "acc_electrode": 0.9787234042553191,
+        "acc_current": 1.0,
+        "f1_plate": 0.9787234042553191,
+        "f1_electrode": 0.9791985639617761,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.8571428571428571,
+        "acc_electrode": 0.9183673469387755,
+        "acc_current": 0.9795918367346939,
+        "f1_plate": 0.8554312047399605,
+        "f1_electrode": 0.9183673469387755,
+        "f1_current": 0.9797003426980008
+      },
+      {
+        "acc_plate": 0.8913043478260869,
+        "acc_electrode": 0.9565217391304348,
+        "acc_current": 1.0,
+        "f1_plate": 0.8883298735247761,
+        "f1_electrode": 0.9570473005255613,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9583333333333334,
+        "acc_electrode": 0.9583333333333334,
+        "acc_current": 1.0,
+        "f1_plate": 0.9582465277777779,
+        "f1_electrode": 0.9593201754385965,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9387755102040817,
+        "acc_electrode": 0.9795918367346939,
+        "acc_current": 1.0,
+        "f1_plate": 0.9394178891715838,
+        "f1_electrode": 0.9798392084106371,
+        "f1_current": 1.0
+      }
+    ],
+    "fold_best_epochs": [
+      33,
+      24,
+      25,
+      75,
+      10,
+      66,
+      13,
+      10,
+      63,
+      97
+    ],
+    "fold_training_times_seconds": [
+      7.44,
+      4.92,
+      5.21,
+      11.91,
+      3.58,
+      10.37,
+      3.6,
+      3.51,
+      10.26,
+      13.56
+    ],
+    "ensemble_results": {
+      "plate": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "electrode": {
+        "accuracy": 0.9979,
+        "f1": 0.9979,
+        "precision": 0.9979,
+        "recall": 0.9979
+      },
+      "current": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      }
+    },
+    "individual_avg": {
+      "plate": 0.917,
+      "electrode": 0.9624,
+      "current": 0.9937
+    },
+    "improvement_vs_individual": {
+      "plate": 0.083,
+      "electrode": 0.0355,
+      "current": 0.0063
+    }
+  },
+  {
+    "id": "30seg_5fold_overlap_0.25_20260206_221506",
+    "timestamp": "2026-02-06T22:15:06.664423",
+    "execution_time": {
+      "seconds": 195.93,
+      "minutes": 3.27,
+      "hours": 0.0544
+    },
+    "training_time": {
+      "seconds": 60.75,
+      "minutes": 1.01
+    },
+    "vggish_extraction": {
+      "from_cache": false,
+      "extraction_time_seconds": 134.86,
+      "extraction_time_minutes": 2.25
+    },
+    "config": {
+      "segment_duration": 30.0,
+      "overlap_ratio": 0.25,
+      "overlap_seconds": 7.5,
+      "n_folds": 5,
+      "models_dir": "k05_overlap_0.25",
+      "random_seed": 42,
+      "voting_method": "soft",
+      "batch_size": 32,
+      "epochs": 100,
+      "learning_rate": 0.001,
+      "weight_decay": 0.0001,
+      "label_smoothing": 0.1,
+      "early_stop_patience": 15,
+      "swa_start": 5,
+      "swa_lr": 0.0001
+    },
+    "system_info": {
+      "python_version": "3.10.12",
+      "torch_version": "2.9.1+cu128",
+      "numpy_version": "2.2.6",
+      "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+      "device": "cuda",
+      "tensorflow_version": "2.20.0",
+      "gpu_name": "NVIDIA GeForce RTX 3060 Laptop GPU",
+      "gpu_memory_gb": 6.44
+    },
+    "model_parameters": {
+      "total": 1021449,
+      "trainable": 1021449
+    },
+    "data": {
+      "total_segments": 590,
+      "unique_sessions": 335,
+      "segments_per_class": {
+        "plate": {
+          "Placa_3mm": 205,
+          "Placa_12mm": 198,
+          "Placa_6mm": 187
+        },
+        "electrode": {
+          "E6011": 250,
+          "E6013": 172,
+          "E6010": 93,
+          "E7018": 75
+        },
+        "current": {
+          "DC": 327,
+          "AC": 263
+        }
+      },
+      "classes": {
+        "plate": [
+          "Placa_12mm",
+          "Placa_3mm",
+          "Placa_6mm"
+        ],
+        "electrode": [
+          "E6010",
+          "E6011",
+          "E6013",
+          "E7018"
+        ],
+        "current": [
+          "AC",
+          "DC"
+        ]
+      }
+    },
+    "fold_results": [
+      {
+        "acc_plate": 0.95,
+        "acc_electrode": 0.975,
+        "acc_current": 1.0,
+        "f1_plate": 0.9494884120522838,
+        "f1_electrode": 0.9751515151515151,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.925,
+        "acc_electrode": 0.9916666666666667,
+        "acc_current": 1.0,
+        "f1_plate": 0.925112443778111,
+        "f1_electrode": 0.991760601180891,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9411764705882353,
+        "acc_electrode": 0.9831932773109243,
+        "acc_current": 0.9831932773109243,
+        "f1_plate": 0.9406718940792993,
+        "f1_electrode": 0.9831932773109243,
+        "f1_current": 0.9832099506469254
+      },
+      {
+        "acc_plate": 0.9067796610169492,
+        "acc_electrode": 0.9152542372881356,
+        "acc_current": 0.9830508474576272,
+        "f1_plate": 0.9067796610169492,
+        "f1_electrode": 0.9160269192422732,
+        "f1_current": 0.9830957128614157
+      },
+      {
+        "acc_plate": 0.911504424778761,
+        "acc_electrode": 0.9380530973451328,
+        "acc_current": 1.0,
+        "f1_plate": 0.9111742053285117,
+        "f1_electrode": 0.9384274350936976,
+        "f1_current": 1.0
+      }
+    ],
+    "fold_best_epochs": [
+      97,
+      94,
+      77,
+      45,
+      36
+    ],
+    "fold_training_times_seconds": [
+      16.06,
+      14.51,
+      13.64,
+      9.07,
+      7.4
+    ],
+    "ensemble_results": {
+      "plate": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "electrode": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "current": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      }
+    },
+    "individual_avg": {
+      "plate": 0.9269,
+      "electrode": 0.9606,
+      "current": 0.9932
+    },
+    "improvement_vs_individual": {
+      "plate": 0.0731,
+      "electrode": 0.0394,
+      "current": 0.0068
+    }
+  },
+  {
+    "id": "30seg_10fold_overlap_0.25_20260206_221655",
+    "timestamp": "2026-02-06T22:16:55.777300",
+    "execution_time": {
+      "seconds": 102.99,
+      "minutes": 1.72,
+      "hours": 0.0286
+    },
+    "training_time": {
+      "seconds": 102.51,
+      "minutes": 1.71
+    },
+    "vggish_extraction": {
+      "from_cache": true,
+      "extraction_time_seconds": null,
+      "extraction_time_minutes": null
+    },
+    "config": {
+      "segment_duration": 30.0,
+      "overlap_ratio": 0.25,
+      "overlap_seconds": 7.5,
+      "n_folds": 10,
+      "models_dir": "k10_overlap_0.25",
+      "random_seed": 42,
+      "voting_method": "soft",
+      "batch_size": 32,
+      "epochs": 100,
+      "learning_rate": 0.001,
+      "weight_decay": 0.0001,
+      "label_smoothing": 0.1,
+      "early_stop_patience": 15,
+      "swa_start": 5,
+      "swa_lr": 0.0001
+    },
+    "system_info": {
+      "python_version": "3.10.12",
+      "torch_version": "2.9.1+cu128",
+      "numpy_version": "2.2.6",
+      "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+      "device": "cuda",
+      "tensorflow_version": "2.20.0",
+      "gpu_name": "NVIDIA GeForce RTX 3060 Laptop GPU",
+      "gpu_memory_gb": 6.44
+    },
+    "model_parameters": {
+      "total": 1021449,
+      "trainable": 1021449
+    },
+    "data": {
+      "total_segments": 590,
+      "unique_sessions": 335,
+      "segments_per_class": {
+        "plate": {
+          "Placa_3mm": 205,
+          "Placa_12mm": 198,
+          "Placa_6mm": 187
+        },
+        "electrode": {
+          "E6011": 250,
+          "E6013": 172,
+          "E6010": 93,
+          "E7018": 75
+        },
+        "current": {
+          "DC": 327,
+          "AC": 263
+        }
+      },
+      "classes": {
+        "plate": [
+          "Placa_12mm",
+          "Placa_3mm",
+          "Placa_6mm"
+        ],
+        "electrode": [
+          "E6010",
+          "E6011",
+          "E6013",
+          "E7018"
+        ],
+        "current": [
+          "AC",
+          "DC"
+        ]
+      }
+    },
+    "fold_results": [
+      {
+        "acc_plate": 0.9180327868852459,
+        "acc_electrode": 1.0,
+        "acc_current": 1.0,
+        "f1_plate": 0.918701906992305,
+        "f1_electrode": 1.0,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9818181818181818,
+        "acc_electrode": 1.0,
+        "acc_current": 1.0,
+        "f1_plate": 0.9818181818181818,
+        "f1_electrode": 1.0,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9344262295081968,
+        "acc_electrode": 0.9672131147540983,
+        "acc_current": 0.9836065573770492,
+        "f1_plate": 0.9344262295081968,
+        "f1_electrode": 0.9671471275761028,
+        "f1_current": 0.9836424194336485
+      },
+      {
+        "acc_plate": 0.9444444444444444,
+        "acc_electrode": 0.9629629629629629,
+        "acc_current": 1.0,
+        "f1_plate": 0.9455861876914506,
+        "f1_electrode": 0.964867724867725,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.94,
+        "acc_electrode": 1.0,
+        "acc_current": 1.0,
+        "f1_plate": 0.9406517783291978,
+        "f1_electrode": 1.0,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9375,
+        "acc_electrode": 0.953125,
+        "acc_current": 1.0,
+        "f1_plate": 0.9357121496924129,
+        "f1_electrode": 0.9521890391858612,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.8714285714285714,
+        "acc_electrode": 0.9285714285714286,
+        "acc_current": 0.9571428571428572,
+        "f1_plate": 0.870794499618029,
+        "f1_electrode": 0.9292517006802722,
+        "f1_current": 0.9571691444928003
+      },
+      {
+        "acc_plate": 0.9322033898305084,
+        "acc_electrode": 1.0,
+        "acc_current": 1.0,
+        "f1_plate": 0.9325944381752568,
+        "f1_electrode": 1.0,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9836065573770492,
+        "acc_electrode": 0.9836065573770492,
+        "acc_current": 1.0,
+        "f1_plate": 0.9834846318402998,
+        "f1_electrode": 0.9836586000520426,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.8545454545454545,
+        "acc_electrode": 0.9090909090909091,
+        "acc_current": 1.0,
+        "f1_plate": 0.8543589743589743,
+        "f1_electrode": 0.9099309227358009,
+        "f1_current": 1.0
+      }
+    ],
+    "fold_best_epochs": [
+      42,
+      39,
+      71,
+      61,
+      72,
+      70,
+      32,
+      34,
+      44,
+      25
+    ],
+    "fold_training_times_seconds": [
+      10.14,
+      8.16,
+      13.51,
+      12.25,
+      13.86,
+      13.6,
+      7.58,
+      7.69,
+      9.38,
+      6.24
+    ],
+    "ensemble_results": {
+      "plate": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "electrode": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "current": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      }
+    },
+    "individual_avg": {
+      "plate": 0.9298,
+      "electrode": 0.9705,
+      "current": 0.9941
+    },
+    "improvement_vs_individual": {
+      "plate": 0.0702,
+      "electrode": 0.0295,
+      "current": 0.0059
+    }
+  },
+  {
+    "id": "30seg_10fold_overlap_0.5_20260206_222207",
+    "timestamp": "2026-02-06T22:22:07.967178",
+    "execution_time": {
+      "seconds": 304.82,
+      "minutes": 5.08,
+      "hours": 0.0847
+    },
+    "training_time": {
+      "seconds": 119.77,
+      "minutes": 2.0
+    },
+    "vggish_extraction": {
+      "from_cache": false,
+      "extraction_time_seconds": 184.36,
+      "extraction_time_minutes": 3.07
+    },
+    "config": {
+      "segment_duration": 30.0,
+      "overlap_ratio": 0.5,
+      "overlap_seconds": 15.0,
+      "n_folds": 10,
+      "models_dir": "k10_overlap_0.5",
+      "random_seed": 42,
+      "voting_method": "soft",
+      "batch_size": 32,
+      "epochs": 100,
+      "learning_rate": 0.001,
+      "weight_decay": 0.0001,
+      "label_smoothing": 0.1,
+      "early_stop_patience": 15,
+      "swa_start": 5,
+      "swa_lr": 0.0001
+    },
+    "system_info": {
+      "python_version": "3.10.12",
+      "torch_version": "2.9.1+cu128",
+      "numpy_version": "2.2.6",
+      "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+      "device": "cuda",
+      "tensorflow_version": "2.20.0",
+      "gpu_name": "NVIDIA GeForce RTX 3060 Laptop GPU",
+      "gpu_memory_gb": 6.44
+    },
+    "model_parameters": {
+      "total": 1021449,
+      "trainable": 1021449
+    },
+    "data": {
+      "total_segments": 805,
+      "unique_sessions": 335,
+      "segments_per_class": {
+        "plate": {
+          "Placa_3mm": 283,
+          "Placa_12mm": 272,
+          "Placa_6mm": 250
+        },
+        "electrode": {
+          "E6011": 339,
+          "E6013": 221,
+          "E6010": 125,
+          "E7018": 120
+        },
+        "current": {
+          "DC": 447,
+          "AC": 358
+        }
+      },
+      "classes": {
+        "plate": [
+          "Placa_12mm",
+          "Placa_3mm",
+          "Placa_6mm"
+        ],
+        "electrode": [
+          "E6010",
+          "E6011",
+          "E6013",
+          "E7018"
+        ],
+        "current": [
+          "AC",
+          "DC"
+        ]
+      }
+    },
+    "fold_results": [
+      {
+        "acc_plate": 0.9102564102564102,
+        "acc_electrode": 0.9743589743589743,
+        "acc_current": 1.0,
+        "f1_plate": 0.9108432503169345,
+        "f1_electrode": 0.9743589743589743,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9583333333333334,
+        "acc_electrode": 0.96875,
+        "acc_current": 0.96875,
+        "f1_plate": 0.9578432599265932,
+        "f1_electrode": 0.9688755110630111,
+        "f1_current": 0.9690482502651113
+      },
+      {
+        "acc_plate": 0.9036144578313253,
+        "acc_electrode": 0.963855421686747,
+        "acc_current": 1.0,
+        "f1_plate": 0.9015877666113868,
+        "f1_electrode": 0.9656403391343149,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9743589743589743,
+        "acc_electrode": 1.0,
+        "acc_current": 1.0,
+        "f1_plate": 0.9743589743589743,
+        "f1_electrode": 1.0,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9242424242424242,
+        "acc_electrode": 0.9848484848484849,
+        "acc_current": 0.9696969696969697,
+        "f1_plate": 0.9224046393857716,
+        "f1_electrode": 0.9844599844599845,
+        "f1_current": 0.9700413223140497
+      },
+      {
+        "acc_plate": 0.8846153846153846,
+        "acc_electrode": 0.8974358974358975,
+        "acc_current": 0.9615384615384616,
+        "f1_plate": 0.8847775949225224,
+        "f1_electrode": 0.8988165680473372,
+        "f1_current": 0.9613953298163824
+      },
+      {
+        "acc_plate": 0.9411764705882353,
+        "acc_electrode": 0.9529411764705882,
+        "acc_current": 1.0,
+        "f1_plate": 0.9406803494967689,
+        "f1_electrode": 0.9537291381668948,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9529411764705882,
+        "acc_electrode": 0.9882352941176471,
+        "acc_current": 1.0,
+        "f1_plate": 0.9529411764705882,
+        "f1_electrode": 0.9883800904977375,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9178082191780822,
+        "acc_electrode": 0.9863013698630136,
+        "acc_current": 1.0,
+        "f1_plate": 0.9210544865888964,
+        "f1_electrode": 0.9864093180910435,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.891566265060241,
+        "acc_electrode": 0.9759036144578314,
+        "acc_current": 1.0,
+        "f1_plate": 0.893048128342246,
+        "f1_electrode": 0.9759060884114237,
+        "f1_current": 1.0
+      }
+    ],
+    "fold_best_epochs": [
+      81,
+      61,
+      15,
+      33,
+      32,
+      8,
+      42,
+      27,
+      45,
+      48
+    ],
+    "fold_training_times_seconds": [
+      22.77,
+      15.91,
+      6.37,
+      10.56,
+      10.3,
+      5.06,
+      12.3,
+      8.87,
+      12.84,
+      14.66
+    ],
+    "ensemble_results": {
+      "plate": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "electrode": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "current": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      }
+    },
+    "individual_avg": {
+      "plate": 0.9259,
+      "electrode": 0.9693,
+      "current": 0.99
+    },
+    "improvement_vs_individual": {
+      "plate": 0.0741,
+      "electrode": 0.0307,
+      "current": 0.01
+    }
+  },
+  {
+    "id": "30seg_5fold_overlap_0.75_20260206_222934",
+    "timestamp": "2026-02-06T22:29:34.584144",
+    "execution_time": {
+      "seconds": 438.49,
+      "minutes": 7.31,
+      "hours": 0.1218
+    },
+    "training_time": {
+      "seconds": 100.03,
+      "minutes": 1.67
+    },
+    "vggish_extraction": {
+      "from_cache": false,
+      "extraction_time_seconds": 337.86,
+      "extraction_time_minutes": 5.63
+    },
+    "config": {
+      "segment_duration": 30.0,
+      "overlap_ratio": 0.75,
+      "overlap_seconds": 22.5,
+      "n_folds": 5,
+      "models_dir": "k05_overlap_0.75",
+      "random_seed": 42,
+      "voting_method": "soft",
+      "batch_size": 32,
+      "epochs": 100,
+      "learning_rate": 0.001,
+      "weight_decay": 0.0001,
+      "label_smoothing": 0.1,
+      "early_stop_patience": 15,
+      "swa_start": 5,
+      "swa_lr": 0.0001
+    },
+    "system_info": {
+      "python_version": "3.10.12",
+      "torch_version": "2.9.1+cu128",
+      "numpy_version": "2.2.6",
+      "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+      "device": "cuda",
+      "tensorflow_version": "2.20.0",
+      "gpu_name": "NVIDIA GeForce RTX 3060 Laptop GPU",
+      "gpu_memory_gb": 6.44
+    },
+    "model_parameters": {
+      "total": 1021449,
+      "trainable": 1021449
+    },
+    "data": {
+      "total_segments": 1438,
+      "unique_sessions": 335,
+      "segments_per_class": {
+        "plate": {
+          "Placa_3mm": 507,
+          "Placa_12mm": 492,
+          "Placa_6mm": 439
+        },
+        "electrode": {
+          "E6011": 618,
+          "E6013": 398,
+          "E6010": 226,
+          "E7018": 196
+        },
+        "current": {
+          "DC": 778,
+          "AC": 660
+        }
+      },
+      "classes": {
+        "plate": [
+          "Placa_12mm",
+          "Placa_3mm",
+          "Placa_6mm"
+        ],
+        "electrode": [
+          "E6010",
+          "E6011",
+          "E6013",
+          "E7018"
+        ],
+        "current": [
+          "AC",
+          "DC"
+        ]
+      }
+    },
+    "fold_results": [
+      {
+        "acc_plate": 0.9556962025316456,
+        "acc_electrode": 0.9620253164556962,
+        "acc_current": 0.990506329113924,
+        "f1_plate": 0.9557657134869996,
+        "f1_electrode": 0.962281756622039,
+        "f1_current": 0.9904932285060429
+      },
+      {
+        "acc_plate": 0.8897058823529411,
+        "acc_electrode": 0.9632352941176471,
+        "acc_current": 0.9963235294117647,
+        "f1_plate": 0.8890691714460269,
+        "f1_electrode": 0.9639674593241552,
+        "f1_current": 0.9963257209725228
+      },
+      {
+        "acc_plate": 0.9090909090909091,
+        "acc_electrode": 0.9370629370629371,
+        "acc_current": 1.0,
+        "f1_plate": 0.9096733282515272,
+        "f1_electrode": 0.9376541100360993,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9011406844106464,
+        "acc_electrode": 0.9695817490494296,
+        "acc_current": 1.0,
+        "f1_plate": 0.9021498602079483,
+        "f1_electrode": 0.969421132806992,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9302325581395349,
+        "acc_electrode": 0.9534883720930233,
+        "acc_current": 0.9767441860465116,
+        "f1_plate": 0.9296818413775654,
+        "f1_electrode": 0.9537871703802203,
+        "f1_current": 0.9767281477384783
+      }
+    ],
+    "fold_best_epochs": [
+      26,
+      15,
+      27,
+      45,
+      82
+    ],
+    "fold_training_times_seconds": [
+      15.88,
+      11.17,
+      15.07,
+      22.01,
+      35.84
+    ],
+    "ensemble_results": {
+      "plate": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "electrode": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "current": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      }
+    },
+    "individual_avg": {
+      "plate": 0.9172,
+      "electrode": 0.9571,
+      "current": 0.9927
+    },
+    "improvement_vs_individual": {
+      "plate": 0.0828,
+      "electrode": 0.0429,
+      "current": 0.0073
+    }
+  },
+  {
+    "id": "30seg_10fold_overlap_0.75_20260206_223245",
+    "timestamp": "2026-02-06T22:32:45.586500",
+    "execution_time": {
+      "seconds": 184.98,
+      "minutes": 3.08,
+      "hours": 0.0514
+    },
+    "training_time": {
+      "seconds": 184.1,
+      "minutes": 3.07
+    },
+    "vggish_extraction": {
+      "from_cache": true,
+      "extraction_time_seconds": null,
+      "extraction_time_minutes": null
+    },
+    "config": {
+      "segment_duration": 30.0,
+      "overlap_ratio": 0.75,
+      "overlap_seconds": 22.5,
+      "n_folds": 10,
+      "models_dir": "k10_overlap_0.75",
+      "random_seed": 42,
+      "voting_method": "soft",
+      "batch_size": 32,
+      "epochs": 100,
+      "learning_rate": 0.001,
+      "weight_decay": 0.0001,
+      "label_smoothing": 0.1,
+      "early_stop_patience": 15,
+      "swa_start": 5,
+      "swa_lr": 0.0001
+    },
+    "system_info": {
+      "python_version": "3.10.12",
+      "torch_version": "2.9.1+cu128",
+      "numpy_version": "2.2.6",
+      "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+      "device": "cuda",
+      "tensorflow_version": "2.20.0",
+      "gpu_name": "NVIDIA GeForce RTX 3060 Laptop GPU",
+      "gpu_memory_gb": 6.44
+    },
+    "model_parameters": {
+      "total": 1021449,
+      "trainable": 1021449
+    },
+    "data": {
+      "total_segments": 1438,
+      "unique_sessions": 335,
+      "segments_per_class": {
+        "plate": {
+          "Placa_3mm": 507,
+          "Placa_12mm": 492,
+          "Placa_6mm": 439
+        },
+        "electrode": {
+          "E6011": 618,
+          "E6013": 398,
+          "E6010": 226,
+          "E7018": 196
+        },
+        "current": {
+          "DC": 778,
+          "AC": 660
+        }
+      },
+      "classes": {
+        "plate": [
+          "Placa_12mm",
+          "Placa_3mm",
+          "Placa_6mm"
+        ],
+        "electrode": [
+          "E6010",
+          "E6011",
+          "E6013",
+          "E7018"
+        ],
+        "current": [
+          "AC",
+          "DC"
+        ]
+      }
+    },
+    "fold_results": [
+      {
+        "acc_plate": 0.9621212121212122,
+        "acc_electrode": 1.0,
+        "acc_current": 1.0,
+        "f1_plate": 0.9619881860929507,
+        "f1_electrode": 1.0,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.863013698630137,
+        "acc_electrode": 0.9452054794520548,
+        "acc_current": 0.9726027397260274,
+        "f1_plate": 0.8667426409594468,
+        "f1_electrode": 0.9461075615326734,
+        "f1_current": 0.9725718405603049
+      },
+      {
+        "acc_plate": 0.9512195121951219,
+        "acc_electrode": 0.959349593495935,
+        "acc_current": 1.0,
+        "f1_plate": 0.9510482577109584,
+        "f1_electrode": 0.960252935862692,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9299363057324841,
+        "acc_electrode": 0.9490445859872612,
+        "acc_current": 0.9681528662420382,
+        "f1_plate": 0.9302382837477806,
+        "f1_electrode": 0.9481727182059154,
+        "f1_current": 0.968284200044496
+      },
+      {
+        "acc_plate": 0.9808917197452229,
+        "acc_electrode": 0.9363057324840764,
+        "acc_current": 1.0,
+        "f1_plate": 0.9808141335325604,
+        "f1_electrode": 0.9352696573504237,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9420289855072463,
+        "acc_electrode": 0.9420289855072463,
+        "acc_current": 1.0,
+        "f1_plate": 0.942811075280774,
+        "f1_electrode": 0.9420718611604453,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9101796407185628,
+        "acc_electrode": 0.9461077844311377,
+        "acc_current": 0.9760479041916168,
+        "f1_plate": 0.9108175768431208,
+        "f1_electrode": 0.9476820062724217,
+        "f1_current": 0.9759673635185768
+      },
+      {
+        "acc_plate": 0.9481481481481482,
+        "acc_electrode": 0.9925925925925926,
+        "acc_current": 1.0,
+        "f1_plate": 0.9476951225845628,
+        "f1_electrode": 0.992595333031885,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9459459459459459,
+        "acc_electrode": 0.972972972972973,
+        "acc_current": 1.0,
+        "f1_plate": 0.94774121948035,
+        "f1_electrode": 0.9750920660011569,
+        "f1_current": 1.0
+      },
+      {
+        "acc_plate": 0.9629629629629629,
+        "acc_electrode": 0.9703703703703703,
+        "acc_current": 1.0,
+        "f1_plate": 0.9624941180496737,
+        "f1_electrode": 0.9717283950617285,
+        "f1_current": 1.0
+      }
+    ],
+    "fold_best_epochs": [
+      11,
+      40,
+      33,
+      79,
+      41,
+      7,
+      41,
+      34,
+      12,
+      30
+    ],
+    "fold_training_times_seconds": [
+      11.55,
+      21.55,
+      18.52,
+      35.44,
+      21.35,
+      8.35,
+      21.31,
+      18.47,
+      10.4,
+      17.02
+    ],
+    "ensemble_results": {
+      "plate": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "electrode": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "current": {
+        "accuracy": 1.0,
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0
+      }
+    },
+    "individual_avg": {
+      "plate": 0.9396,
+      "electrode": 0.9614,
+      "current": 0.9917
+    },
+    "improvement_vs_individual": {
+      "plate": 0.0604,
+      "electrode": 0.0386,
+      "current": 0.0083
+    }
+  }
+]

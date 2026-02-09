@@ -14,39 +14,26 @@ Clasificar audio de soldadura en tres tareas:
 
 ```
 soldadura/
-├── audio/                    # Audios originales completos
+├── entrenar.py               # Script de entrenamiento (consolidado)
+├── generar_splits.py          # Generación de splits (consolidado)
+├── infer.py                   # Inferencia y evaluación (consolidado)
+├── modelo.py                  # Arquitectura X-Vector
+├── audio/                     # Audios originales completos
 │   ├── Placa_3mm/
 │   ├── Placa_6mm/
 │   └── Placa_12mm/
-├── 1seg/                     # Experimentos con segmentos de 1 segundo
-├── 2seg/                     # Experimentos con segmentos de 2 segundos
-├── 5seg/                     # Experimentos con segmentos de 5 segundos
-├── 10seg/                    # Experimentos con segmentos de 10 segundos
-├── 20seg/                    # Experimentos con segmentos de 20 segundos
-├── 30seg/                    # Experimentos con segmentos de 30 segundos
-├── 50seg/                    # Experimentos con segmentos de 50 segundos
-├── modelo.py                 # Arquitectura X-Vector
-├── utils/                    # Utilidades de audio
-└── scripts/                  # Scripts de análisis y visualización
-    ├── graficar_folds.py     # Métricas vs K-folds
-    └── graficar_duraciones.py # Métricas vs duración de clips
-```
-
-### Estructura de modelos
-
-```
-5seg/
-├── models/
-│   ├── 3-fold/              # Modelos con k=3
-│   │   ├── model_fold_0.pth
-│   │   ├── model_fold_1.pth
-│   │   └── model_fold_2.pth
-│   ├── 5-fold/              # Modelos con k=5
-│   │   └── ...
-│   └── 10-fold/             # Modelos con k=10
-│       └── ...
-├── results.json             # Métricas de entrenamiento
-└── infer.json               # Métricas de evaluación
+├── {N}seg/                    # Datos y modelos por duración (1,2,5,10,20,30,50)
+│   ├── train.csv / test.csv / blind.csv
+│   ├── results.json / infer.json / data_stats.json
+│   ├── models/
+│   │   └── k{K}_overlap_{ratio}/    # Modelos organizados por K y overlap
+│   ├── metricas/
+│   └── confusion_matrices/
+├── utils/                     # Utilidades de audio y timing
+└── scripts/                   # Scripts de análisis y visualización
+    ├── graficar_folds.py      # Métricas vs K-folds
+    ├── graficar_duraciones.py # Métricas vs duración de clips
+    └── graficar_overlap.py    # Comparación de overlap (heatmaps, curvas)
 ```
 
 ## Inicio Rápido
@@ -60,11 +47,12 @@ pip install torch numpy pandas librosa tensorflow tensorflow-hub scikit-learn
 ### 2. Generar splits de datos
 
 ```bash
-cd 5seg  # o cualquier duración (1seg, 2seg, 10seg, 30seg)
-python generar_splits.py
+# Desde la raíz del proyecto
+python generar_splits.py --duration 5 --overlap 0.5
+python generar_splits.py --duration 10 --overlap 0.0
 ```
 
-Esto genera:
+Esto genera en `{N}seg/`:
 
 - `train.csv` - Datos de entrenamiento
 - `test.csv` - Datos de prueba
@@ -73,36 +61,30 @@ Esto genera:
 ### 3. Entrenar modelos
 
 ```bash
-# Entrenar con 5 folds (por defecto)
-python entrenar.py
+# Entrenar con 5 folds y overlap 50%
+python entrenar.py --duration 5 --overlap 0.5 --k-folds 5
 
-# Entrenar con diferente número de folds
-python entrenar.py --k-folds 3
-python entrenar.py --k-folds 10
+# Entrenar con 10 folds sin overlap
+python entrenar.py --duration 10 --overlap 0.0 --k-folds 10
 ```
 
-Los modelos se guardan en carpetas según k-folds:
+Los modelos se guardan en:
 
-- `5seg/5-fold/` - Modelos entrenados con 5 folds
-- `5seg/3-fold/` - Modelos entrenados con 3 folds
-- etc.
+- `05seg/models/k05_overlap_0.5/` - 5-fold con overlap 0.5
+- `10seg/models/k10_overlap_0.0/` - 10-fold sin overlap
 
 ### 4. Evaluar modelos
 
 ```bash
-# Evaluar ensemble de 5-fold (por defecto)
-python infer.py --evaluar
-
-# Evaluar con diferente k-folds
-python infer.py --evaluar --k-folds 3
-python infer.py --evaluar --k-folds 10
+# Evaluar ensemble en conjunto blind
+python infer.py --duration 5 --overlap 0.5 --evaluar
+python infer.py --duration 5 --overlap 0.5 --evaluar --k-folds 10
 ```
 
 ### 5. Predecir un audio específico
 
 ```bash
-python infer.py --audio ruta/al/archivo.wav
-python infer.py --audio ruta/al/archivo.wav --k-folds 3
+python infer.py --duration 5 --overlap 0.5 --audio ruta/al/archivo.wav
 ```
 
 ## Resultados
@@ -124,45 +106,47 @@ Cada entrada incluye información para identificar el experimento:
 
 Se añadió una tabla comparativa de K para 10seg en [RESULTADOS.md](RESULTADOS.md).
 
-## Comparar diferentes valores de K
+## Comparar diferentes valores de K y overlap
 
 ```bash
-# Entrenar con diferentes k
-python entrenar.py --k-folds 3
-python entrenar.py --k-folds 5
-python entrenar.py --k-folds 10
+# Entrenar con diferentes k y overlap
+python entrenar.py --duration 5 --overlap 0.5 --k-folds 5
+python entrenar.py --duration 5 --overlap 0.5 --k-folds 10
+python entrenar.py --duration 5 --overlap 0.0 --k-folds 5
+python entrenar.py --duration 5 --overlap 0.75 --k-folds 5
 
 # Evaluar cada configuración
-python infer.py --evaluar --k-folds 3
-python infer.py --evaluar --k-folds 5
-python infer.py --evaluar --k-folds 10
+python infer.py --duration 5 --overlap 0.5 --evaluar --k-folds 5
+python infer.py --duration 5 --overlap 0.5 --evaluar --k-folds 10
 ```
 
-Luego revisa `results.json` para comparar las métricas de cada configuración.
+Luego revisa `{N}seg/results.json` y `{N}seg/infer.json` para comparar métricas.
 
 ## Visualización de Resultados
 
 ### Métricas vs Número de Folds
 
 ```bash
-cd scripts
-
 # Graficar métricas vs k-folds para una duración específica
-python graficar_folds.py 5seg
-python graficar_folds.py 10seg --save              # Guarda imagen
-python graficar_folds.py 5seg --metric accuracy    # Solo accuracy
+python scripts/graficar_folds.py 05seg
+python scripts/graficar_folds.py 10seg --save
 ```
 
 ### Métricas vs Duración de Clips
 
 ```bash
-cd scripts
-
 # Comparar rendimiento entre diferentes duraciones
-python graficar_duraciones.py
-python graficar_duraciones.py --k-folds 5          # Solo resultados de 5-fold
-python graficar_duraciones.py --save               # Guarda imagen
-python graficar_duraciones.py --no-plot            # Solo tabla resumen
+python scripts/graficar_duraciones.py
+python scripts/graficar_duraciones.py --k-folds 5 --save
+```
+
+### Comparación de Overlap
+
+```bash
+# Gráficas por duración y heatmaps duración×overlap
+python scripts/graficar_overlap.py --save
+python scripts/graficar_overlap.py --heatmap --save
+python scripts/graficar_overlap.py --duration 5 --k-folds 10 --save
 ```
 
 ## Parámetros de Entrenamiento

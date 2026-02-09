@@ -10,9 +10,9 @@ Este documento contiene las estadísticas de sesiones y segmentos por etiqueta p
 
 | Duración | Sesiones | Segmentos | Train | Test | Blind |
 |----------|----------|-----------|-------|------|--------|
-| 1seg | 373 | 43170 | 30176 | 8006 | 4988 |
-| 2seg | 373 | 21313 | 14898 | 3950 | 2465 |
-| 5seg | 373 | 8185 | 5713 | 1521 | 951 |
+| 01seg | 373 | 43170 | 30176 | 8006 | 4988 |
+| 02seg | 373 | 21313 | 14898 | 3950 | 2465 |
+| 05seg | 373 | 8185 | 5713 | 1521 | 951 |
 | 10seg | 373 | 3819 | 2660 | 712 | 447 |
 | 20seg | 373 | 1640 | 1138 | 303 | 199 |
 | 30seg | 373 | 918 | 635 | 170 | 113 |
@@ -52,7 +52,7 @@ Las sesiones son las mismas para todas las duraciones, solo cambia el número de
 
 ## Segmentos por Duración y Etiqueta
 
-### 1seg
+### 01seg
 
 **Total:** 43170 segmentos
 
@@ -80,7 +80,7 @@ Las sesiones son las mismas para todas las duraciones, solo cambia el número de
 | AC | 17123 | 12110 | 3285 | 1728 |
 | DC | 26047 | 18066 | 4721 | 3260 |
 
-### 2seg
+### 02seg
 
 **Total:** 21313 segmentos
 
@@ -108,7 +108,7 @@ Las sesiones son las mismas para todas las duraciones, solo cambia el número de
 | AC | 8471 | 5992 | 1624 | 855 |
 | DC | 12842 | 8906 | 2326 | 1610 |
 
-### 5seg
+### 05seg
 
 **Total:** 8185 segmentos
 
