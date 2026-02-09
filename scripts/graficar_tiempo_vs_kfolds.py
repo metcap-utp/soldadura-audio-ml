@@ -18,6 +18,15 @@ COLORS = {
 }
 
 
+def _parse_timestamp(value: str) -> datetime:
+    if not value:
+        return datetime.min
+    try:
+        return datetime.fromisoformat(value)
+    except ValueError:
+        return datetime.min
+
+
 def extract_kfold_times(results_file: Path) -> dict:
     """
     Extrae los tiempos por k-folds de un archivo resultados.json.
@@ -29,7 +38,7 @@ def extract_kfold_times(results_file: Path) -> dict:
     with open(results_file, 'r') as f:
         results = json.load(f)
     
-    kfold_data = {}
+    kfold_candidates = {}
     for entry in results:
         if 'config' not in entry:
             continue
@@ -38,6 +47,9 @@ def extract_kfold_times(results_file: Path) -> dict:
         if k is None:
             continue
         
+        overlap_ratio = entry['config'].get('overlap_ratio')
+        timestamp = _parse_timestamp(entry.get('timestamp'))
+
         # Tiempo de extraccion VGGish (si existe)
         vggish_info = entry.get('vggish_extraction', {})
         vggish_time_seconds = vggish_info.get('extraction_time_seconds')
@@ -48,12 +60,15 @@ def extract_kfold_times(results_file: Path) -> dict:
             training_only_seconds = entry['training_time'].get('seconds', 0)
             total_seconds = entry.get('execution_time', {}).get('seconds', training_only_seconds)
             
-            kfold_data[k] = {
+            kfold_candidates.setdefault(k, []).append({
                 'total_time': total_seconds / 60,
                 'training_time': training_only_seconds / 60,
                 'vggish_time': vggish_time_seconds / 60 if vggish_time_seconds else None,
                 'from_cache': from_cache,
+                'overlap_ratio': overlap_ratio,
+                'timestamp': timestamp,
             }
+            )
         elif 'execution_time' in entry:
             time_seconds = entry['execution_time'].get('seconds')
             if time_seconds is not None:
@@ -63,13 +78,22 @@ def extract_kfold_times(results_file: Path) -> dict:
                 else:
                     training_only_seconds = time_seconds
                 
-                kfold_data[k] = {
+                kfold_candidates.setdefault(k, []).append({
                     'total_time': time_seconds / 60,
                     'training_time': training_only_seconds / 60,
                     'vggish_time': vggish_time_seconds / 60 if vggish_time_seconds else None,
                     'from_cache': from_cache,
+                    'overlap_ratio': overlap_ratio,
+                    'timestamp': timestamp,
                 }
-    
+                )
+
+    kfold_data = {}
+    for k, candidates in kfold_candidates.items():
+        no_overlap = [c for c in candidates if c['overlap_ratio'] is None]
+        pool = no_overlap if no_overlap else candidates
+        kfold_data[k] = max(pool, key=lambda c: c['timestamp'])
+
     return dict(sorted(kfold_data.items()))
 
 
@@ -130,7 +154,7 @@ def plot_training_time_vs_kfolds(data: dict, duration: str, output_dir: Path):
 def main():
     parser = argparse.ArgumentParser(description='Graficar tiempo de entrenamiento vs k-folds')
     parser.add_argument('--duration', '-d', type=str, default='05seg',
-                       help='Duracion de los segmentos (ej: 05seg, 10seg)'))
+                       help='Duracion de los segmentos (ej: 05seg, 10seg)')
     parser.add_argument('--output', '-o', type=str, default=None,
                        help='Directorio de salida para el grafico')
     

@@ -463,13 +463,18 @@ def plot_overlap_all_durations(k_folds: int, metric: str, save: bool, lang: str 
             ),
             fontsize=12,
         )
-        ax.legend(fontsize=9)
+        ax.legend(
+            fontsize=9,
+            loc="upper left",
+            bbox_to_anchor=(1.02, 1),
+            borderaxespad=0,
+        )
         ax.grid(True, alpha=0.3)
         ax.set_ylim(0, 1.05)
         ax.set_xticks(OVERLAPS)
         ax.set_xticklabels([str(ov) for ov in OVERLAPS])
 
-    plt.tight_layout()
+    plt.tight_layout(rect=[0, 0, 0.85, 1])
 
     if save:
         out_dir = ROOT_DIR / "scripts" / "img"

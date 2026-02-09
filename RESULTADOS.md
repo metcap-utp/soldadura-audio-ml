@@ -387,14 +387,14 @@ El tiempo de entrenamiento incluye solo el proceso de K-Fold CV y evaluación de
 
 | K-Folds | Tiempo Entrenamiento (min) |
 | ------- | -------------------------- |
-| 3       | 2.96                       |
+| 3       | 3.67                       |
 | 5       | 3.75                       |
 | 7       | 6.91                       |
 | 10      | 9.87                       |
 | 15      | 14.80                      |
 | 20      | 19.73                      |
 
-![Tiempo vs K-Folds - 5 segundos](05seg/metricas/tiempo_vs_kfolds_5seg_2026-02-05_19-51-47.png)
+![Tiempo vs K-Folds - 5 segundos](05seg/metricas/tiempo_vs_kfolds_05seg_2026-02-08_23-46-22.png)
 
 El tiempo de entrenamiento crece aproximadamente de forma lineal con el número de folds.
 
