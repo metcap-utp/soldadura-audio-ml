@@ -680,27 +680,27 @@ Accuracy promedio de las 3 tareas en el conjunto blind para cada combinación de
 
 Las siguientes gráficas muestran Accuracy y F1 vs Overlap Ratio para las 3 tareas, con una línea por cada duración de segmento. Evaluación ciega (blind), K=5.
 
-![Accuracy vs Overlap — Todas las duraciones, K=5, Evaluación Ciega](scripts/overlap_all_durations_accuracy_k05.png)
+![Accuracy vs Overlap — Todas las duraciones, K=5, Evaluación Ciega](scripts/img/overlap_all_durations_accuracy_k05.png)
 
-![F1 vs Overlap — Todas las duraciones, K=5, Evaluación Ciega](scripts/overlap_all_durations_f1_k05.png)
+![F1 vs Overlap — Todas las duraciones, K=5, Evaluación Ciega](scripts/img/overlap_all_durations_f1_k05.png)
 
-![Accuracy vs Overlap — Todas las duraciones, K=10, Evaluación Ciega](scripts/overlap_all_durations_accuracy_k10.png)
+![Accuracy vs Overlap — Todas las duraciones, K=10, Evaluación Ciega](scripts/img/overlap_all_durations_accuracy_k10.png)
 
-![F1 vs Overlap — Todas las duraciones, K=10, Evaluación Ciega](scripts/overlap_all_durations_f1_k10.png)
+![F1 vs Overlap — Todas las duraciones, K=10, Evaluación Ciega](scripts/img/overlap_all_durations_f1_k10.png)
 
 ### Heatmaps — Accuracy por Duración × Overlap
 
 Visualización de la Accuracy por tarea en función de la duración del segmento y el overlap ratio. Evaluación ciega (blind).
 
-![Heatmap Accuracy — Duración × Overlap, K=5, Evaluación Ciega](scripts/heatmap_overlap_k05.png)
+![Heatmap Accuracy — Duración × Overlap, K=5, Evaluación Ciega](scripts/img/heatmap_overlap_k05.png)
 
-![Heatmap Accuracy — Duración × Overlap, K=10, Evaluación Ciega](scripts/heatmap_overlap_k10.png)
+![Heatmap Accuracy — Duración × Overlap, K=10, Evaluación Ciega](scripts/img/heatmap_overlap_k10.png)
 
 ### Segmentos de Evaluación vs Overlap
 
 El overlap multiplica la cantidad de segmentos disponibles para entrenamiento y evaluación. La siguiente gráfica muestra la relación estimada entre overlap ratio y número de segmentos por duración.
 
-![Segmentos estimados vs Overlap Ratio](scripts/segments_vs_overlap.png)
+![Segmentos estimados vs Overlap Ratio](scripts/img/segments_vs_overlap.png)
 
 > **Conclusión:** El overlap óptimo depende de la duración del segmento. Para duraciones ≤10s, se recomienda overlap de 0.5–0.75. Para duraciones ≥20s, se recomienda overlap de 0.0–0.25. La mejor combinación global es **10 segundos con overlap 0.25 y K=10**, que alcanza **Hamming Accuracy de 0.8784** y **Exact Match de 0.7329** en el conjunto blind.
 
