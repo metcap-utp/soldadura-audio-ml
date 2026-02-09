@@ -1,26 +1,14 @@
 """
 Entrenamiento de modelos para clasificación SMAW.
 
-Entrena K modelos usando K-Fold CV estratificado por GRUPOS (sesiones)
-y los guarda para hacer voting. Cada modelo ve diferentes datos de
-validación, lo que aumenta la diversidad.
-
-IMPORTANTE: Se usa StratifiedGroupKFold para garantizar que:
-- Todos los segmentos de una misma sesión van al mismo fold
-- Esto evita data leakage por grabaciones similares
-
-Los audios se segmentan ON-THE-FLY según la duración del directorio
-(5seg, 10seg, 30seg) - NO hay archivos segmentados en disco.
+Entrena K modelos usando K-Fold CV y los guarda para hacer voting.
+Cada modelo ve diferentes datos de validación, lo que aumenta la diversidad.
 
 Fuente: "Ensemble Methods" (Dietterich, 2000)
 """
 
-import argparse
-import hashlib
 import json
-import pickle
 import sys
-import time
 import warnings
 from datetime import datetime
 from pathlib import Path
@@ -38,7 +26,7 @@ from sklearn.metrics import (
     precision_score,
     recall_score,
 )
-from sklearn.model_selection import StratifiedGroupKFold
+from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import LabelEncoder
 from sklearn.utils.class_weight import compute_class_weight
 from torch.optim.swa_utils import SWALR, AveragedModel
@@ -48,43 +36,11 @@ from torch.utils.data import DataLoader, Dataset
 ROOT_DIR = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 from modelo import SMAWXVectorModel
-from utils.audio_utils import (
-    PROJECT_ROOT,
-    get_script_segment_duration,
-    load_audio_segment,
-)
-from utils.timing import timer
 
 warnings.filterwarnings("ignore")
 
-
-# ============= Parseo de argumentos =============
-def parse_args():
-    parser = argparse.ArgumentParser(
-        description="Entrenamiento de modelos SMAW con K-Fold CV"
-    )
-    parser.add_argument(
-        "--k-folds",
-        type=int,
-        default=5,
-        choices=[3, 4, 5, 6, 7, 8, 9, 10, 15, 20],
-        help="Número de folds para cross-validation (default: 5)",
-    )
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=42,
-        help="Semilla para reproducibilidad (default: 42)",
-    )
-    parser.add_argument(
-        "--no-cache",
-        action="store_true",
-        help="No usar cache de embeddings VGGish (fuerza recalculo)",
-    )
-    return parser.parse_args()
-
-
 # ============= Configuración =============
+N_FOLDS = 5
 RANDOM_SEED = 42
 BATCH_SIZE = 32
 NUM_EPOCHS = 100
@@ -94,193 +50,23 @@ WEIGHT_DECAY = 1e-4
 LABEL_SMOOTHING = 0.1
 SWA_START = 5
 
-# Duración de segmento basada en el nombre del directorio (5seg -> 5.0)
-SEGMENT_DURATION = get_script_segment_duration(Path(__file__))
-
-# Solapamiento entre segmentos como fracción (0-1). Default: 0 (sin solapamiento)
-OVERLAP_RATIO = 0.0
-# Solapamiento entre segmentos en segundos (derivado de OVERLAP_RATIO)
-OVERLAP_SECONDS = 0.0
-
 # Directorios
-SCRIPT_DIR = Path(__file__).parent
-VGGISH_MODEL_URL = "https://tfhub.dev/google/vggish/1"
+SCRIPT_DIR = Path("30seg")
+VGGISH_MODEL_DIR = Path("vggish")
+MODELS_DIR = SCRIPT_DIR / "models"
+MODELS_DIR.mkdir(exist_ok=True)
 
 # Cargar modelo VGGish
-print(f"Cargando modelo VGGish desde TensorFlow Hub...")
-vggish_model = hub.load(VGGISH_MODEL_URL)
+print(f"Cargando modelo VGGish desde {VGGISH_MODEL_DIR}...")
+vggish_model = hub.load(str(VGGISH_MODEL_DIR))
 print("Modelo VGGish cargado correctamente.")
 
 
 # ============= Funciones auxiliares =============
 
 
-def extract_session_from_path(audio_path: str) -> str:
-    """Extrae el identificador de sesión del path del audio.
-
-    El path tiene estructura: audio/Placa_Xmm/EXXXX/AC|DC/YYMMDD-HHMMSS_Audio/file.wav
-    La sesión es la carpeta con formato YYMMDD-HHMMSS_Audio
-    """
-    parts = Path(audio_path).parts
-    for part in parts:
-        if part.endswith("_Audio"):
-            return part
-    # Fallback: usar el directorio padre
-    return Path(audio_path).parent.name
-
-
-# ============= Cache de Embeddings =============
-
-
-def get_embeddings_cache_dir() -> Path:
-    """Directorio de cache de embeddings (siempre `embeddings_cache/`)."""
-    cache_dir = SCRIPT_DIR / "embeddings_cache"
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    return cache_dir
-
-
-def get_legacy_embeddings_cache_paths() -> list[Path]:
-    """Rutas legacy posibles para reutilizar caches viejos sin borrarlos."""
-    cache_dir = SCRIPT_DIR / "embeddings_cache"
-    cache_dir.mkdir(exist_ok=True)
-    dur = float(SEGMENT_DURATION)
-    return [
-        cache_dir / f"vggish_embeddings_{dur}s_overlap0.0s.pkl",
-        cache_dir / f"vggish_embeddings_{dur}s_overlap_0.0.pkl",
-        cache_dir / f"vggish_embeddings_{dur}s.pkl",
-    ]
-
-
-def get_embeddings_cache_path() -> Path:
-    """Obtiene la ruta del archivo de cache de embeddings."""
-    cache_dir = get_embeddings_cache_dir()
-    return cache_dir / f"vggish_embeddings_{float(SEGMENT_DURATION)}s.pkl"
-
-
-def compute_dataset_hash(paths: list, segment_indices: list) -> str:
-    """Calcula un hash del dataset para detectar cambios."""
-    data_str = f"dur={SEGMENT_DURATION}|" + "".join(
-        [f"{p}:{s}" for p, s in zip(paths, segment_indices)]
-    )
-    return hashlib.md5(data_str.encode()).hexdigest()
-
-
-def load_embeddings_cache(paths: list, segment_indices: list) -> tuple:
-    """Carga embeddings del cache si existe y es válido.
-
-    Returns:
-        tuple: (embeddings_list, success) donde success indica si se cargó del cache
-    """
-    new_cache_path = get_embeddings_cache_path()
-    cache_paths = [new_cache_path, *get_legacy_embeddings_cache_paths()]
-    cache_path = next((p for p in cache_paths if p.exists()), None)
-
-    if cache_path is None:
-        return None, False
-
-    try:
-        with timer("Cargar cache embeddings VGGish"):
-            with open(cache_path, "rb") as f:
-                cache_data = pickle.load(f)
-
-            # Verificar duración del segmento
-            if cache_data.get("segment_duration") != SEGMENT_DURATION:
-                print("  [CACHE] Duración no coincide, regenerando embeddings...")
-                return None, False
-
-            # Verificar hash
-            current_hash = compute_dataset_hash(paths, segment_indices)
-            if cache_data.get("hash") != current_hash:
-                print("  [CACHE] Hash no coincide, regenerando embeddings...")
-                return None, False
-
-        print(
-            f"  [CACHE] Cargando {len(cache_data['embeddings'])} embeddings desde cache ({cache_path})"
-        )
-
-        # Si es legacy, migrar al nuevo naming sin borrar el original
-        if cache_path != new_cache_path:
-            try:
-                with timer("Migrar cache legacy -> nuevo naming"):
-                    with open(new_cache_path, "wb") as f:
-                        pickle.dump(cache_data, f)
-                print(f"  [CACHE] Migrado a: {new_cache_path}")
-            except Exception as e:
-                print(f"  [CACHE] No se pudo migrar cache legacy: {e}")
-        return cache_data["embeddings"], True
-
-    except Exception as e:
-        print(f"  [CACHE] Error leyendo cache: {e}")
-        return None, False
-
-
-def save_embeddings_cache(embeddings: list, paths: list, segment_indices: list):
-    """Guarda embeddings en cache."""
-    cache_path = get_embeddings_cache_path()
-
-    cache_data = {
-        "hash": compute_dataset_hash(paths, segment_indices),
-        "embeddings": embeddings,
-        "segment_duration": SEGMENT_DURATION,
-        "overlap_ratio": OVERLAP_RATIO,
-        "overlap_seconds": OVERLAP_SECONDS,
-        "created_at": datetime.now().isoformat(),
-        "num_embeddings": len(embeddings),
-    }
-
-    with timer("Guardar cache embeddings VGGish"):
-        with open(cache_path, "wb") as f:
-            pickle.dump(cache_data, f)
-
-    print(f"  [CACHE] Guardados {len(embeddings)} embeddings en cache ({cache_path})")
-
-
-def extract_vggish_embeddings_from_segment(
-    audio_path: str, segment_idx: int
-) -> np.ndarray:
-    """Extrae embeddings VGGish de un segmento específico de audio."""
-    full_path = PROJECT_ROOT / audio_path
-
-    # Cargar el segmento específico
-    segment = load_audio_segment(
-        full_path,
-        segment_duration=SEGMENT_DURATION,
-        segment_index=segment_idx,
-        sr=16000,
-        overlap_seconds=OVERLAP_SECONDS,
-    )
-
-    if segment is None:
-        raise ValueError(f"No se pudo cargar segmento {segment_idx} de {audio_path}")
-
-    # VGGish espera ventanas de 1 segundo con hop de 0.5 segundos
-    window_size = 16000  # 1 segundo a 16kHz
-    hop_size = 8000  # 0.5 segundos
-    embeddings_list = []
-
-    for start in range(0, len(segment), hop_size):
-        end = start + window_size
-        if end > len(segment):
-            # Padding al final
-            window = np.zeros(window_size, dtype=np.float32)
-            window[: len(segment) - start] = segment[start:]
-        else:
-            window = segment[start:end]
-
-        embedding = vggish_model(window).numpy()
-        embeddings_list.append(embedding[0])
-
-        if end >= len(segment):
-            break
-
-    return np.stack(embeddings_list, axis=0)
-
-
 def extract_vggish_embeddings(audio_path):
-    """Extrae embeddings VGGish de un archivo de audio completo.
-
-    Esta función se mantiene para compatibilidad con inferencia.
-    """
+    """Extrae embeddings VGGish de un archivo de audio."""
     import librosa
 
     y, sr = librosa.load(audio_path, sr=16000, mono=True)
@@ -355,7 +141,6 @@ def train_one_fold(
     class_weights,
     encoders,
     device,
-    models_dir,
 ):
     """Entrena un fold y guarda el mejor modelo."""
 
@@ -424,14 +209,7 @@ def train_one_fold(
     # Training loop
     best_val_loss = float("inf")
     patience_counter = 0
-    best_metrics = {
-        "acc_plate": 0.0,
-        "acc_electrode": 0.0,
-        "acc_current": 0.0,
-        "f1_plate": 0.0,
-        "f1_electrode": 0.0,
-        "f1_current": 0.0,
-    }
+    best_metrics = {}
     best_state_dict = None
 
     for epoch in range(NUM_EPOCHS):
@@ -543,7 +321,7 @@ def train_one_fold(
                 break
 
     # Guardar el mejor modelo de este fold
-    model_path = models_dir / f"model_fold_{fold_idx}.pth"
+    model_path = MODELS_DIR / f"model_fold_{fold_idx}.pth"
     torch.save(best_state_dict, model_path)
 
     print(
@@ -586,45 +364,18 @@ def ensemble_predict(models, embeddings, device):
 # ============= Main =============
 
 if __name__ == "__main__":
-    # Iniciar timer
-    start_time = time.time()
-
-    # Parsear argumentos
-    args = parse_args()
-    N_FOLDS = args.k_folds
-    RANDOM_SEED = args.seed
-    USE_CACHE = not args.no_cache
-    # Overlap fijo en 0.0 (sin solapamiento)
-    OVERLAP_RATIO = 0.0
-    OVERLAP_SECONDS = 0.0
-
-    # Crear directorio de modelos basado en k-folds (models/kXX/)
-    MODELS_BASE_DIR = SCRIPT_DIR / "models"
-    MODELS_BASE_DIR.mkdir(exist_ok=True)
-    MODELS_DIR = MODELS_BASE_DIR / f"k{N_FOLDS:02d}"
-    MODELS_DIR.mkdir(exist_ok=True)
-
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"\n{'=' * 70}")
-    print(f"CONFIGURACIÓN")
-    print(f"{'=' * 70}")
-    print(f"Dispositivo: {device}")
-    print(f"Duración de segmento: {SEGMENT_DURATION}s")
-    print(f"K-Folds: {N_FOLDS}")
-    print(f"Semilla: {RANDOM_SEED}")
-    print(f"Usar cache: {USE_CACHE}")
-    print(f"Modelos se guardarán en: {MODELS_DIR}/")
+    print(f"Usando dispositivo: {device}")
 
-    with timer("Cargar CSVs (train/test)"):
-        train_data = pd.read_csv(SCRIPT_DIR / "train.csv")
-        test_data = pd.read_csv(SCRIPT_DIR / "test.csv")
-        all_data = pd.concat([train_data, test_data], ignore_index=True)
+    # Cargar todos los datos (train + test)
+    train_data = pd.read_csv(SCRIPT_DIR / "train.csv")
+    test_data = pd.read_csv(SCRIPT_DIR / "test.csv")
+    all_data = pd.concat([train_data, test_data], ignore_index=True)
 
-    print(f"\nTotal de segmentos: {len(all_data)}")
+    print(f"Total de muestras: {len(all_data)}")
 
-    # Extraer sesión de cada path para agrupar en K-Fold
-    all_data["Session"] = all_data["Audio Path"].apply(extract_session_from_path)
-    print(f"Sesiones únicas: {all_data['Session'].nunique()}")
+    # Preparar paths
+    all_data["Audio Path"] = all_data["Audio Path"].apply(lambda x: str(SCRIPT_DIR / x))
 
     # Encoders
     plate_encoder = LabelEncoder()
@@ -641,80 +392,39 @@ if __name__ == "__main__":
         all_data["Type of Current"]
     )
 
-    vggish_extraction_time = None  # Tiempo de extraccion VGGish (solo si no cache)
-    embeddings_from_cache = False
-
-    with timer("Embeddings VGGish (cache/compute)") as get_total_embed_time:
-        print("\nExtrayendo embeddings VGGish de todos los segmentos...")
-        paths = all_data["Audio Path"].values
-        segment_indices = all_data["Segment Index"].values
-
-        all_embeddings = None
-        loaded_from_cache = False
-
-        # Solo intentar cargar cache si USE_CACHE=True
-        if USE_CACHE:
-            all_embeddings, loaded_from_cache = load_embeddings_cache(
-                paths.tolist(), segment_indices.tolist()
-            )
-        
-        embeddings_from_cache = loaded_from_cache
-
-        if not loaded_from_cache:
-            with timer("Calcular embeddings VGGish (compute)") as get_extract_time:
-                all_embeddings = []
-                for i, (path, seg_idx) in enumerate(zip(paths, segment_indices)):
-                    if i % 100 == 0:
-                        print(f"  Procesando {i}/{len(paths)}...")
-                    emb = extract_vggish_embeddings_from_segment(path, int(seg_idx))
-                    all_embeddings.append(emb)
-            
-            vggish_extraction_time = get_extract_time().seconds
-
-            # Guardar cache solo si USE_CACHE=True
-            if USE_CACHE:
-                save_embeddings_cache(
-                    all_embeddings, paths.tolist(), segment_indices.tolist()
-                )
+    # Extraer todos los embeddings una sola vez
+    print("\nExtrayendo embeddings VGGish de todas las muestras...")
+    all_embeddings = []
+    paths = all_data["Audio Path"].values
+    for i, path in enumerate(paths):
+        if i % 100 == 0:
+            print(f"  Procesando {i}/{len(paths)}...")
+        emb = extract_vggish_embeddings(path)
+        all_embeddings.append(emb)
 
     print(f"Embeddings extraídos: {len(all_embeddings)}")
-    if vggish_extraction_time:
-        print(f"Tiempo extraccion VGGish: {vggish_extraction_time:.2f}s ({vggish_extraction_time/60:.2f}min)")
 
     # Preparar arrays
     y_plate = all_data["Plate Encoded"].values
     y_electrode = all_data["Electrode Encoded"].values
     y_current = all_data["Current Encoded"].values
-    sessions = all_data["Session"].values
 
     # Crear etiqueta combinada para stratification
     y_stratify = y_electrode
 
     # ============= FASE 1: Entrenar K modelos =============
     print(f"\n{'=' * 70}")
-    print(f"FASE 1: ENTRENAMIENTO DE {N_FOLDS} MODELOS (StratifiedGroupKFold)")
+    print(f"FASE 1: ENTRENAMIENTO DE {N_FOLDS} MODELOS (K-Fold)")
     print(f"{'=' * 70}")
-    print("[INFO] Usando StratifiedGroupKFold")
 
-    # Iniciar timer de entrenamiento puro (sin VGGish)
-    training_start_time = time.time()
-
-    sgkf = StratifiedGroupKFold(
-        n_splits=N_FOLDS, shuffle=True, random_state=RANDOM_SEED
-    )
+    skf = StratifiedKFold(n_splits=N_FOLDS, shuffle=True, random_state=RANDOM_SEED)
     fold_metrics = []
 
     for fold_idx, (train_idx, val_idx) in enumerate(
-        sgkf.split(all_embeddings, y_stratify, groups=sessions)
+        skf.split(all_embeddings, y_stratify)
     ):
-        # Verificar que sesiones no se mezclan
-        train_sessions = set(sessions[train_idx])
-        val_sessions = set(sessions[val_idx])
-        assert len(train_sessions & val_sessions) == 0, "ERROR: Sesiones mezcladas!"
-
         print(f"\nFold {fold_idx + 1}/{N_FOLDS}")
-        print(f"  Train: {len(train_idx)} segmentos ({len(train_sessions)} sesiones)")
-        print(f"  Val: {len(val_idx)} segmentos ({len(val_sessions)} sesiones)")
+        print(f"  Train: {len(train_idx)} muestras | Val: {len(val_idx)} muestras")
 
         # Separar datos
         train_embeddings = [all_embeddings[i] for i in train_idx]
@@ -750,47 +460,40 @@ if __name__ == "__main__":
             ),
         }
 
-        with timer(f"Entrenar fold {fold_idx + 1}/{N_FOLDS}"):
-            metrics = train_one_fold(
-                fold_idx,
-                train_embeddings,
-                train_labels,
-                val_embeddings,
-                val_labels,
-                class_weights,
-                (plate_encoder, electrode_encoder, current_type_encoder),
-                device,
-                MODELS_DIR,
-            )
+        # Entrenar fold
+        metrics = train_one_fold(
+            fold_idx,
+            train_embeddings,
+            train_labels,
+            val_embeddings,
+            val_labels,
+            class_weights,
+            (plate_encoder, electrode_encoder, current_type_encoder),
+            device,
+        )
         fold_metrics.append(metrics)
-
-    # Calcular tiempo de entrenamiento puro
-    training_end_time = time.time()
-    training_time = training_end_time - training_start_time
-    training_time_minutes = training_time / 60
-    print(f"\nTiempo de entrenamiento puro: {training_time:.2f}s ({training_time_minutes:.2f}min)")
 
     # ============= FASE 2: Evaluar Ensemble =============
     print(f"\n{'=' * 70}")
     print("FASE 2: EVALUACIÓN DEL ENSEMBLE (Soft Voting)")
     print(f"{'=' * 70}")
 
-    with timer("Cargar modelos del ensemble"):
-        models = []
-        for fold_idx in range(N_FOLDS):
-            model = SMAWXVectorModel(
-                feat_dim=128,
-                xvector_dim=512,
-                emb_dim=256,
-                num_classes_espesor=len(plate_encoder.classes_),
-                num_classes_electrodo=len(electrode_encoder.classes_),
-                num_classes_corriente=len(current_type_encoder.classes_),
-            ).to(device)
-            model.load_state_dict(torch.load(MODELS_DIR / f"model_fold_{fold_idx}.pth"))
-            model.eval()
-            models.append(model)
+    # Cargar todos los modelos
+    models = []
+    for fold_idx in range(N_FOLDS):
+        model = SMAWXVectorModel(
+            feat_dim=128,
+            xvector_dim=512,
+            emb_dim=256,
+            num_classes_espesor=len(plate_encoder.classes_),
+            num_classes_electrodo=len(electrode_encoder.classes_),
+            num_classes_corriente=len(current_type_encoder.classes_),
+        ).to(device)
+        model.load_state_dict(torch.load(MODELS_DIR / f"model_fold_{fold_idx}.pth"))
+        model.eval()
+        models.append(model)
 
-        print(f"Cargados {len(models)} modelos del ensemble")
+    print(f"Cargados {len(models)} modelos del ensemble")
 
     # Evaluar en todo el dataset
     all_preds = {"plate": [], "electrode": [], "current": []}
@@ -802,17 +505,16 @@ if __name__ == "__main__":
         full_dataset, batch_size=BATCH_SIZE, shuffle=False, collate_fn=collate_fn_pad
     )
 
-    with timer("Evaluación ensemble (Soft Voting)"):
-        print("Evaluando ensemble en todo el dataset...")
-        for embeddings, labels_p, labels_e, labels_c in full_loader:
-            pred_p, pred_e, pred_c = ensemble_predict(models, embeddings, device)
+    print("Evaluando ensemble en todo el dataset...")
+    for embeddings, labels_p, labels_e, labels_c in full_loader:
+        pred_p, pred_e, pred_c = ensemble_predict(models, embeddings, device)
 
-            all_preds["plate"].extend(pred_p.cpu().numpy())
-            all_preds["electrode"].extend(pred_e.cpu().numpy())
-            all_preds["current"].extend(pred_c.cpu().numpy())
-            all_labels["plate"].extend(labels_p.numpy())
-            all_labels["electrode"].extend(labels_e.numpy())
-            all_labels["current"].extend(labels_c.numpy())
+        all_preds["plate"].extend(pred_p.cpu().numpy())
+        all_preds["electrode"].extend(pred_e.cpu().numpy())
+        all_preds["current"].extend(pred_c.cpu().numpy())
+        all_labels["plate"].extend(labels_p.numpy())
+        all_labels["electrode"].extend(labels_e.numpy())
+        all_labels["current"].extend(labels_c.numpy())
 
     # Calcular métricas del ensemble
     acc_p = np.mean(np.array(all_preds["plate"]) == np.array(all_labels["plate"]))
@@ -924,58 +626,17 @@ if __name__ == "__main__":
     print(f"Clases: {current_type_encoder.classes_}")
 
     # Guardar resultados (acumulativo)
-    # Calcular tiempo de ejecución
-    end_time = time.time()
-    elapsed_time = end_time - start_time
-    elapsed_minutes = elapsed_time / 60
-    elapsed_hours = elapsed_time / 3600
-
-    print(
-        f"\nTiempo de ejecución: {elapsed_time:.2f}s ({elapsed_minutes:.2f}min / {elapsed_hours:.2f}h)"
-    )
-
     new_entry = {
-        "id": f"{int(SEGMENT_DURATION)}seg_{N_FOLDS}fold_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
         "timestamp": datetime.now().isoformat(),
-        "execution_time": {
-            "seconds": round(elapsed_time, 2),
-            "minutes": round(elapsed_minutes, 2),
-            "hours": round(elapsed_hours, 4),
-        },
-        "training_time": {
-            "seconds": round(training_time, 2),
-            "minutes": round(training_time_minutes, 2),
-        },
-        "vggish_extraction": {
-            "from_cache": embeddings_from_cache,
-            "extraction_time_seconds": round(vggish_extraction_time, 2) if vggish_extraction_time else None,
-            "extraction_time_minutes": round(vggish_extraction_time / 60, 2) if vggish_extraction_time else None,
-        },
         "config": {
-            "segment_duration": SEGMENT_DURATION,
-            "overlap_seconds": OVERLAP_SECONDS,
             "n_folds": N_FOLDS,
-            "models_dir": str(MODELS_DIR.name),
             "random_seed": RANDOM_SEED,
             "voting_method": "soft",
             "batch_size": BATCH_SIZE,
             "epochs": NUM_EPOCHS,
-            "learning_rate": LEARNING_RATE,
-            "weight_decay": WEIGHT_DECAY,
-            "label_smoothing": LABEL_SMOOTHING,
-            "early_stop_patience": EARLY_STOP_PATIENCE,
-        },
-        "data": {
-            "total_segments": len(all_data),
-            "unique_sessions": all_data["Session"].nunique(),
-            "classes": {
-                "plate": list(plate_encoder.classes_),
-                "electrode": list(electrode_encoder.classes_),
-                "current": list(current_type_encoder.classes_),
-            },
         },
         "fold_results": fold_metrics,
-        "ensemble_results": {
+        "results": {
             "plate": {
                 "accuracy": round(acc_p, 4),
                 "f1": round(f1_p, 4),
@@ -995,11 +656,6 @@ if __name__ == "__main__":
                 "recall": round(rec_c, 4),
             },
         },
-        "individual_avg": {
-            "plate": round(avg_acc_p, 4),
-            "electrode": round(avg_acc_e, 4),
-            "current": round(avg_acc_c, 4),
-        },
         "improvement_vs_individual": {
             "plate": round(acc_p - avg_acc_p, 4),
             "electrode": round(acc_e - avg_acc_e, 4),
@@ -1016,9 +672,9 @@ if __name__ == "__main__":
             history = [history]  # Convertir formato antiguo a lista
     else:
         history = []
-
+    
     history.append(new_entry)
-
+    
     with open(results_path, "w") as f:
         json.dump(history, f, indent=2)
 

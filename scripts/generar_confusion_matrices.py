@@ -21,7 +21,7 @@ import seaborn as sns
 ROOT_DIR = Path(__file__).parent.parent
 
 # Duraciones disponibles
-DURACIONES = ["1seg", "2seg", "5seg", "10seg", "20seg", "30seg", "50seg"]
+DURACIONES = ["01seg", "02seg", "05seg", "10seg", "20seg", "30seg", "50seg"]
 
 # Nombres legibles para las tareas
 TASK_NAMES = {
@@ -40,7 +40,7 @@ TASK_COLORS = {
 
 def cargar_resultados(duracion: str) -> list:
     """Carga los resultados de inferencia de una duración específica."""
-    infer_json = ROOT_DIR / duracion / "infer.json"
+    infer_json = ROOT_DIR / duracion / "inferencia.json"
 
     if not infer_json.exists():
         print(f"  No se encontró {infer_json}")
@@ -215,7 +215,7 @@ def procesar_duracion(duracion: str, solo_ultimo: bool = False):
         return
 
     # Crear carpeta de salida
-    output_dir = ROOT_DIR / duracion / "confusion_matrices"
+    output_dir = ROOT_DIR / duracion / "matrices_confusion"
     output_dir.mkdir(exist_ok=True)
 
     # Si solo_ultimo, procesar solo el último resultado

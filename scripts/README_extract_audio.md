@@ -7,10 +7,10 @@
 
 ## Uso básico
 
-Ejecutar extracción (por defecto coloca en `./5seg/audio/...`, pero puedes usar `--output-dir audio`):
+Ejecutar extracción (por defecto coloca en `./05seg/audio/...`, pero puedes usar `--output-dir audio`):
 
 ```bash
-python3 scripts/extract_and_organize_audio.py --videos-dir videos_soldadura --target 5seg
+python3 scripts/extract_and_organize_audio.py --videos-dir videos_soldadura --target 05seg
 # o para mover ahora todo a ./audio:
 python3 scripts/extract_and_organize_audio.py --videos-dir videos_soldadura --output-dir audio
 ```
@@ -18,7 +18,7 @@ python3 scripts/extract_and_organize_audio.py --videos-dir videos_soldadura --ou
 ## Opciones relevantes
 
 - `--videos-dir`: ruta a la carpeta `videos_soldadura` (por defecto `videos_soldadura`).
-- `--target`: carpeta destino donde crear `audio/` (por ejemplo `5seg`, `10seg`, `30seg`).
+- `--target`: carpeta destino donde crear `audio/` (por ejemplo `05seg`, `10seg`, `30seg`).
 - `--target-root`: raíz donde está la carpeta `target` (por defecto `.`).
 - `--samplerate`: sample rate para WAV (por defecto `16000`).
 - `--overwrite`: sobrescribe archivos existentes.

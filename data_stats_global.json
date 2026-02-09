@@ -1,7 +1,7 @@
 {
   "timestamp": "2026-02-01T00:48:42.509720",
   "duraciones": {
-    "1seg": {
+    "01seg": {
       "timestamp": "2026-02-01T00:48:29.770586",
       "segment_duration": 1.0,
       "random_seed": 42,
@@ -169,7 +169,7 @@
         "minutes": 0.03
       }
     },
-    "2seg": {
+    "02seg": {
       "timestamp": "2026-02-01T00:48:31.623471",
       "segment_duration": 2.0,
       "random_seed": 42,
@@ -337,7 +337,7 @@
         "minutes": 0.02
       }
     },
-    "5seg": {
+    "05seg": {
       "timestamp": "2026-01-29T23:31:28.533446",
       "segment_duration": 5.0,
       "random_seed": 42,

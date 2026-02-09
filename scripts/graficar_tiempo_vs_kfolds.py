@@ -20,7 +20,7 @@ COLORS = {
 
 def extract_kfold_times(results_file: Path) -> dict:
     """
-    Extrae los tiempos por k-folds de un archivo results.json.
+    Extrae los tiempos por k-folds de un archivo resultados.json.
     Prioriza el campo 'training_time' si existe, sino calcula a partir de execution_time.
     
     Returns:
@@ -129,8 +129,8 @@ def plot_training_time_vs_kfolds(data: dict, duration: str, output_dir: Path):
 
 def main():
     parser = argparse.ArgumentParser(description='Graficar tiempo de entrenamiento vs k-folds')
-    parser.add_argument('--duration', '-d', type=str, default='5seg',
-                       help='Duracion de los segmentos (ej: 5seg, 10seg)')
+    parser.add_argument('--duration', '-d', type=str, default='05seg',
+                       help='Duracion de los segmentos (ej: 05seg, 10seg)'))
     parser.add_argument('--output', '-o', type=str, default=None,
                        help='Directorio de salida para el grafico')
     
@@ -139,7 +139,7 @@ def main():
     # Determinar rutas
     script_dir = Path(__file__).parent
     project_dir = script_dir.parent
-    results_file = project_dir / args.duration / 'results.json'
+    results_file = project_dir / args.duration / 'resultados.json'
     
     if not results_file.exists():
         print(f"Error: No se encontro {results_file}")

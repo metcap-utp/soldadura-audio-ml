@@ -2,7 +2,7 @@
 Grafica métricas vs duración de clips de audio.
 
 Compara el rendimiento del modelo entre diferentes duraciones de segmento
-(1seg, 2seg, 5seg, 10seg, 20seg, 30seg, 50seg).
+(01seg, 02seg, 05seg, 10seg, 20seg, 30seg, 50seg).
 
 Uso:
     python graficar_duraciones.py                    # Grafica todas las duraciones
@@ -24,7 +24,31 @@ import numpy as np
 ROOT_DIR = Path(__file__).parent.parent
 
 # Duraciones disponibles
-DURATION_DIRS = ["1seg", "2seg", "5seg", "10seg", "20seg", "30seg", "50seg"]
+DURATION_DIRS = ["01seg", "02seg", "05seg", "10seg", "20seg", "30seg", "50seg"]
+
+# ── i18n ──────────────────────────────────────────────────────────────
+I18N = {
+    "es": {
+        "task_names": {
+            "plate": "Espesor de Placa",
+            "electrode": "Tipo de Electrodo",
+            "current": "Tipo de Corriente",
+        },
+        "xlabel_dur": "Duración del Clip (segundos)",
+        "title_metric": "{metric} vs Duración",
+        "suptitle": "Métricas vs Duración del Clip de Audio",
+    },
+    "en": {
+        "task_names": {
+            "plate": "Plate Thickness",
+            "electrode": "Electrode Type",
+            "current": "Current Type",
+        },
+        "xlabel_dur": "Clip Duration (seconds)",
+        "title_metric": "{metric} vs Duration",
+        "suptitle": "Metrics vs Audio Clip Duration",
+    },
+}
 
 
 def get_duration_value(dir_name: str) -> float:
@@ -40,7 +64,7 @@ def load_all_results(k_folds: int = None) -> dict:
     results_by_duration = {}
 
     for duration_dir in DURATION_DIRS:
-        results_path = ROOT_DIR / duration_dir / "results.json"
+        results_path = ROOT_DIR / duration_dir / "resultados.json"
 
         if not results_path.exists():
             continue
@@ -128,6 +152,7 @@ def plot_metrics_vs_duration(
     metric: str = "all",
     k_folds: int = None,
     save: bool = False,
+    lang: str = "es",
 ):
     """Grafica métricas vs duración de clips."""
 
@@ -142,12 +167,9 @@ def plot_metrics_vs_duration(
         print(f"Advertencia: Solo hay datos para {durations[0]}seg")
         print("Ejecuta entrenar.py en más carpetas para comparar duraciones.")
 
+    L = I18N[lang]
     tasks = ["plate", "electrode", "current"]
-    task_names = {
-        "plate": "Plate Thickness",
-        "electrode": "Electrode Type",
-        "current": "Current Type",
-    }
+    task_names = L["task_names"]
     colors = {"plate": "#2ecc71", "electrode": "#3498db", "current": "#e74c3c"}
 
     metrics_to_plot = (
@@ -192,9 +214,11 @@ def plot_metrics_vs_duration(
                     fontweight="bold",
                 )
 
-        ax.set_xlabel("Duración del Clip (segundos)", fontsize=12)
+        ax.set_xlabel(L["xlabel_dur"], fontsize=12)
         ax.set_ylabel(metric_name.capitalize(), fontsize=12)
-        ax.set_title(f"{metric_name.capitalize()} vs Duración", fontsize=14)
+        ax.set_title(
+            L["title_metric"].format(metric=metric_name.capitalize()), fontsize=14
+        )
         ax.legend(loc="lower right")
         ax.grid(True, alpha=0.3)
         ax.set_xticks(durations)
@@ -202,7 +226,7 @@ def plot_metrics_vs_duration(
         # Ajustar límites del eje Y
         ax.set_ylim([0.0, 1.12])
 
-    title = "Métricas vs Duración del Clip de Audio"
+    title = L["suptitle"]
     if k_folds:
         title += f" (K={k_folds})"
 
@@ -329,6 +353,13 @@ def main():
         action="store_true",
         help="Solo mostrar tabla, sin gráfica",
     )
+    parser.add_argument(
+        "--lang",
+        type=str,
+        default="es",
+        choices=["es", "en"],
+        help="Idioma de las gráficas (default: es)",
+    )
 
     args = parser.parse_args()
 
@@ -359,6 +390,7 @@ def main():
             metric=args.metric,
             k_folds=args.k_folds,
             save=args.save,
+            lang=args.lang,
         )
 
 

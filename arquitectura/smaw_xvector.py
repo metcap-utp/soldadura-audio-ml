@@ -29,9 +29,6 @@ def to_FC(
         caption="""
         + caption
         + """,
-        zlabel="""
-        + str(n_filer)
-        + """,
         fill=\FcColor,
         height="""
         + str(height)
@@ -51,7 +48,6 @@ def to_FC(
 # Capa Conv1D personalizada
 def to_Conv1D(
     name,
-    n_filer=256,
     kernel=5,
     offset="(0,0,0)",
     to="(0,0,0)",
@@ -74,14 +70,92 @@ def to_Conv1D(
         caption="""
         + caption
         + """,
-        xlabel={{"""
-        + str(n_filer)
-        + """, }},
-        zlabel=k="""
-        + str(kernel)
-        + """,
         fill=\ConvColor,
         bandfill=\ConvReluColor,
+        height="""
+        + str(height)
+        + """,
+        width="""
+        + str(width)
+        + """,
+        depth="""
+        + str(depth)
+        + """
+        }
+    };
+"""
+    )
+
+
+# Capa BatchNorm personalizada
+def to_BN(
+    name,
+    offset="(0,0,0)",
+    to="(0,0,0)",
+    width=2.2,
+    height=28,
+    depth=28,
+    caption="BatchNorm",
+):
+    return (
+        r"""
+\pic[shift={"""
+        + offset
+        + """}] at """
+        + to
+        + """ 
+    {Box={
+        name="""
+        + name
+        + """,
+        caption="""
+        + caption
+        + """,
+        fill=\FcColor,
+        height="""
+        + str(height)
+        + """,
+        width="""
+        + str(width)
+        + """,
+        depth="""
+        + str(depth)
+        + """
+        }
+    };
+"""
+    )
+
+
+# Capa Head personalizada (sin números)
+def to_Head(
+    name,
+    offset="(0,0,0)",
+    to="(0,0,0)",
+    width=2.8,
+    height=10,
+    depth=10,
+    opacity=0.9,
+    caption=" ",
+):
+    return (
+        r"""
+\pic[shift={"""
+        + offset
+        + """}] at """
+        + to
+        + """ 
+    {Box={
+        name="""
+        + name
+        + """,
+        caption="""
+        + caption
+        + """,
+        fill=\SoftmaxColor,
+        opacity="""
+        + str(opacity)
+        + """,
         height="""
         + str(height)
         + """,
@@ -101,119 +175,119 @@ arch = [
     to_head("/home/luis/PlotNeuralNet/"),
     to_cor(),
     to_begin(),
-    # VGGish - Extractor de características
-    to_Conv(
-        name="vggish",
-        s_filer="T",
-        n_filer=128,
-        offset="(0,0,0)",
-        to="(0,0,0)",
-        width=3,
+    # ── VGGish: extractor pre-entrenado, produce (B, N, 128) ──
+    r"""\pic[shift={(0,0,0)}] at (0,0,0)
+    {Box={
+        name=vggish,
+        caption={\parbox{2.4cm}{\centering\small\textbf{VGGish}\\\footnotesize 1$\times$1$\times$128}},
+        fill=\ConvColor,
         height=35,
-        depth=35,
-        caption="VGGish",
-    ),
-    # Conv1D Block 1 - 256 canales, kernel 5
-    to_Conv1D(
-        name="conv1",
-        n_filer=256,
-        kernel=5,
+        width=3,
+        depth=35
+        }
+    };""",
+    # ── BatchNorm1d(128, affine=False) ──
+    to_BN(
+        name="bn_input",
         offset="(2.5,0,0)",
         to="(vggish-east)",
+        width=2.2,
+        height=28,
+        depth=28,
+        caption=r"{\parbox{2.0cm}{\centering\small\textbf{BatchNorm}\\\footnotesize 128}}",
+    ),
+    to_connection("vggish", "bn_input"),
+    # ── Conv1d(128, 256, k=5) + BN + ReLU ──
+    to_Conv1D(
+        name="conv1",
+        offset="(2.5,0,0)",
+        to="(bn_input-east)",
         width=3,
         height=30,
         depth=30,
-        caption="Conv1D",
+        caption=r"{\parbox{2.8cm}{\centering\small\textbf{Conv1D}\\\footnotesize 256$\times$128$\times$5\\\footnotesize BN + ReLU}}",
     ),
-    to_connection("vggish", "conv1"),
-    # Conv1D Block 2 - 256 canales, kernel 3
+    to_connection("bn_input", "conv1"),
+    # ── Conv1d(256, 256, k=3) + BN + ReLU ──
     to_Conv1D(
         name="conv2",
-        n_filer=256,
-        kernel=3,
-        offset="(2.5,0,0)",
+        offset="(2.8,0,0)",
         to="(conv1-east)",
         width=3,
         height=28,
         depth=28,
-        caption="Conv1D",
+        caption=r"{\parbox{2.8cm}{\centering\small\textbf{Conv1D}\\\footnotesize 256$\times$256$\times$3\\\footnotesize BN + ReLU}}",
     ),
     to_connection("conv1", "conv2"),
-    # Conv1D Block 3 - 512 canales, kernel 3
+    # ── Conv1d(256, 512, k=3) + BN + ReLU ──
     to_Conv1D(
         name="conv3",
-        n_filer=512,
-        kernel=3,
-        offset="(2.5,0,0)",
+        offset="(2.8,0,0)",
         to="(conv2-east)",
         width=4,
         height=26,
         depth=26,
-        caption="Conv1D",
+        caption=r"{\parbox{2.8cm}{\centering\small\textbf{Conv1D}\\\footnotesize 512$\times$256$\times$3\\\footnotesize BN + ReLU}}",
     ),
     to_connection("conv2", "conv3"),
-    # Stats Pooling - concatenación de media y desviación estándar
+    # ── StatsPooling: mean + std → 1024 ──
     to_Pool(
         name="stats",
-        offset="(2.5,0,0)",
+        offset="(2.8,0,0)",
         to="(conv3-east)",
         width=5,
         height=22,
         depth=3,
         opacity=0.8,
-        caption="Stats Pool",
+        caption=r"{\parbox{2.4cm}{\centering\small\textbf{Stats Pool}\\\footnotesize mean + std\\\footnotesize 1$\times$1024}}",
     ),
     to_connection("conv3", "stats"),
-    # FC Shared - 256 neuronas
+    # ── Linear(1024, 256) + ReLU ──
     to_FC(
         name="fc_shared",
-        n_filer=256,
-        offset="(2.5,0,0)",
+        offset="(2.8,0,0)",
         to="(stats-east)",
-        width=2,
+        width=2.8,
         height=18,
         depth=3,
-        caption="FC",
+        caption=r"{\parbox{2.4cm}{\centering\small\textbf{FC + ReLU}\\\footnotesize 1024$\times$256}}",
     ),
     to_connection("stats", "fc_shared"),
-    # Head 1 - Placa (3 clases)
-    to_SoftMax(
-        name="head_placa",
-        s_filer=3,
-        offset="(3,3.5,0)",
+    # ── Head: Linear(256, 3) → Espesor ──
+    to_Head(
+        name="head_espesor",
+        offset="(4.0,4.5,0)",
         to="(fc_shared-east)",
-        width=1.5,
+        width=2.8,
         height=10,
         depth=10,
         opacity=0.9,
-        caption="Placa",
+        caption=r"{\parbox{2.4cm}{\centering\small\textbf{Espesor}\\\footnotesize 256$\times$3}}",
     ),
-    # Head 2 - Electrodo (4 clases)
-    to_SoftMax(
+    # ── Head: Linear(256, 4) → Electrodo ──
+    to_Head(
         name="head_electrodo",
-        s_filer=4,
-        offset="(3,0,0)",
+        offset="(4.0,0,0)",
         to="(fc_shared-east)",
-        width=1.5,
+        width=2.8,
         height=12,
         depth=12,
         opacity=0.9,
-        caption="Electrodo",
+        caption=r"{\parbox{2.4cm}{\centering\small\textbf{Electrodo}\\\footnotesize 256$\times$4}}",
     ),
-    # Head 3 - Corriente (2 clases)
-    to_SoftMax(
+    # ── Head: Linear(256, 2) → Corriente ──
+    to_Head(
         name="head_corriente",
-        s_filer=2,
-        offset="(3,-3.5,0)",
+        offset="(4.0,-4.5,0)",
         to="(fc_shared-east)",
-        width=1.5,
+        width=2.8,
         height=8,
         depth=8,
         opacity=0.9,
-        caption="Corriente",
+        caption=r"{\parbox{2.4cm}{\centering\small\textbf{Corriente}\\\footnotesize 256$\times$2}}",
     ),
     # Conexiones a los heads
-    r"""\draw [connection]  (fc_shared-east) -- node {\midarrow} (head_placa-west);""",
+    r"""\draw [connection]  (fc_shared-east) -- node {\midarrow} (head_espesor-west);""",
     r"""\draw [connection]  (fc_shared-east) -- node {\midarrow} (head_electrodo-west);""",
     r"""\draw [connection]  (fc_shared-east) -- node {\midarrow} (head_corriente-west);""",
     to_end(),

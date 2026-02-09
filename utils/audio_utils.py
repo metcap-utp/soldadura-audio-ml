@@ -3,7 +3,7 @@ Utilidades de audio para clasificación SMAW.
 
 Este módulo centraliza:
 - Carga de audio desde la carpeta base `audio/`
-- Segmentación on-the-fly según duración especificada (5seg, 10seg, 30seg)
+- Segmentación on-the-fly según duración especificada (05seg, 10seg, 30seg)
 - Extracción de etiquetas desde paths
 - Agrupación por sesión para evitar data leakage
 
@@ -286,7 +286,7 @@ def parse_segment_duration_from_dir(dir_name: str) -> float:
     Parsea la duración del segmento desde el nombre del directorio.
 
     Args:
-        dir_name: Nombre del directorio (ej: "5seg", "10seg", "30seg")
+        dir_name: Nombre del directorio (ej: "05seg", "10seg", "30seg")
 
     Returns:
         Duración en segundos
@@ -302,7 +302,7 @@ def get_script_segment_duration(script_path: Path) -> float:
     Obtiene la duración del segmento basándose en el directorio del script.
 
     Args:
-        script_path: Path del script (ej: /path/to/5seg/entrenar.py)
+        script_path: Path del script (ej: /path/to/05seg/entrenar.py)
 
     Returns:
         Duración en segundos
