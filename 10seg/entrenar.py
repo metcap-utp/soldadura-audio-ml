@@ -664,7 +664,7 @@ if __name__ == "__main__":
     }
 
     # Cargar historial existente o crear nuevo
-    results_path = SCRIPT_DIR / "results.json"
+    results_path = SCRIPT_DIR / "resultados.json"
     if results_path.exists():
         with open(results_path, "r") as f:
             history = json.load(f)
