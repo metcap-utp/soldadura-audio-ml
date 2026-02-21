@@ -53,7 +53,10 @@ Alcanzar accuracy ≥90% en las tres tareas de clasificación:
 ### Arquitectura del Modelo
 
 - **Extractor de características**: VGGish (embeddings de 128 dimensiones)
-- **Clasificador**: XVector1D con StatsPooling
+- **Clasificadores disponibles**:
+  - X-Vector con StatsPooling (por defecto)
+  - ECAPA-TDNN con Attentive Pooling (mayor precisión)
+  - FeedForward con capas densas (baseline rápido)
 - **Salidas**: Clasificador multi-cabeza (Placa, Electrodo, Corriente)
 
 ### Estrategia de Entrenamiento

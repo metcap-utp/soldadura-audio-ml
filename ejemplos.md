@@ -13,6 +13,8 @@ Todos los comandos se ejecutan desde la raíz del proyecto (`soldadura/`).
 
 ## Entrenamiento
 
+### X-Vector (por defecto)
+
 - Entrenar ensemble con 5 folds y 50% de solapamiento:
   - `python entrenar.py --duration 10 --overlap 0.5 --k-folds 5`
 
@@ -21,6 +23,16 @@ Todos los comandos se ejecutan desde la raíz del proyecto (`soldadura/`).
 
 - Entrenar sin usar caché de embeddings:
   - `python entrenar.py --duration 5 --overlap 0.5 --k-folds 5 --no-cache`
+
+### ECAPA-TDNN
+
+- Entrenar con arquitectura ECAPA:
+  - `python entrenar_ecapa.py --duration 10 --overlap 0.5 --k-folds 5`
+
+### FeedForward
+
+- Entrenar con arquitectura FeedForward (baseline rápido):
+  - `python entrenar_feedforward.py --duration 10 --overlap 0.5 --k-folds 5`
 
 ## Inferencia
 

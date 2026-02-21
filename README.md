@@ -1,6 +1,6 @@
 # Clasificación de Audio SMAW
 
-Sistema de clasificación de audio de soldadura SMAW (Shielded Metal Arc Welding) usando deep learning con arquitectura X-Vector y ensemble de modelos con K-Fold Cross-Validation.
+Sistema de clasificación de audio de soldadura SMAW (Shielded Metal Arc Welding) usando deep learning con múltiples arquitecturas (X-Vector, ECAPA, FeedForward) y ensemble de modelos con K-Fold Cross-Validation.
 
 ## Objetivos
 
@@ -14,26 +14,31 @@ Clasificar audio de soldadura en tres tareas:
 
 ```
 soldadura/
-├── entrenar.py               # Script de entrenamiento (consolidado)
-├── generar_splits.py          # Generación de splits (consolidado)
-├── inferir.py                 # Inferencia y evaluación (consolidado)
-├── modelo.py                  # Arquitectura X-Vector
-├── {N}seg/                    # Datos y modelos por duración (1,2,5,10,20,30,50)
+├── entrenar.py               # Script de entrenamiento X-Vector (principal)
+├── entrenar_ecapa.py         # Script de entrenamiento ECAPA-TDNN
+├── entrenar_feedforward.py   # Script de entrenamiento FeedForward
+├── generar_splits.py         # Generación de splits
+├── inferir.py                # Inferencia y evaluación
+├── modelo_xvector.py         # Arquitectura X-Vector
+├── modelo_ecapa.py           # Arquitectura ECAPA-TDNN
+├── modelo_feedforward.py     # Arquitectura FeedForward
+├── modelo_multitask.py       # Wrapper multi-tarea
+├── {N}seg/                   # Datos y modelos por duración (1,2,5,10,20,30,50)
 │   ├── train.csv / test.csv / blind.csv
 │   ├── resultados.json / inferencia.json / data_stats.json
 │   ├── models/
-│   │   └── k{K}_overlap_{ratio}/    # Modelos organizados por K y overlap
+│   │   └── {arquitectura}/k{K}_overlap_{ratio}/
 │   ├── metricas/
 │   └── matrices_confusion/
-├── audio/                     # Audios originales completos
+├── audio/                    # Audios originales completos
 │   ├── Placa_3mm/
 │   ├── Placa_6mm/
 │   └── Placa_12mm/
-├── utils/                     # Utilidades de audio y timing
-└── scripts/                   # Scripts de análisis y visualización
-    ├── graficar_folds.py      # Métricas vs K-folds
+├── utils/                    # Utilidades de audio y timing
+└── scripts/                  # Scripts de análisis y visualización
+    ├── graficar_folds.py     # Métricas vs K-folds
     ├── graficar_duraciones.py # Métricas vs duración de clips
-    └── graficar_overlap.py    # Comparación de overlap (heatmaps, curvas)
+    └── graficar_overlap.py   # Comparación de overlap (heatmaps, curvas)
 ```
 
 ## Inicio Rápido
@@ -122,6 +127,29 @@ python inferir.py --duration 5 --overlap 0.5 --evaluar --k-folds 10
 
 Luego revisa `{N}seg/resultados.json` y `{N}seg/inferencia.json` para comparar métricas.
 
+## Arquitecturas Disponibles
+
+| Arquitectura | Archivo | Descripción |
+|--------------|---------|-------------|
+| **X-Vector** | `modelo_xvector.py` | Arquitectura estándar para speaker recognition con StatsPooling |
+| **ECAPA-TDNN** | `modelo_ecapa.py` | Attentive pooling con SE-Res2Blocks, más expresivo |
+| **FeedForward** | `modelo_feedforward.py` | Red simple con capas densas, baseline rápido |
+
+### Entrenar con diferentes arquitecturas
+
+```bash
+# X-Vector (por defecto)
+python entrenar.py --duration 5 --overlap 0.5 --k-folds 5
+
+# ECAPA-TDNN
+python entrenar_ecapa.py --duration 5 --overlap 0.5 --k-folds 5
+
+# FeedForward
+python entrenar_feedforward.py --duration 5 --overlap 0.5 --k-folds 5
+```
+
+Los modelos se guardan en `{N}seg/modelos/{arquitectura}/k{K}_overlap_{ratio}/`.
+
 ## Visualización de Resultados
 
 ### Métricas vs Número de Folds
@@ -163,4 +191,5 @@ python scripts/graficar_overlap.py --duration 5 --k-folds 10 --save
 ## Referencias
 
 - Snyder et al. (2018) - X-Vectors
+- Desplanques et al. (2020) - ECAPA-TDNN
 - Dietterich (2000) - Ensemble Methods

@@ -204,9 +204,13 @@ VGGish es una red neuronal pre-entrenada que convierte audio en embeddings:
 
 ---
 
-## 8. Arquitectura del Modelo
+## 8. Arquitecturas del Modelo
 
-El modelo SMAWXVectorModel procesa los embeddings de VGGish:
+Se disponen de múltiples arquitecturas para la clasificación multi-tarea:
+
+### 8.1 X-Vector (SMAWXVectorModel)
+
+Arquitectura estándar para speaker recognition:
 
 ```
 Entrada: Embeddings VGGish [T, 128]
@@ -242,6 +246,22 @@ Entrada: Embeddings VGGish [T, 128]
 | - FC: 256 --> 2 (Corriente)         |
 +-------------------------------------+
 ```
+
+### 8.2 ECAPA-TDNN
+
+Arquitectura más expresiva con attentive pooling y SE-Res2Blocks. Proporciona mejor capacidad de modelado para patrones complejos de audio.
+
+### 8.3 FeedForward
+
+Arquitectura simple con capas densas, útil como baseline rápido para comparaciones.
+
+### 8.4 Selección de Arquitectura
+
+| Arquitectura | Complejidad | Uso Recomendado |
+|--------------|-------------|-----------------|
+| X-Vector | Media | Uso general, balance velocidad/precisión |
+| ECAPA-TDNN | Alta | Máxima precisión, más tiempo de entrenamiento |
+| FeedForward | Baja | Baseline rápido, experimentación |
 
 ---
 
@@ -328,9 +348,14 @@ Donde:
 ### 9.1 Ejecutar Entrenamiento
 
 ```bash
-# Desde la raíz del proyecto
+# X-Vector (por defecto)
 python entrenar.py --duration 5 --overlap 0.5 --k-folds 5
-python entrenar.py --duration 10 --overlap 0.0 --k-folds 10
+
+# ECAPA-TDNN
+python entrenar_ecapa.py --duration 5 --overlap 0.5 --k-folds 5
+
+# FeedForward
+python entrenar_feedforward.py --duration 5 --overlap 0.5 --k-folds 10
 ```
 
 ### 9.2 Hiperparámetros
@@ -419,10 +444,18 @@ Audio de entrada
 ## 11. Archivos Generados
 
 ```
-# Scripts consolidados en la raíz:
-entrenar.py               # --duration, --overlap, --k-folds
-generar_splits.py          # --duration, --overlap
-inferir.py                   # --duration, --overlap, --k-folds, --evaluar
+# Scripts de entrenamiento:
+entrenar.py               # X-Vector (principal)
+entrenar_ecapa.py         # ECAPA-TDNN
+entrenar_feedforward.py   # FeedForward
+generar_splits.py         # --duration, --overlap
+inferir.py                # --duration, --overlap, --k-folds, --evaluar
+
+# Arquitecturas:
+modelo_xvector.py         # X-Vector
+modelo_ecapa.py           # ECAPA-TDNN
+modelo_feedforward.py     # FeedForward
+modelo_multitask.py       # Wrapper multi-tarea
 
 # Datos por duración:
 {N}seg/
@@ -431,13 +464,14 @@ inferir.py                   # --duration, --overlap, --k-folds, --evaluar
 |-- test.csv              # Datos de validación
 |-- blind.csv             # Datos de evaluación final
 |-- data_stats.json       # Estadísticas del dataset
-|-- resultados.json          # Métricas del entrenamiento
-|-- inferencia.json            # Métricas de inferencia blind
-+-- models/
-    +-- k05_overlap_0.5/  # Modelos organizados por K y overlap
-        |-- model_fold_0.pth
-        |-- ...
-        +-- model_fold_4.pth
+|-- resultados.json       # Métricas del entrenamiento
+|-- inferencia.json       # Métricas de inferencia blind
++-- modelos/
+    +-- {arquitectura}/   # xvector, ecapa, feedforward
+        +-- k{K}_overlap_{ratio}/
+            |-- model_fold_0.pth
+            |-- ...
+            +-- model_fold_{K-1}.pth
 ```
 
 ---
@@ -596,11 +630,19 @@ El sistema de clasificación de audio SMAW transforma grabaciones de soldadura e
 2. **División**: Sesiones se dividen en train/test/blind sin mezclar segmentos
 3. **Segmentación**: Audios se segmentan on-the-fly con 50% de solapamiento
 4. **Características**: VGGish genera embeddings de 128 dimensiones
-5. **Clasificación**: SMAWXVectorModel predice las tres etiquetas simultáneamente
-6. **Entrenamiento**: 5-Fold CV con AdamW, SWA, early stopping y balanceo de clases
-7. **Inferencia**: Ensemble de 5 modelos con soft voting
+5. **Clasificación**: Modelo (X-Vector, ECAPA o FeedForward) predice las tres etiquetas simultáneamente
+6. **Entrenamiento**: K-Fold CV con AdamW, SWA, early stopping y balanceo de clases
+7. **Inferencia**: Ensemble de K modelos con soft voting
 
-**Rendimiento típico** (segmentos de 5-10 segundos):
+**Arquitecturas disponibles:**
+
+| Arquitectura | Archivo | Características |
+|--------------|---------|-----------------|
+| X-Vector | `entrenar.py` / `modelo_xvector.py` | Balance velocidad/precisión |
+| ECAPA-TDNN | `entrenar_ecapa.py` / `modelo_ecapa.py` | Máxima precisión |
+| FeedForward | `entrenar_feedforward.py` / `modelo_feedforward.py` | Baseline rápido |
+
+**Rendimiento típico** (segmentos de 5-10 segundos, X-Vector):
 
 - Placa: ~75% accuracy
 - Electrodo: ~85% accuracy
