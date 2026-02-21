@@ -38,7 +38,9 @@ from sklearn.preprocessing import LabelEncoder
 # Añadir carpeta raíz al path para importar modelo.py
 ROOT_DIR = Path(__file__).parent
 sys.path.insert(0, str(ROOT_DIR))
-from modelo import SMAWXVectorModel
+from modelo_xvector import SMAWXVectorModel
+from modelo_ecapa import ECAPAMultiTask
+from modelo_feedforward import FeedForwardMultiTask
 from utils.audio_utils import PROJECT_ROOT, load_audio_segment
 from utils.timing import timer
 
@@ -92,6 +94,13 @@ def parse_args():
         type=int,
         default=None,
         help="Duración (seg) usada para entrenar el modelo a cargar. Default: mismo que --duration.",
+    )
+    parser.add_argument(
+        "--model",
+        type=str,
+        default="xvector",
+        choices=["xvector", "ecapa_tdnn", "feedforward"],
+        help="Arquitectura del modelo a cargar (default: xvector)",
     )
     return parser.parse_args()
 
@@ -176,20 +185,35 @@ def extract_vggish_embeddings(vggish_model, audio_path):
 # =============================================================================
 
 
-def create_model(plate_encoder, electrode_encoder, current_type_encoder, device):
-    """Crea una instancia del modelo."""
-    return SMAWXVectorModel(
-        feat_dim=128,
-        xvector_dim=512,
-        emb_dim=256,
-        num_classes_espesor=len(plate_encoder.classes_),
-        num_classes_electrodo=len(electrode_encoder.classes_),
-        num_classes_corriente=len(current_type_encoder.classes_),
-    ).to(device)
+def create_model(plate_encoder, electrode_encoder, current_type_encoder, device, model_type="xvector"):
+    """Crea una instancia del modelo según el tipo especificado."""
+    if model_type == "xvector":
+        return SMAWXVectorModel(
+            feat_dim=128,
+            xvector_dim=512,
+            emb_dim=256,
+            num_classes_espesor=len(plate_encoder.classes_),
+            num_classes_electrodo=len(electrode_encoder.classes_),
+            num_classes_corriente=len(current_type_encoder.classes_),
+        ).to(device)
+    elif model_type == "ecapa_tdnn":
+        return ECAPAMultiTask(
+            num_classes_espesor=len(plate_encoder.classes_),
+            num_classes_electrodo=len(electrode_encoder.classes_),
+            num_classes_corriente=len(current_type_encoder.classes_),
+        ).to(device)
+    elif model_type == "feedforward":
+        return FeedForwardMultiTask(
+            num_classes_espesor=len(plate_encoder.classes_),
+            num_classes_electrodo=len(electrode_encoder.classes_),
+            num_classes_corriente=len(current_type_encoder.classes_),
+        ).to(device)
+    else:
+        raise ValueError(f"Modelo desconocido: {model_type}")
 
 
 def load_ensemble_models(
-    models_dir, n_models, plate_encoder, electrode_encoder, current_type_encoder, device
+    models_dir, n_models, plate_encoder, electrode_encoder, current_type_encoder, device, model_type="xvector"
 ):
     """Carga los K modelos del ensemble."""
     if not models_dir.exists():
@@ -208,7 +232,7 @@ def load_ensemble_models(
             )
 
         model = create_model(
-            plate_encoder, electrode_encoder, current_type_encoder, device
+            plate_encoder, electrode_encoder, current_type_encoder, device, model_type
         )
         model.load_state_dict(torch.load(model_path, map_location=device))
         model.eval()
@@ -582,6 +606,7 @@ def evaluate_blind_set(
     results = {
         "mode": "blind_evaluation",
         "id": f"{ctx['test_seconds']}seg_k{ctx['n_models']:02d}_overlap_{ctx['overlap_ratio']}",
+        "model_type": "xvector",
         "segment_duration": ctx["segment_duration"],
         "overlap_ratio": ctx["overlap_ratio"],
         "overlap_seconds": ctx["overlap_seconds"],
@@ -883,19 +908,20 @@ def main():
         args.train_duration if args.train_duration is not None else args.duration
     )
 
-    TRAIN_DIR = ROOT_DIR / f"{TRAIN_SECONDS}seg"
-    TEST_DIR = ROOT_DIR / f"{TEST_SECONDS}seg"
-    DURATION_DIR = ROOT_DIR / f"{TEST_SECONDS}seg"
+    TRAIN_DIR = ROOT_DIR / f"{TRAIN_SECONDS:02d}seg"
+    TEST_DIR = ROOT_DIR / f"{TEST_SECONDS:02d}seg"
+    DURATION_DIR = ROOT_DIR / f"{TEST_SECONDS:02d}seg"
     INFER_JSON = DURATION_DIR / "inferencia.json"
 
-    # Directorio de modelos con overlap
-    MODELS_DIR = TRAIN_DIR / "modelos" / f"k{N_MODELS:02d}_overlap_{OVERLAP_RATIO}"
+    # Directorio de modelos con overlap y arquitectura específica
+    MODELS_DIR = TRAIN_DIR / "modelos" / args.model / f"k{N_MODELS:02d}_overlap_{OVERLAP_RATIO}"
 
     if not MODELS_DIR.exists():
         print(f"[ERROR] No se encontró el directorio de modelos: {MODELS_DIR}")
         sys.exit(1)
 
     print(f"[INFO] Modelos:              {MODELS_DIR}")
+    print(f"[INFO] Arquitectura:         {args.model}")
     print(f"[INFO] Duración (train):     {TRAIN_SECONDS}s")
     print(f"[INFO] Duración (test):      {SEGMENT_DURATION}s")
     print(f"[INFO] Overlap ratio:        {OVERLAP_RATIO}")
@@ -930,6 +956,7 @@ def main():
         electrode_encoder,
         current_type_encoder,
         device,
+        args.model,
     )
 
     # Diccionario de configuración para guardar en JSON
@@ -939,6 +966,7 @@ def main():
         "overlap_ratio": OVERLAP_RATIO,
         "overlap_seconds": OVERLAP_SECONDS,
         "k_folds": N_MODELS,
+        "model_type": args.model,
         "models_dir": str(MODELS_DIR),
         "train_dir": str(TRAIN_DIR),
         "test_dir": str(TEST_DIR),

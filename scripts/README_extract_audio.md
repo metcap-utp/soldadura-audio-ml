@@ -10,9 +10,9 @@
 Ejecutar extracción (por defecto coloca en `./05seg/audio/...`, pero puedes usar `--output-dir audio`):
 
 ```bash
-python3 scripts/extract_and_organize_audio.py --videos-dir videos_soldadura --target 05seg
+python3 scripts/extraer_y_organizar_audio.py --videos-dir videos_soldadura --target 05seg
 # o para mover ahora todo a ./audio:
-python3 scripts/extract_and_organize_audio.py --videos-dir videos_soldadura --output-dir audio
+python3 scripts/extraer_y_organizar_audio.py --videos-dir videos_soldadura --output-dir audio
 ```
 
 ## Opciones relevantes
@@ -32,5 +32,5 @@ python3 scripts/extract_and_organize_audio.py --videos-dir videos_soldadura --ou
 Ejemplo de uso en seco (sin ejecutar ffmpeg):
 
 ```bash
-python3 scripts/extract_and_organize_audio.py --dry-run
+python3 scripts/extraer_y_organizar_audio.py --dry-run
 ```

@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Directorio raíz del proyecto
-ROOT_DIR = Path(__file__).parent.parent
+ROOT_DIR = Path(__file__).parent.parent.parent
 
 TASKS = ["plate", "electrode", "current"]
 COLORS = {
@@ -95,7 +95,7 @@ def load_blind_metrics(duration_dir: str) -> dict:
             "hamming": ...,
         }
     """
-    infer_path = ROOT_DIR / duration_dir / "inferencia.json"
+    infer_path = ROOT_DIR / "projects" / duration_dir / "inferencia.json"
     if not infer_path.exists():
         return {}
 
@@ -173,7 +173,7 @@ def load_cv_metrics(duration_dir: str) -> dict:
             "current": {"accuracy": ..., "f1": ...},
         }
     """
-    results_path = ROOT_DIR / duration_dir / "resultados.json"
+    results_path = ROOT_DIR / "projects" / duration_dir / "resultados.json"
     if not results_path.exists():
         return {}
 
@@ -306,7 +306,7 @@ def plot_metrics_vs_folds(
 
         if save:
             if output_dir is None:
-                output_dir = ROOT_DIR / duration / "metricas"
+                output_dir = ROOT_DIR / "projects" / duration / "metricas"
             output_dir.mkdir(exist_ok=True)
             out = output_dir / "metricas_vs_folds.png"
             plt.savefig(out, dpi=150, bbox_inches="tight")
@@ -352,7 +352,7 @@ def plot_metrics_vs_folds(
 
         if save:
             if output_dir is None:
-                output_dir = ROOT_DIR / duration / "metricas"
+                output_dir = ROOT_DIR / "projects" / duration / "metricas"
             output_dir.mkdir(exist_ok=True)
             out = output_dir / f"metricas_vs_folds_{metric}.png"
             plt.savefig(out, dpi=150, bbox_inches="tight")
@@ -427,7 +427,7 @@ def plot_global_vs_folds(
 
     if save:
         if output_dir is None:
-            output_dir = ROOT_DIR / duration / "metricas"
+            output_dir = ROOT_DIR / "projects" / duration / "metricas"
         output_dir.mkdir(exist_ok=True)
         out = output_dir / "metricas_globales_vs_folds.png"
         plt.savefig(out, dpi=150, bbox_inches="tight")

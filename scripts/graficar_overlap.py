@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Directorio raíz del proyecto
-ROOT_DIR = Path(__file__).parent.parent
+ROOT_DIR = Path(__file__).parent.parent.parent
 
 # Duraciones y overlaps disponibles
 DURATIONS = [1, 2, 5, 10, 20, 30, 50]
@@ -140,7 +140,7 @@ def load_results_for_overlap(duration: int, k_folds: int) -> dict:
 
     Retorna: dict[overlap_ratio] -> resultado
     """
-    results_path = ROOT_DIR / f"{duration}seg" / "resultados.json"
+    results_path = ROOT_DIR / "projects" / f"{duration}seg" / "resultados.json"
 
     if not results_path.exists():
         return {}
@@ -186,7 +186,7 @@ def load_infer_for_overlap(duration: int, k_folds: int) -> dict:
 
     Retorna: dict[overlap_ratio] -> resultado
     """
-    infer_path = ROOT_DIR / f"{duration}seg" / "inferencia.json"
+    infer_path = ROOT_DIR / "projects" / f"{duration}seg" / "inferencia.json"
 
     if not infer_path.exists():
         return {}
@@ -384,7 +384,7 @@ def plot_overlap_comparison(
     plt.tight_layout()
 
     if save:
-        out_dir = ROOT_DIR / f"{duration}seg" / "metricas"
+        out_dir = ROOT_DIR / "projects" / f"{duration}seg" / "metricas"
         out_dir.mkdir(exist_ok=True)
         out_path = out_dir / f"overlap_comparison_k{k_folds:02d}.png"
         plt.savefig(out_path, dpi=150, bbox_inches="tight")
@@ -477,7 +477,7 @@ def plot_overlap_all_durations(k_folds: int, metric: str, save: bool, lang: str 
     plt.tight_layout(rect=[0, 0, 0.85, 1])
 
     if save:
-        out_dir = ROOT_DIR / "scripts" / "img"
+        out_dir = ROOT_DIR / "projects/scripts" / "img"
         out_dir.mkdir(exist_ok=True)
         out_path = out_dir / f"overlap_all_durations_{metric_suffix}_k{k_folds:02d}.png"
         plt.savefig(out_path, dpi=150, bbox_inches="tight")
@@ -587,7 +587,7 @@ def plot_heatmap(k_folds: int, save: bool, lang: str = "es"):
     plt.tight_layout(rect=[0, 0, 1, 0.96])
 
     if save:
-        out_dir = ROOT_DIR / "scripts" / "img"
+        out_dir = ROOT_DIR / "projects/scripts" / "img"
         out_dir.mkdir(exist_ok=True)
         out_path = out_dir / f"heatmap_overlap_k{k_folds:02d}.png"
         plt.savefig(out_path, dpi=150, bbox_inches="tight")
@@ -611,7 +611,7 @@ def plot_segments_vs_overlap(k_folds: int, save: bool, lang: str = "es"):
     }
 
     for dur in DURATIONS:
-        stats_path = ROOT_DIR / f"{dur}seg" / "data_stats.json"
+        stats_path = ROOT_DIR / "projects" / f"{dur}seg" / "data_stats.json"
         if not stats_path.exists():
             continue
 
@@ -658,7 +658,7 @@ def plot_segments_vs_overlap(k_folds: int, save: bool, lang: str = "es"):
     plt.tight_layout()
 
     if save:
-        out_dir = ROOT_DIR / "scripts" / "img"
+        out_dir = ROOT_DIR / "projects/scripts" / "img"
         out_dir.mkdir(exist_ok=True)
         out_path = out_dir / "segments_vs_overlap.png"
         plt.savefig(out_path, dpi=150, bbox_inches="tight")

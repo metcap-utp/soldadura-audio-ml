@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Directorio raíz del proyecto
-ROOT_DIR = Path(__file__).parent.parent
+ROOT_DIR = Path(__file__).parent.parent.parent
 
 # Duraciones disponibles
 DURATION_DIRS = ["01seg", "02seg", "05seg", "10seg", "20seg", "30seg", "50seg"]
@@ -64,7 +64,7 @@ def load_all_results(k_folds: int = None) -> dict:
     results_by_duration = {}
 
     for duration_dir in DURATION_DIRS:
-        results_path = ROOT_DIR / duration_dir / "resultados.json"
+        results_path = ROOT_DIR / "projects" / duration_dir / "resultados.json"
 
         if not results_path.exists():
             continue
@@ -238,14 +238,14 @@ def plot_metrics_vs_duration(
         filename = f"metricas_vs_duracion{suffix}_{metric}.png"
         duration_dirs = metrics.get("duration_dirs", [])
         if not duration_dirs:
-            img_dir = ROOT_DIR / "img"
+            img_dir = ROOT_DIR / "projects/img"
             img_dir.mkdir(exist_ok=True)
             output_path = img_dir / filename
             plt.savefig(output_path, dpi=150, bbox_inches="tight")
             print(f"Gráfica guardada en: {output_path}")
         else:
             for duration_dir in duration_dirs:
-                output_dir = ROOT_DIR / duration_dir / "metricas"
+                output_dir = ROOT_DIR / "projects" / duration_dir / "metricas"
                 output_dir.mkdir(exist_ok=True)
                 output_path = output_dir / filename
                 plt.savefig(output_path, dpi=150, bbox_inches="tight")

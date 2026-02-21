@@ -14,13 +14,13 @@ from datetime import datetime
 from pathlib import Path
 
 # Directorios
-ROOT_DIR = Path(__file__).parent.parent
+ROOT_DIR = Path(__file__).parent.parent.parent
 DURACIONES = ["01seg", "02seg", "05seg", "10seg", "20seg", "30seg", "50seg"]
 
 
 def load_stats_from_duration(duration: str) -> dict | None:
     """Carga estadísticas de una duración específica."""
-    stats_path = ROOT_DIR / duration / "data_stats.json"
+    stats_path = ROOT_DIR / "projects" / duration / "data_stats.json"
     if stats_path.exists():
         with open(stats_path, "r", encoding="utf-8") as f:
             return json.load(f)
