@@ -16,19 +16,19 @@ Clasificar audio de soldadura en tres tareas:
 soldadura/
 ├── entrenar.py               # Script de entrenamiento (consolidado)
 ├── generar_splits.py          # Generación de splits (consolidado)
-├── infer.py                   # Inferencia y evaluación (consolidado)
+├── inferir.py                 # Inferencia y evaluación (consolidado)
 ├── modelo.py                  # Arquitectura X-Vector
+├── {N}seg/                    # Datos y modelos por duración (1,2,5,10,20,30,50)
+│   ├── train.csv / test.csv / blind.csv
+│   ├── resultados.json / inferencia.json / data_stats.json
+│   ├── models/
+│   │   └── k{K}_overlap_{ratio}/    # Modelos organizados por K y overlap
+│   ├── metricas/
+│   └── matrices_confusion/
 ├── audio/                     # Audios originales completos
 │   ├── Placa_3mm/
 │   ├── Placa_6mm/
 │   └── Placa_12mm/
-├── {N}seg/                    # Datos y modelos por duración (1,2,5,10,20,30,50)
-│   ├── train.csv / test.csv / blind.csv
-│   ├── results.json / infer.json / data_stats.json
-│   ├── models/
-│   │   └── k{K}_overlap_{ratio}/    # Modelos organizados por K y overlap
-│   ├── metricas/
-│   └── confusion_matrices/
 ├── utils/                     # Utilidades de audio y timing
 └── scripts/                   # Scripts de análisis y visualización
     ├── graficar_folds.py      # Métricas vs K-folds
@@ -77,22 +77,22 @@ Los modelos se guardan en:
 
 ```bash
 # Evaluar ensemble en conjunto blind
-python infer.py --duration 5 --overlap 0.5 --evaluar
-python infer.py --duration 5 --overlap 0.5 --evaluar --k-folds 10
+python inferir.py --duration 5 --overlap 0.5 --evaluar
+python inferir.py --duration 5 --overlap 0.5 --evaluar --k-folds 10
 ```
 
 ### 5. Predecir un audio específico
 
 ```bash
-python infer.py --duration 5 --overlap 0.5 --audio ruta/al/archivo.wav
+python inferir.py --duration 5 --overlap 0.5 --audio ruta/al/archivo.wav
 ```
 
 ## Resultados
 
 Los resultados se guardan automáticamente en:
 
-- `results.json` - Métricas de entrenamiento (acumulativo)
-- `infer.json` - Métricas de evaluación (acumulativo)
+- `resultados.json` - Métricas de entrenamiento (acumulativo)
+- `inferencia.json` - Métricas de evaluación (acumulativo)
 - `METRICAS.md` - Documento Markdown con matrices de confusión
 
 Cada entrada incluye información para identificar el experimento:
@@ -116,11 +116,11 @@ python entrenar.py --duration 5 --overlap 0.0 --k-folds 5
 python entrenar.py --duration 5 --overlap 0.75 --k-folds 5
 
 # Evaluar cada configuración
-python infer.py --duration 5 --overlap 0.5 --evaluar --k-folds 5
-python infer.py --duration 5 --overlap 0.5 --evaluar --k-folds 10
+python inferir.py --duration 5 --overlap 0.5 --evaluar --k-folds 5
+python inferir.py --duration 5 --overlap 0.5 --evaluar --k-folds 10
 ```
 
-Luego revisa `{N}seg/results.json` y `{N}seg/infer.json` para comparar métricas.
+Luego revisa `{N}seg/resultados.json` y `{N}seg/inferencia.json` para comparar métricas.
 
 ## Visualización de Resultados
 

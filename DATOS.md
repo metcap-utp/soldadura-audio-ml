@@ -256,4 +256,4 @@ Las sesiones son las mismas para todas las duraciones, solo cambia el número de
 - Los **segmentos** se generan on-the-fly dividiendo cada grabación según la duración especificada
 - El split estratificado garantiza proporciones similares de etiquetas en cada conjunto
 - **Blind** es el conjunto de validación final (nunca usado durante desarrollo)
-- Los datos de cada duración se generan ejecutando `python Xseg/generar_splits.py`
+- Los datos de cada duración se generan ejecutando `python generar_splits.py --duration X`

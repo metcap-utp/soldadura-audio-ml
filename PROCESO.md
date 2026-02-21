@@ -16,15 +16,90 @@ A partir de un audio de soldadura, el sistema predice automáticamente:
 
 ---
 
-## 2. Preparación del Entorno
+## 2. Extracción de Características de Audio
 
-### 2.1 Requisitos del Sistema
+### 2.1 ¿Qué son los MFCCs?
+
+Los **MFCCs (Mel-Frequency Cepstral Coefficients)** son coeficientes que representan el espectro de potencia de una señal de audio de forma compacta, modelando cómo los humanos percibimos el sonido.
+
+### 2.2 Proceso de Extracción de MFCCs
+
+```python
+import librosa
+import numpy as np
+
+def extraer_mfccs(audio_path, n_mfcc=13, duracion=5.0):
+    """
+    Extrae MFCCs de un archivo de audio.
+    
+    Args:
+        audio_path: Ruta al archivo .wav
+        n_mfcc: Número de coeficientes MFCC (default: 13)
+        duracion: Duración en segundos a procesar
+    
+    Returns:
+        mfccs: Array de shape [n_mfcc, n_frames]
+    """
+    # 1. Cargar audio a 16kHz, mono
+    y, sr = librosa.load(audio_path, sr=16000, mono=True)
+    
+    # 2. Extraer MFCCs
+    mfccs = librosa.feature.mfcc(
+        y=y, 
+        sr=sr, 
+        n_mfcc=n_mfcc,      # Número de coeficientes
+        n_fft=2048,         # Tamaño de ventana FFT
+        hop_length=512,     # Desplazamiento entre ventanas
+        n_mels=40           # Número de bandas mel
+    )
+    
+    return mfccs
+
+# Ejemplo de uso
+mfccs = extraer_mfccs("audio/ejemplo.wav")
+print(f"Forma MFCCs: {mfccs.shape}")  # [13, n_frames]
+```
+
+### 2.3 Parámetros Clave
+
+| Parámetro | Valor típico | Descripción |
+|-----------|--------------|-------------|
+| `n_mfcc` | 13 | Número de coeficientes (12-40) |
+| `n_fft` | 2048 | Tamaño de ventana FFT (ms) |
+| `hop_length` | 512 | Salto entre ventanas (overlap) |
+| `n_mels` | 40 | Número de filtros mel |
+| `sr` | 16000 Hz | Sample rate |
+
+### 2.4 Proceso Paso a Paso
+
+1. **Pre-enfasis**: Acentúa altas frecuencias (filtro H(z) = 1 - 0.97z⁻¹)
+2. **Ventaneo**: Divide en ventanas de 20-40ms con solapamiento
+3. **FFT**: Transformada rápida de Fourier por ventana
+4. **Escala Mel**: Aplica escala logarítmica perceptual
+5. **DCT**: Transformada coseno discreta → coeficientes MFCC
+
+### 2.5 MFCCs vs VGGish (usado en este proyecto)
+
+| Característica | MFCCs | VGGish |
+|----------------|-------|--------|
+| **Tipo** | Hand-crafted (ingeniería) | Deep learning (pre-entrenado) |
+| **Dimensiones** | [n_mfcc, tiempo] | [tiempo, 128] |
+| **Ventaja** | Rápido, interpretable | Captura patrones complejos |
+| **Uso** | Clásico ML, GMM-HMM | Deep learning moderno |
+
+**Este proyecto usa VGGish** porque captura mejor las características complejas del audio de soldadura.
+
+---
+
+## 3. Preparación del Entorno
+
+### 3.1 Requisitos del Sistema
 
 - Python 3.8+
 - FFmpeg (para extracción de audio)
 - CUDA (opcional, para GPU)
 
-### 2.2 Dependencias Python
+### 3.2 Dependencias Python
 
 ```bash
 pip install torch torchaudio librosa pandas numpy scikit-learn tensorflow tensorflow-hub
@@ -32,22 +107,22 @@ pip install torch torchaudio librosa pandas numpy scikit-learn tensorflow tensor
 
 ---
 
-## 3. Extracción de Audio desde Videos
+## 4. Extracción de Audio desde Videos
 
-### 3.1 Ejecutar la Extracción
+### 4.1 Ejecutar la Extracción
 
 ```bash
 # Vista previa (sin ejecutar)
-python scripts/extract_and_organize_audio.py --dry-run --videos-dir videos-soldadura
+python scripts/extraer_y_organizar_audio.py --dry-run --videos-dir videos-soldadura
 
 # Extracción real
-python scripts/extract_and_organize_audio.py \
+python scripts/extraer_y_organizar_audio.py \
     --videos-dir videos-soldadura \
     --output-dir audio \
     --samplerate 16000
 ```
 
-### 3.2 Parámetros de Extracción
+### 4.2 Parámetros de Extracción
 
 | Parámetro   | Valor          | Descripción            |
 | ----------- | -------------- | ---------------------- |
@@ -55,7 +130,7 @@ python scripts/extract_and_organize_audio.py \
 | Canales     | Mono           | Un solo canal de audio |
 | Formato     | WAV PCM 16-bit | Sin pérdida de calidad |
 
-### 3.3 Estructura de Audio Resultante
+### 4.3 Estructura de Audio Resultante
 
 ```
 audio/
@@ -70,9 +145,9 @@ audio/
 
 ---
 
-## 4. Segmentación de Audio
+## 5. Segmentación de Audio
 
-### 4.1 Parámetros de Segmentación
+### 5.1 Parámetros de Segmentación
 
 | Carpeta | Duración segmento | Hop (salto) | Solapamiento |
 | ------- | ----------------- | ----------- | ------------ |
@@ -82,7 +157,7 @@ audio/
 | 10seg/  | 10 segundos       | 5 seg       | 50%          |
 | 30seg/  | 30 segundos       | 15 seg      | 50%          |
 
-### 4.2 Segmentación On-the-fly
+### 5.2 Segmentación On-the-fly
 
 Los segmentos NO se guardan como archivos separados. El sistema los calcula dinámicamente durante el entrenamiento:
 
@@ -92,9 +167,9 @@ segmentos = floor((duracion_audio - duracion_segmento) / hop) + 1
 
 ---
 
-## 5. División de Datos
+## 6. División de Datos
 
-### 5.1 Ejecutar Generación de Splits
+### 6.1 Ejecutar Generación de Splits
 
 ```bash
 # Desde la raíz del proyecto
@@ -103,7 +178,7 @@ python generar_splits.py --duration 10 --overlap 0.0
 python generar_splits.py --duration 30 --overlap 0.75
 ```
 
-### 5.2 Conjuntos Generados
+### 6.2 Conjuntos Generados
 
 | Archivo      | Porcentaje | Propósito                              |
 | ------------ | ---------- | -------------------------------------- |
@@ -112,13 +187,13 @@ python generar_splits.py --duration 30 --overlap 0.75
 | blind.csv  | 10%        | Evaluación final (nunca en desarrollo) |
 | completo.csv | 100%       | Referencia con columna Split           |
 
-### 5.3 Prevención de Data Leakage
+### 6.3 Prevención de Data Leakage
 
 El sistema utiliza `StratifiedGroupKFold` para garantizar que todos los segmentos de una misma sesión permanezcan en el mismo conjunto, evitando que el modelo memorice características de grabaciones específicas.
 
 ---
 
-## 6. Extracción de Características con VGGish
+## 7. Extracción de Características con VGGish
 
 VGGish es una red neuronal pre-entrenada que convierte audio en embeddings:
 
@@ -129,7 +204,7 @@ VGGish es una red neuronal pre-entrenada que convierte audio en embeddings:
 
 ---
 
-## 7. Arquitectura del Modelo
+## 8. Arquitectura del Modelo
 
 El modelo SMAWXVectorModel procesa los embeddings de VGGish:
 
@@ -170,8 +245,8 @@ Entrada: Embeddings VGGish [T, 128]
 
 ---
 
-## 8. Entrenamiento
-## 12. Metodología y Métricas de Evaluación
+## 9. Entrenamiento
+## 13. Metodología y Métricas de Evaluación
 
 ### Ensemble de Modelos
 
@@ -250,7 +325,7 @@ Donde:
 - **FN** (False Negatives): Casos de la clase no detectados
 
 ## 13. Resumen
-### 8.1 Ejecutar Entrenamiento
+### 9.1 Ejecutar Entrenamiento
 
 ```bash
 # Desde la raíz del proyecto
@@ -258,7 +333,7 @@ python entrenar.py --duration 5 --overlap 0.5 --k-folds 5
 python entrenar.py --duration 10 --overlap 0.0 --k-folds 10
 ```
 
-### 8.2 Hiperparámetros
+### 9.2 Hiperparámetros
 
 | Parámetro       | Valor  | Descripción                         |
 | --------------- | ------ | ----------------------------------- |
@@ -270,7 +345,7 @@ python entrenar.py --duration 10 --overlap 0.0 --k-folds 10
 | Early stopping  | 15     | Épocas sin mejora antes de parar    |
 | K-Folds         | 5      | Particiones de validación cruzada   |
 
-### 8.3 Validación Cruzada K-Fold
+### 9.3 Validación Cruzada K-Fold
 
 Se entrenan 5 modelos, cada uno validando con un fold diferente:
 
@@ -285,7 +360,7 @@ Fold 4: Train=193 sesiones, Val=48 sesiones --> model_fold_3.pth
 Fold 5: Train=193 sesiones, Val=48 sesiones --> model_fold_4.pth
 ```
 
-### 8.4 Técnicas de Entrenamiento
+### 9.4 Técnicas de Entrenamiento
 
 - **AdamW**: Optimizador con weight decay desacoplado
 - **CrossEntropyLoss**: Función de pérdida con label smoothing
@@ -295,9 +370,9 @@ Fold 5: Train=193 sesiones, Val=48 sesiones --> model_fold_4.pth
 
 ---
 
-## 9. Evaluación en Blind
+## 10. Evaluación en Blind
 
-### 9.1 Ejecutar Inferencia
+### 10.1 Ejecutar Inferencia
 
 ```bash
 # Desde la raíz del proyecto
@@ -306,7 +381,7 @@ python inferir.py --duration 5 --overlap 0.5 --audio ruta.wav
 python inferir.py --duration 10 --overlap 0.0 --k-folds 10 --evaluar
 ```
 
-### 9.2 Ensemble con Soft Voting
+### 10.2 Ensemble con Soft Voting
 
 Los 5 modelos se combinan promediando sus logits antes de aplicar argmax:
 
@@ -332,7 +407,7 @@ Audio de entrada
     argmax --> Prediccion final
 ```
 
-### 9.3 Métricas
+### 10.3 Métricas
 
 | Métrica  | Descripción                          |
 | -------- | ------------------------------------ |
@@ -341,7 +416,7 @@ Audio de entrada
 
 ---
 
-## 10. Archivos Generados
+## 11. Archivos Generados
 
 ```
 # Scripts consolidados en la raíz:
@@ -367,7 +442,7 @@ inferir.py                   # --duration, --overlap, --k-folds, --evaluar
 
 ---
 
-## 11. Diagrama de Flujo Completo
+## 12. Diagrama de Flujo Completo
 
 ```
 +-------------------------------------------------------------------------+
@@ -379,7 +454,7 @@ inferir.py                   # --duration, --overlap, --k-folds, --evaluar
 |                     |                                                   |
 |                     v                                                   |
 |  +------------------------------------------+                           |
-|  | extract_and_organize_audio.py            |                           |
+|  | extraer_y_organizar_audio.py            |                           |
 |  | (FFmpeg: -vn -ar 16000 -ac 1 pcm_s16le)  |                           |
 |  +------------------------------------------+                           |
 |                     |                                                   |
@@ -511,7 +586,7 @@ inferir.py                   # --duration, --overlap, --k-folds, --evaluar
 
 ---
 
-## 12. Resumen
+## 14. Resumen
 
 El sistema de clasificación de audio SMAW transforma grabaciones de soldadura en predicciones automáticas de tres parámetros: espesor de placa, tipo de electrodo y tipo de corriente.
 

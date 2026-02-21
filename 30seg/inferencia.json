@@ -188,7 +188,8 @@
         "DC"
       ]
     },
-    "timestamp": "2026-01-21T22:28:22.432945"
+    "timestamp": "2026-01-21T22:28:22.432945",
+    "model_type": "xvector"
   },
   {
     "mode": "blind_evaluation",
@@ -383,7 +384,8 @@
         "DC"
       ]
     },
-    "timestamp": "2026-01-23T22:40:27.282483"
+    "timestamp": "2026-01-23T22:40:27.282483",
+    "model_type": "xvector"
   },
   {
     "mode": "blind_evaluation",
@@ -596,7 +598,8 @@
       "seconds": 21.41,
       "minutes": 0.36,
       "hours": 0.0059
-    }
+    },
+    "model_type": "xvector"
   },
   {
     "mode": "blind_evaluation",
@@ -809,7 +812,8 @@
       "seconds": 21.21,
       "minutes": 0.35,
       "hours": 0.0059
-    }
+    },
+    "model_type": "xvector"
   },
   {
     "mode": "blind_evaluation",
@@ -1022,7 +1026,8 @@
       "seconds": 23.96,
       "minutes": 0.4,
       "hours": 0.0067
-    }
+    },
+    "model_type": "xvector"
   },
   {
     "mode": "blind_evaluation",
@@ -1235,7 +1240,8 @@
       "seconds": 23.96,
       "minutes": 0.4,
       "hours": 0.0067
-    }
+    },
+    "model_type": "xvector"
   },
   {
     "mode": "blind_evaluation",
@@ -1448,7 +1454,8 @@
       "seconds": 31.24,
       "minutes": 0.52,
       "hours": 0.0087
-    }
+    },
+    "model_type": "xvector"
   },
   {
     "mode": "blind_evaluation",
@@ -1661,7 +1668,8 @@
       "seconds": 31.78,
       "minutes": 0.53,
       "hours": 0.0088
-    }
+    },
+    "model_type": "xvector"
   },
   {
     "mode": "blind_evaluation",
@@ -1874,7 +1882,8 @@
       "seconds": 55.94,
       "minutes": 0.93,
       "hours": 0.0155
-    }
+    },
+    "model_type": "xvector"
   },
   {
     "mode": "blind_evaluation",
@@ -2087,6 +2096,437 @@
       "seconds": 56.86,
       "minutes": 0.95,
       "hours": 0.0158
+    },
+    "model_type": "xvector"
+  },
+  {
+    "mode": "blind_evaluation",
+    "id": "30seg_k10_overlap_0.5",
+    "model_type": "xvector",
+    "segment_duration": 30.0,
+    "overlap_ratio": 0.5,
+    "overlap_seconds": 15.0,
+    "n_samples": 113,
+    "n_models": 10,
+    "voting_method": "soft",
+    "global_metrics": {
+      "exact_match_accuracy": 0.6814159292035398,
+      "hamming_accuracy": 0.8495575221238938
+    },
+    "accuracy": {
+      "plate_thickness": 0.6991150442477876,
+      "electrode": 0.8938053097345132,
+      "current_type": 0.9557522123893806
+    },
+    "macro_f1": {
+      "plate_thickness": 0.703968253968254,
+      "electrode": 0.8844871794871796,
+      "current_type": 0.9523970005897717
+    },
+    "classification_reports": {
+      "plate_thickness": {
+        "Placa_12mm": {
+          "precision": 0.6428571428571429,
+          "recall": 0.9,
+          "f1-score": 0.75,
+          "support": 30.0
+        },
+        "Placa_3mm": {
+          "precision": 0.6341463414634146,
+          "recall": 0.896551724137931,
+          "f1-score": 0.7428571428571429,
+          "support": 29.0
+        },
+        "Placa_6mm": {
+          "precision": 0.8666666666666667,
+          "recall": 0.48148148148148145,
+          "f1-score": 0.6190476190476191,
+          "support": 54.0
+        },
+        "accuracy": 0.6991150442477876,
+        "macro avg": {
+          "precision": 0.7145567169957414,
+          "recall": 0.7593444018731375,
+          "f1-score": 0.703968253968254,
+          "support": 113.0
+        },
+        "weighted avg": {
+          "precision": 0.7475748512225958,
+          "recall": 0.6991150442477876,
+          "f1-score": 0.6855878634639697,
+          "support": 113.0
+        }
+      },
+      "electrode": {
+        "E6010": {
+          "precision": 0.7368421052631579,
+          "recall": 1.0,
+          "f1-score": 0.8484848484848485,
+          "support": 14.0
+        },
+        "E6011": {
+          "precision": 0.9736842105263158,
+          "recall": 1.0,
+          "f1-score": 0.9866666666666667,
+          "support": 37.0
+        },
+        "E6013": {
+          "precision": 0.8214285714285714,
+          "recall": 0.9583333333333334,
+          "f1-score": 0.8846153846153846,
+          "support": 24.0
+        },
+        "E7018": {
+          "precision": 0.9642857142857143,
+          "recall": 0.7105263157894737,
+          "f1-score": 0.8181818181818182,
+          "support": 38.0
+        },
+        "accuracy": 0.8938053097345132,
+        "macro avg": {
+          "precision": 0.8740601503759399,
+          "recall": 0.9172149122807018,
+          "f1-score": 0.8844871794871796,
+          "support": 113.0
+        },
+        "weighted avg": {
+          "precision": 0.9088429037194756,
+          "recall": 0.8938053097345132,
+          "f1-score": 0.8912135651958661,
+          "support": 113.0
+        }
+      },
+      "current_type": {
+        "AC": {
+          "precision": 0.9069767441860465,
+          "recall": 0.975,
+          "f1-score": 0.9397590361445783,
+          "support": 40.0
+        },
+        "DC": {
+          "precision": 0.9857142857142858,
+          "recall": 0.9452054794520548,
+          "f1-score": 0.965034965034965,
+          "support": 73.0
+        },
+        "accuracy": 0.9557522123893806,
+        "macro avg": {
+          "precision": 0.9463455149501661,
+          "recall": 0.9601027397260273,
+          "f1-score": 0.9523970005897717,
+          "support": 113.0
+        },
+        "weighted avg": {
+          "precision": 0.9578425895980948,
+          "recall": 0.9557522123893806,
+          "f1-score": 0.9560877335693413,
+          "support": 113.0
+        }
+      }
+    },
+    "confusion_matrices": {
+      "plate_thickness": [
+        [
+          27,
+          0,
+          3
+        ],
+        [
+          2,
+          26,
+          1
+        ],
+        [
+          13,
+          15,
+          26
+        ]
+      ],
+      "electrode": [
+        [
+          14,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          37,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          23,
+          1
+        ],
+        [
+          5,
+          1,
+          5,
+          27
+        ]
+      ],
+      "current_type": [
+        [
+          39,
+          1
+        ],
+        [
+          4,
+          69
+        ]
+      ]
+    },
+    "classes": {
+      "plate_thickness": [
+        "Placa_12mm",
+        "Placa_3mm",
+        "Placa_6mm"
+      ],
+      "electrode": [
+        "E6010",
+        "E6011",
+        "E6013",
+        "E7018"
+      ],
+      "current_type": [
+        "AC",
+        "DC"
+      ]
+    },
+    "timestamp": "2026-02-19T06:59:35.497131",
+    "config": {
+      "train_seconds": 30,
+      "test_seconds": 30.0,
+      "overlap_ratio": 0.5,
+      "overlap_seconds": 15.0,
+      "k_folds": 10,
+      "model_type": "xvector",
+      "models_dir": "/home/luis/projects/vggish-backbone/30seg/modelos/xvector/k10_overlap_0.5",
+      "train_dir": "/home/luis/projects/vggish-backbone/30seg",
+      "test_dir": "/home/luis/projects/vggish-backbone/30seg"
+    },
+    "execution_time": {
+      "seconds": 28.38,
+      "minutes": 0.47,
+      "hours": 0.0079
+    }
+  },
+  {
+    "mode": "blind_evaluation",
+    "id": "30seg_k10_overlap_0.5",
+    "model_type": "xvector",
+    "segment_duration": 30.0,
+    "overlap_ratio": 0.5,
+    "overlap_seconds": 15.0,
+    "n_samples": 113,
+    "n_models": 10,
+    "voting_method": "soft",
+    "global_metrics": {
+      "exact_match_accuracy": 0.6814159292035398,
+      "hamming_accuracy": 0.8495575221238938
+    },
+    "accuracy": {
+      "plate_thickness": 0.6991150442477876,
+      "electrode": 0.8938053097345132,
+      "current_type": 0.9557522123893806
+    },
+    "macro_f1": {
+      "plate_thickness": 0.703968253968254,
+      "electrode": 0.8844871794871796,
+      "current_type": 0.9523970005897717
+    },
+    "classification_reports": {
+      "plate_thickness": {
+        "Placa_12mm": {
+          "precision": 0.6428571428571429,
+          "recall": 0.9,
+          "f1-score": 0.75,
+          "support": 30.0
+        },
+        "Placa_3mm": {
+          "precision": 0.6341463414634146,
+          "recall": 0.896551724137931,
+          "f1-score": 0.7428571428571429,
+          "support": 29.0
+        },
+        "Placa_6mm": {
+          "precision": 0.8666666666666667,
+          "recall": 0.48148148148148145,
+          "f1-score": 0.6190476190476191,
+          "support": 54.0
+        },
+        "accuracy": 0.6991150442477876,
+        "macro avg": {
+          "precision": 0.7145567169957414,
+          "recall": 0.7593444018731375,
+          "f1-score": 0.703968253968254,
+          "support": 113.0
+        },
+        "weighted avg": {
+          "precision": 0.7475748512225958,
+          "recall": 0.6991150442477876,
+          "f1-score": 0.6855878634639697,
+          "support": 113.0
+        }
+      },
+      "electrode": {
+        "E6010": {
+          "precision": 0.7368421052631579,
+          "recall": 1.0,
+          "f1-score": 0.8484848484848485,
+          "support": 14.0
+        },
+        "E6011": {
+          "precision": 0.9736842105263158,
+          "recall": 1.0,
+          "f1-score": 0.9866666666666667,
+          "support": 37.0
+        },
+        "E6013": {
+          "precision": 0.8214285714285714,
+          "recall": 0.9583333333333334,
+          "f1-score": 0.8846153846153846,
+          "support": 24.0
+        },
+        "E7018": {
+          "precision": 0.9642857142857143,
+          "recall": 0.7105263157894737,
+          "f1-score": 0.8181818181818182,
+          "support": 38.0
+        },
+        "accuracy": 0.8938053097345132,
+        "macro avg": {
+          "precision": 0.8740601503759399,
+          "recall": 0.9172149122807018,
+          "f1-score": 0.8844871794871796,
+          "support": 113.0
+        },
+        "weighted avg": {
+          "precision": 0.9088429037194756,
+          "recall": 0.8938053097345132,
+          "f1-score": 0.8912135651958661,
+          "support": 113.0
+        }
+      },
+      "current_type": {
+        "AC": {
+          "precision": 0.9069767441860465,
+          "recall": 0.975,
+          "f1-score": 0.9397590361445783,
+          "support": 40.0
+        },
+        "DC": {
+          "precision": 0.9857142857142858,
+          "recall": 0.9452054794520548,
+          "f1-score": 0.965034965034965,
+          "support": 73.0
+        },
+        "accuracy": 0.9557522123893806,
+        "macro avg": {
+          "precision": 0.9463455149501661,
+          "recall": 0.9601027397260273,
+          "f1-score": 0.9523970005897717,
+          "support": 113.0
+        },
+        "weighted avg": {
+          "precision": 0.9578425895980948,
+          "recall": 0.9557522123893806,
+          "f1-score": 0.9560877335693413,
+          "support": 113.0
+        }
+      }
+    },
+    "confusion_matrices": {
+      "plate_thickness": [
+        [
+          27,
+          0,
+          3
+        ],
+        [
+          2,
+          26,
+          1
+        ],
+        [
+          13,
+          15,
+          26
+        ]
+      ],
+      "electrode": [
+        [
+          14,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          37,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          23,
+          1
+        ],
+        [
+          5,
+          1,
+          5,
+          27
+        ]
+      ],
+      "current_type": [
+        [
+          39,
+          1
+        ],
+        [
+          4,
+          69
+        ]
+      ]
+    },
+    "classes": {
+      "plate_thickness": [
+        "Placa_12mm",
+        "Placa_3mm",
+        "Placa_6mm"
+      ],
+      "electrode": [
+        "E6010",
+        "E6011",
+        "E6013",
+        "E7018"
+      ],
+      "current_type": [
+        "AC",
+        "DC"
+      ]
+    },
+    "timestamp": "2026-02-19T18:39:27.634383",
+    "config": {
+      "train_seconds": 30,
+      "test_seconds": 30.0,
+      "overlap_ratio": 0.5,
+      "overlap_seconds": 15.0,
+      "k_folds": 10,
+      "model_type": "xvector",
+      "models_dir": "/home/luis/projects/vggish-backbone/30seg/modelos/xvector/k10_overlap_0.5",
+      "train_dir": "/home/luis/projects/vggish-backbone/30seg",
+      "test_dir": "/home/luis/projects/vggish-backbone/30seg"
+    },
+    "execution_time": {
+      "seconds": 33.33,
+      "minutes": 0.56,
+      "hours": 0.0093
     }
   }
 ]
