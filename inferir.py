@@ -606,7 +606,7 @@ def evaluate_blind_set(
     results = {
         "mode": "blind_evaluation",
         "id": f"{ctx['test_seconds']}seg_k{ctx['n_models']:02d}_overlap_{ctx['overlap_ratio']}",
-        "model_type": "xvector",
+        "model_type": ctx["config_dict"]["model_type"],
         "segment_duration": ctx["segment_duration"],
         "overlap_ratio": ctx["overlap_ratio"],
         "overlap_seconds": ctx["overlap_seconds"],
