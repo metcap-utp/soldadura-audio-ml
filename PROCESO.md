@@ -348,8 +348,8 @@ Donde:
 ### 9.1 Ejecutar Entrenamiento
 
 ```bash
-# X-Vector (por defecto)
-python entrenar.py --duration 5 --overlap 0.5 --k-folds 5
+# X-Vector
+python entrenar_xvector.py --duration 5 --overlap 0.5 --k-folds 5
 
 # ECAPA-TDNN
 python entrenar_ecapa.py --duration 5 --overlap 0.5 --k-folds 5
@@ -445,7 +445,7 @@ Audio de entrada
 
 ```
 # Scripts de entrenamiento:
-entrenar.py               # X-Vector (principal)
+entrenar_xvector.py       # X-Vector
 entrenar_ecapa.py         # ECAPA-TDNN
 entrenar_feedforward.py   # FeedForward
 generar_splits.py         # --duration, --overlap
@@ -638,7 +638,7 @@ El sistema de clasificación de audio SMAW transforma grabaciones de soldadura e
 
 | Arquitectura | Archivo | Características |
 |--------------|---------|-----------------|
-| X-Vector | `entrenar.py` / `modelo_xvector.py` | Balance velocidad/precisión |
+| X-Vector | `entrenar_xvector.py` / `modelo_xvector.py` | Balance velocidad/precisión |
 | ECAPA-TDNN | `entrenar_ecapa.py` / `modelo_ecapa.py` | Máxima precisión |
 | FeedForward | `entrenar_feedforward.py` / `modelo_feedforward.py` | Baseline rápido |
 

@@ -13,16 +13,16 @@ Todos los comandos se ejecutan desde la raíz del proyecto (`soldadura/`).
 
 ## Entrenamiento
 
-### X-Vector (por defecto)
+### X-Vector
 
 - Entrenar ensemble con 5 folds y 50% de solapamiento:
-  - `python entrenar.py --duration 10 --overlap 0.5 --k-folds 5`
+  - `python entrenar_xvector.py --duration 10 --overlap 0.5 --k-folds 5`
 
 - Entrenar ensemble con 10 folds y sin solapamiento:
-  - `python entrenar.py --duration 30 --overlap 0.0 --k-folds 10`
+  - `python entrenar_xvector.py --duration 30 --overlap 0.0 --k-folds 10`
 
 - Entrenar sin usar caché de embeddings:
-  - `python entrenar.py --duration 5 --overlap 0.5 --k-folds 5 --no-cache`
+  - `python entrenar_xvector.py --duration 5 --overlap 0.5 --k-folds 5 --no-cache`
 
 ### ECAPA-TDNN
 

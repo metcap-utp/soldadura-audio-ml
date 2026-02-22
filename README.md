@@ -14,9 +14,9 @@ Clasificar audio de soldadura en tres tareas:
 
 ```
 soldadura/
-├── entrenar.py               # Script de entrenamiento X-Vector (principal)
-├── entrenar_ecapa.py         # Script de entrenamiento ECAPA-TDNN
-├── entrenar_feedforward.py   # Script de entrenamiento FeedForward
+├── entrenar_xvector.py       # Entrenamiento X-Vector
+├── entrenar_ecapa.py         # Entrenamiento ECAPA-TDNN
+├── entrenar_feedforward.py   # Entrenamiento FeedForward
 ├── generar_splits.py         # Generación de splits
 ├── inferir.py                # Inferencia y evaluación
 ├── modelo_xvector.py         # Arquitectura X-Vector
@@ -66,11 +66,11 @@ Esto genera en `{N}seg/`:
 ### 3. Entrenar modelos
 
 ```bash
-# Entrenar con 5 folds y overlap 50%
-python entrenar.py --duration 5 --overlap 0.5 --k-folds 5
+# Entrenar X-Vector con 5 folds y overlap 50%
+python entrenar_xvector.py --duration 5 --overlap 0.5 --k-folds 5
 
-# Entrenar con 10 folds sin overlap
-python entrenar.py --duration 10 --overlap 0.0 --k-folds 10
+# Entrenar X-Vector con 10 folds sin overlap
+python entrenar_xvector.py --duration 10 --overlap 0.0 --k-folds 10
 ```
 
 Los modelos se guardan en:
@@ -115,10 +115,10 @@ Se añadió una tabla comparativa de K para 10seg en [RESULTADOS.md](RESULTADOS.
 
 ```bash
 # Entrenar con diferentes k y overlap
-python entrenar.py --duration 5 --overlap 0.5 --k-folds 5
-python entrenar.py --duration 5 --overlap 0.5 --k-folds 10
-python entrenar.py --duration 5 --overlap 0.0 --k-folds 5
-python entrenar.py --duration 5 --overlap 0.75 --k-folds 5
+python entrenar_xvector.py --duration 5 --overlap 0.5 --k-folds 5
+python entrenar_xvector.py --duration 5 --overlap 0.5 --k-folds 10
+python entrenar_xvector.py --duration 5 --overlap 0.0 --k-folds 5
+python entrenar_xvector.py --duration 5 --overlap 0.75 --k-folds 5
 
 # Evaluar cada configuración
 python inferir.py --duration 5 --overlap 0.5 --evaluar --k-folds 5
@@ -138,8 +138,8 @@ Luego revisa `{N}seg/resultados.json` y `{N}seg/inferencia.json` para comparar m
 ### Entrenar con diferentes arquitecturas
 
 ```bash
-# X-Vector (por defecto)
-python entrenar.py --duration 5 --overlap 0.5 --k-folds 5
+# X-Vector
+python entrenar_xvector.py --duration 5 --overlap 0.5 --k-folds 5
 
 # ECAPA-TDNN
 python entrenar_ecapa.py --duration 5 --overlap 0.5 --k-folds 5

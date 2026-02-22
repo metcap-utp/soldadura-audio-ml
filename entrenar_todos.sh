@@ -204,7 +204,7 @@ for MODEL_NAME in "${MODELS[@]}"; do
         # Determinar script de entrenamiento
         case "$MODEL_NAME" in
             xvector)
-                TRAIN_SCRIPT="entrenar.py"
+                TRAIN_SCRIPT="entrenar_xvector.py"
                 ;;
             ecapa_tdnn)
                 TRAIN_SCRIPT="entrenar_ecapa.py"
